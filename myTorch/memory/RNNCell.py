@@ -1,13 +1,11 @@
 import torch
-from torch.autograd import Variable
 import torch.nn as nn
-import torch.nn.functional as F
 
-class RNN(nn.Module):
+class RNNCell(nn.Module):
 
     def __init__(self, data_size, hidden_size, output_size):
         
-        super(RNN, self).__init__()
+        super(RNNCell, self).__init__()
 
         self.hidden_size = hidden_size
         input_size = data_size + hidden_size
