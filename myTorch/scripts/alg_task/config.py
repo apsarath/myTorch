@@ -14,7 +14,7 @@ def copy_task_RNN():
 	config.optim = "RMSProp"
 	config.momentum = 0.9
 	config.grad_clip = [-10, 10]
-	config.l_rate = 0.0001
+	config.l_rate = 0.01
 	config.max_steps = 1000000
 
 	# task specific details

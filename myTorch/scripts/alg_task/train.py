@@ -22,61 +22,62 @@ args = parser.parse_args()
 
 config = eval(args.config)()
 
-model = Recurrent(9, 256, 9, output_activation = "sigmoid")
+model = Recurrent(9, 256, 9, output_activation = None)
 
 data_gen = CopyDataGen(num_bits = config.num_bits, min_len = config.min_len, max_len = config.max_len)
 
 print config.l_rate
 
-optimizer = optim.SGD(model.parameters(), lr=config.l_rate, momentum=config.momentum)
-criteria = nn.BCELoss()
+optimizer = optim.RMSprop(model.parameters(), lr=config.l_rate, momentum=config.momentum)
+criteria = nn.BCEWithLogitsLoss()
+
+print model.Cell.num_parameters()
+print model.num_parameters()
 
 
+average = []
 for step in range(0, config.max_steps):
 
 	data = data_gen.next()
-	seqloss = []
-	for i in range(0, data["seqlen"]):
-		
-		#x = Variable(torch.randn(1,9))
-		#y = Variable(torch.randn(1,9))
-		x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])), requires_grad=True)
-		y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
-		for j in range(0,1000):
-			#optimizer.zero_grad()
 
+	#print data["seqlen"]
+	#print data["mask"]
+	#print data["mask"][-1]
+	#print data["x"]
+	#print data["y"]
+
+	for j in range(0, 1):
+		seqloss = 0
+		for i in range(0, data["datalen"]):
+			#print "i",i
 			
-			
-			mask = data['mask'][i]
-			#print "j", j
-			loss = (x-y).pow(2).sum()
-			#print output
+			x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
+			y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
+			#print x
 			#print y
-			#loss = criteria(output, y)
-			#print loss
-			#step_loss = loss
-			
+			#print data["mask"][i]
+			mask = float(data["mask"][i])
+			#print mask	
 
-			#seqloss.append(step_loss)
-			#autograd.backward(seqloss)
-			
-
-			loss.backward()
-			print loss.data[0]
-
-			x.data -= 0.01 * x.grad.data
-			x.grad.data.zero_()
-			#print y.grad
-			#print x.grad
-			#print model.b_o.grad
-			optimizer.step()
-
-			#print "hi"
-			#for param in model.parameters():
-			#	print param.grad.sum()
-			#print model.b_o.grad
-			model.reset_hidden()
 			optimizer.zero_grad()
-			#break
-		break
-	break
+
+				
+				
+			output = model(x)
+			#print torch.sigmoid(output)
+			loss = criteria(output, y)
+			#print loss.data[0]
+			seqloss += (loss*mask)
+				
+			#seqloss.append(step_loss)
+		seqloss /= sum(data["mask"])
+		average.append(seqloss.data[0])
+		print sum(average)/len(average)
+		seqloss.backward()
+		#seqloss.backward()
+
+		optimizer.step()
+
+		model.reset_hidden()
+		
+	#break

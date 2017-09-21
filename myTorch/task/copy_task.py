@@ -27,6 +27,7 @@ class CopyDataGen(object):
         output['y'] = y
         output['mask'] = mask
         output['seqlen'] = seqlen
+        output['datalen'] = 2*seqlen+1
         return output
 
 
