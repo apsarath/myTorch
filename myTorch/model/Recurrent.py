@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 
 import myTorch
-from myTorch.memory import GRUCell
+from myTorch.memory import LSTMCell
 
 from torch.autograd import Variable
 
@@ -14,7 +14,7 @@ class Recurrent(nn.Module):
         super(Recurrent, self).__init__()
 
         
-        self.Cell = GRUCell(input_size, hidden_size)
+        self.Cell = LSTMCell(input_size, hidden_size)
 
         self.hidden_size = hidden_size
 
@@ -26,7 +26,9 @@ class Recurrent(nn.Module):
         elif output_activation == "LogSoftmax":
             self.output_activation = torch.LogSoftmax
 
-        self.h_prev = Variable(torch.Tensor(np.zeros((1,hidden_size))))
+        self.h_prev = {}
+        self.h_prev["h"] = Variable(torch.Tensor(np.zeros((1,hidden_size))))
+        self.h_prev["c"] = Variable(torch.Tensor(np.zeros((1,hidden_size))))
 
         self.W_h2o = nn.Parameter(torch.Tensor(hidden_size, output_size))
         self.b_o = nn.Parameter(torch.Tensor(output_size))
@@ -37,14 +39,16 @@ class Recurrent(nn.Module):
     def forward(self, input):
         
         h = self.Cell(input, self.h_prev)
-        output = torch.add(torch.mm(h, self.W_h2o), self.b_o)
+        output = torch.add(torch.mm(h["h"], self.W_h2o), self.b_o)
         if self.output_activation is not None:
             output = self.output_activation(output)
         self.h_prev = h
         return output
 
     def reset_hidden(self):
-        self.h_prev = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        self.h_prev = {}
+        self.h_prev["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        self.h_prev["c"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
 
     def reset_parameters(self):
 
