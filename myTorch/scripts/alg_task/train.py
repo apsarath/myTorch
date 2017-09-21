@@ -16,6 +16,10 @@ from config import *
 
 import argparse
 
+from myTorch.utils.logging import Logger
+
+logger = Logger("/mnt/data/sarath/output/copyRNN")
+
 parser = argparse.ArgumentParser(description='Algorithm Learning Task')
 parser.add_argument('--config', type=str, default="copy_task_RNN", help='config name')
 args = parser.parse_args()
@@ -72,7 +76,8 @@ for step in range(0, config.max_steps):
 			#seqloss.append(step_loss)
 		seqloss /= sum(data["mask"])
 		average.append(seqloss.data[0])
-		print sum(average)/len(average)
+		logval = sum(average)/len(average)
+		logger.log_scalar("loss", logval, step+1)
 		seqloss.backward()
 		#seqloss.backward()
 
