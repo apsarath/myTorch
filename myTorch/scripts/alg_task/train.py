@@ -77,7 +77,8 @@ for step in range(0, config.max_steps):
 		seqloss /= sum(data["mask"])
 		average.append(seqloss.data[0])
 		logval = sum(average)/len(average)
-		logger.log_scalar("loss", logval, step+1)
+		print logval
+		#logger.log_scalar("loss", logval, step+1)
 		seqloss.backward()
 		#seqloss.backward()
 

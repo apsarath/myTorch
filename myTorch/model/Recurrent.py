@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 
 import myTorch
-from myTorch.memory import RNNCell
+from myTorch.memory import GRUCell
 
 from torch.autograd import Variable
 
@@ -14,7 +14,7 @@ class Recurrent(nn.Module):
         super(Recurrent, self).__init__()
 
         
-        self.Cell = RNNCell(input_size, hidden_size, activation)
+        self.Cell = GRUCell(input_size, hidden_size)
 
         self.hidden_size = hidden_size
 
