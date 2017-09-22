@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 config = eval(args.config)()
 
-model = Recurrent(9, 256, 9, output_activation = None)
+model = Recurrent(9, 256, 9, mname=config.model, output_activation = None)
 
 data_gen = CopyDataGen(num_bits = config.num_bits, min_len = config.min_len, max_len = config.max_len)
 
@@ -35,12 +35,10 @@ print config.l_rate
 optimizer = optim.RMSprop(model.parameters(), lr=config.l_rate, momentum=config.momentum)
 criteria = nn.BCEWithLogitsLoss()
 
-print model.Cell.num_parameters()
-print model.num_parameters()
 
 
 average = []
-for step in range(0, config.max_steps):
+for step in range(0, 10000):
 
 	data = data_gen.next()
 

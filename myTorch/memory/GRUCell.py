@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+from torch.autograd import Variable
+
+
 class GRUCell(nn.Module):
 
     def __init__(self, input_size, hidden_size):
@@ -31,17 +34,32 @@ class GRUCell(nn.Module):
         
     def forward(self, input, last_hidden):
         
-        c_input = torch.cat((input, last_hidden), 1)
+        c_input = torch.cat((input, last_hidden["h"]), 1)
         r = torch.sigmoid(torch.add(torch.mm(c_input, self.W_r), self.b_r))
         z = torch.sigmoid(torch.add(torch.mm(c_input, self.W_z), self.b_z))
-        hp = torch.tanh(torch.mm(input, self.W_i2h) + (torch.mm(last_hidden, self.W_h2h) * r) + self.b_h)
-        hidden = ((1 - z) * hp) + (z * last_hidden)
+        hp = torch.tanh(torch.mm(input, self.W_i2h) + (torch.mm(last_hidden["h"], self.W_h2h) * r) + self.b_h)
+        h = ((1 - z) * hp) + (z * last_hidden["h"])
+        
+        hidden = {}
+        hidden["h"] = h
+        return hidden
+
+
+    def reset_hidden(self):
+        hidden = {}
+        hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
         return hidden
 
     def reset_parameters(self):
 
-        for weight in self.parameters():
-            weight.data.uniform_()
-
-    def num_parameters(self):
-        return sum([np.prod(p.size()) for p in self.parameters()])
+        nn.init.xavier_normal(self.W_i2r)
+        nn.init.xavier_normal(self.W_i2z)
+        nn.init.xavier_normal(self.W_i2h)
+        
+        nn.init.orthogonal(self.W_h2r)
+        nn.init.orthogonal(self.W_h2z)
+        nn.init.orthogonal(self.W_h2h)
+        
+        nn.init.constant(self.b_r, 0)
+        nn.init.constant(self.b_z, 0)
+        nn.init.constant(self.b_h, 0)

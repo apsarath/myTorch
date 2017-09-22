@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+from torch.autograd import Variable
+
 class LSTMCell(nn.Module):
 
     def __init__(self, input_size, hidden_size):
@@ -57,10 +59,29 @@ class LSTMCell(nn.Module):
         hidden["c"] = c 
         return hidden
 
+    def reset_hidden(self):
+        hidden = {}
+        hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        hidden["c"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        return hidden
+
     def reset_parameters(self):
 
-        for weight in self.parameters():
-            weight.data.uniform_()
-
-    def num_parameters(self):
-        return sum([np.prod(p.size()) for p in self.parameters()])
+        nn.init.xavier_normal(self.W_x2i)
+        nn.init.xavier_normal(self.W_x2f)
+        nn.init.xavier_normal(self.W_x2o)
+        nn.init.xavier_normal(self.W_x2c)
+        
+        nn.init.orthogonal(self.W_h2i)
+        nn.init.orthogonal(self.W_h2f)
+        nn.init.orthogonal(self.W_h2o)
+        nn.init.orthogonal(self.W_h2c)
+        
+        nn.init.orthogonal(self.W_c2i)
+        nn.init.orthogonal(self.W_c2f)
+        nn.init.orthogonal(self.W_c2o)
+        
+        nn.init.constant(self.b_i, 0)
+        nn.init.constant(self.b_f, 1)
+        nn.init.constant(self.b_o, 0)
+        nn.init.constant(self.b_c, 0)

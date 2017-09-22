@@ -2,7 +2,7 @@ from collections import OrderedDict
 import cPickle as pickle
 import inspect
 
-
+import torch
 
 class MyContainer():
 
@@ -64,3 +64,13 @@ class MyContainer():
                 self.__setattr__(k, env_locals[k])
                 env_locals[k] = self.__getattr__(k)
         return True
+
+def act_name(activation):
+    if activation == None:
+        return 'linear'
+    elif activation == torch.sigmoid:
+        return 'sigmoid'
+    elif activation == torch.nn.LogSoftmax:
+        return 'sigmoid'
+    elif activation == torch.tanh:
+        return 'tanh'
