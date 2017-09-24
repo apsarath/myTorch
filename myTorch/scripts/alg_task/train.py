@@ -1,4 +1,5 @@
 import numpy 
+import argparse
 
 import torch
 import torch.optim as optim
@@ -6,82 +7,95 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.autograd as autograd
 
-
-
 import myTorch
 from myTorch.model import Recurrent
 from myTorch.task.copy_task import *
+from myTorch.utils.logging import Logger
+from myTorch.utils.experiment import Experiment
+from myTorch.utils import MyContainer
 
 from config import *
 
-import argparse
-
-from myTorch.utils.logging import Logger
-
-logger = Logger("/mnt/data/sarath/output/copyRNN")
-
 parser = argparse.ArgumentParser(description='Algorithm Learning Task')
 parser.add_argument('--config', type=str, default="copy_task_RNN", help='config name')
+parser.add_argument('--rdir', type=str, default=None, help='directory to resume')
 args = parser.parse_args()
+
 
 config = eval(args.config)()
 
-model = Recurrent(9, 256, 9, mname=config.model, output_activation = None)
+
+
+logger = None
+if config.use_tflogger==True:
+	logger = Logger(config.tflogdir)
+
+torch.manual_seed(config.rseed)
+
+
+model = Recurrent(config.input_size, config.output_size, num_layers = config.num_layers, layer_size=config.layer_size, mname=config.model, output_activation = None, use_gpu=config.use_gpu)
+
+if config.use_gpu==True:
+	model.cuda()
+
 
 data_gen = CopyDataGen(num_bits = config.num_bits, min_len = config.min_len, max_len = config.max_len)
 
-print config.l_rate
+optimizer = config.optim_algo(model.parameters(), lr=config.l_rate, momentum=config.momentum)
 
-optimizer = optim.RMSprop(model.parameters(), lr=config.l_rate, momentum=config.momentum)
 criteria = nn.BCEWithLogitsLoss()
 
 
+trainer = MyContainer()
+trainer.ex_seen = 0
+trainer.average_bce = []
 
-average = []
-for step in range(0, 10000):
 
-	data = data_gen.next()
+e = Experiment(model, config, optimizer, trainer, data_gen, logger)
 
-	#print data["seqlen"]
-	#print data["mask"]
-	#print data["mask"][-1]
-	#print data["x"]
-	#print data["y"]
+if args.rdir != None:
+	e.resume("current", args.rdir)
 
-	for j in range(0, 1):
-		seqloss = 0
-		for i in range(0, data["datalen"]):
-			#print "i",i
-			
-			x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
-			y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
-			#print x
-			#print y
-			#print data["mask"][i]
-			mask = float(data["mask"][i])
-			#print mask	
 
-			optimizer.zero_grad()
+for step in range(e.trainer.ex_seen, e.config.max_steps):
 
-				
-				
-			output = model(x)
-			#print torch.sigmoid(output)
-			loss = criteria(output, y)
-			#print loss.data[0]
-			seqloss += (loss*mask)
-				
-			#seqloss.append(step_loss)
-		seqloss /= sum(data["mask"])
-		average.append(seqloss.data[0])
-		logval = sum(average)/len(average)
-		print logval
-		#logger.log_scalar("loss", logval, step+1)
-		seqloss.backward()
-		#seqloss.backward()
+	data = e.data_gen.next()
+	seqloss = 0
 
-		optimizer.step()
-
-		model.reset_hidden()
+	for i in range(0, data["datalen"]):
 		
-	#break
+		x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
+		y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
+		if config.use_gpu == True:
+			x = x.cuda()
+			y = y.cuda()
+		mask = float(data["mask"][i])
+
+		e.optimizer.zero_grad()
+
+		output = e.model(x)
+		loss = criteria(output, y)
+		seqloss += (loss*mask)
+	
+
+	seqloss /= sum(data["mask"])
+	#print seqloss.data[0]
+	e.trainer.average_bce.append(seqloss.data[0])
+	running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
+	#print running_average
+	if e.config.use_tflogger == True:
+		logger.log_scalar("loss", running_average, step+1)
+	
+	seqloss.backward()
+
+	for param in e.model.parameters():
+		param.grad.data.clamp_(e.config.grad_clip[0], e.config.grad_clip[1])
+
+	e.optimizer.step()
+
+	e.model.reset_hidden()
+	e.trainer.ex_seen += 1
+
+	if e.trainer.ex_seen%10000 == 0:
+		e.save("current")
+		

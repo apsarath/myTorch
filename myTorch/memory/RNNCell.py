@@ -10,9 +10,11 @@ from myTorch.utils import act_name
 
 class RNNCell(nn.Module):
 
-    def __init__(self, input_size, hidden_size, activation="tanh"):
+    def __init__(self, input_size, hidden_size, activation="tanh", use_gpu=False):
         
         super(RNNCell, self).__init__()
+
+        self.use_gpu = use_gpu
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -42,12 +44,11 @@ class RNNCell(nn.Module):
     def reset_hidden(self):
         hidden = {}
         hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        if self.use_gpu==True:
+            hidden["h"] = hidden["h"].cuda()
         return hidden
 
     def reset_parameters(self):
-
-        for weight in self.parameters():
-            weight.data.uniform_(-0.1,0.1)
 
         nn.init.xavier_normal(self.W_i2h, gain=nn.init.calculate_gain(act_name(self.activation)))
         nn.init.orthogonal(self.W_h2h)

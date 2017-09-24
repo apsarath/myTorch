@@ -7,9 +7,11 @@ from torch.autograd import Variable
 
 class GRUCell(nn.Module):
 
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, hidden_size, activation=None, use_gpu=False):
         
         super(GRUCell, self).__init__()
+
+        self.use_gpu = use_gpu
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -28,13 +30,14 @@ class GRUCell(nn.Module):
 
         self.reset_parameters()
 
-        self.W_r = torch.cat((self.W_i2r, self.W_h2r), 0)
-        self.W_z = torch.cat((self.W_i2z, self.W_h2z), 0)
-
+        
         
     def forward(self, input, last_hidden):
         
+        self.W_r = torch.cat((self.W_i2r, self.W_h2r), 0)
+        self.W_z = torch.cat((self.W_i2z, self.W_h2z), 0)
         c_input = torch.cat((input, last_hidden["h"]), 1)
+
         r = torch.sigmoid(torch.add(torch.mm(c_input, self.W_r), self.b_r))
         z = torch.sigmoid(torch.add(torch.mm(c_input, self.W_z), self.b_z))
         hp = torch.tanh(torch.mm(input, self.W_i2h) + (torch.mm(last_hidden["h"], self.W_h2h) * r) + self.b_h)
@@ -48,6 +51,8 @@ class GRUCell(nn.Module):
     def reset_hidden(self):
         hidden = {}
         hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        if self.use_gpu==True:
+            hidden["h"] = hidden["h"].cuda()
         return hidden
 
     def reset_parameters(self):

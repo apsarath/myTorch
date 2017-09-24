@@ -6,9 +6,11 @@ from torch.autograd import Variable
 
 class LSTMCell(nn.Module):
 
-    def __init__(self, input_size, hidden_size):
+    def __init__(self, input_size, hidden_size, activation=None, use_gpu=False):
         
         super(LSTMCell, self).__init__()
+
+        self.use_gpu = use_gpu
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -34,13 +36,14 @@ class LSTMCell(nn.Module):
         
         self.reset_parameters()
 
+       
+    def forward(self, input, last_hidden):
+ 
         self.W_i = torch.cat((self.W_x2i, self.W_h2i, self.W_c2i), 0)
         self.W_f = torch.cat((self.W_x2f, self.W_h2f, self.W_c2f), 0)
         self.W_o = torch.cat((self.W_x2o, self.W_h2o, self.W_c2o), 0)
         self.W_c = torch.cat((self.W_x2c, self.W_h2c), 0)    
-        
-    def forward(self, input, last_hidden):
-        
+ 
         c_input = torch.cat((input, last_hidden["h"], last_hidden["c"]), 1)
         i = torch.sigmoid(torch.mm(c_input, self.W_i) + self.b_i)
         f = torch.sigmoid(torch.mm(c_input, self.W_f) + self.b_f)
@@ -63,6 +66,9 @@ class LSTMCell(nn.Module):
         hidden = {}
         hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
         hidden["c"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
+        if self.use_gpu==True:
+            hidden["h"] = hidden["h"].cuda()
+            hidden["c"] = hidden["c"].cuda()
         return hidden
 
     def reset_parameters(self):

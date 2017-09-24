@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import cPickle as pickle
 import inspect
+import os
 
 import torch
 
@@ -74,3 +75,7 @@ def act_name(activation):
         return 'sigmoid'
     elif activation == torch.tanh:
         return 'tanh'
+
+def create_folder(folder):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
