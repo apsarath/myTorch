@@ -1,3 +1,8 @@
+import torch
+from torch.autograd import Variable
+import torch.nn.utils as utils
+
+
 
 class REINFORCE(object):
 
@@ -43,10 +48,10 @@ class REINFORCE(object):
 		loss = 0
 		for i in reversed(range(len(self.rewards))):
 			R = self.gamma * R + self.rewards[i]
-			loss = loss - (self.log_probs[i]*(Variable(R).expand_as(self.log_probs[i])).cuda()).sum()
+			loss = loss - (self.log_probs[i]*(Variable(R).expand_as(self.log_probs[i]))).sum()
 			if self.use_etpy:
 			 	loss = loss - (self.etpy_coeff*self.entropies[i]).sum()
-		loss = loss / len(rewards)
+		loss = loss / len(self.rewards)
 		
 		self.optimizer.zero_grad()
 		loss.backward()
