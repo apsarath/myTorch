@@ -11,8 +11,8 @@ def copy_task_RNN():
 	config.model = "LSTM"
 	config.input_size = 9
 	config.output_size = 9
-	config.num_layers = 1
-	config.layer_size = [256]
+	config.num_layers = 2
+	config.layer_size = [256, 256]
 
 	# optimization specific details
 	config.optim_algo = optim.RMSprop
@@ -31,7 +31,7 @@ def copy_task_RNN():
 
 	# saving details
 	config.use_tflogger = True
-	config.tflogdir = "/mnt/data/sarath/output/copyRNN/tflog/p3/"
-	config.out_folder = "/mnt/data/sarath/output/copyRNN/p3/"
+	config.tflogdir = "/mnt/data/sarath/output/copyRNN/tflog/p2/"
+	config.out_folder = "/mnt/data/sarath/output/copyRNN/p2/"
 
 	return config
