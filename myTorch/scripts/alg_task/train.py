@@ -82,7 +82,7 @@ for step in range(e.trainer.ex_seen, e.config.max_steps):
 	#print seqloss.data[0]
 	e.trainer.average_bce.append(seqloss.data[0])
 	running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
-	#print running_average
+	print running_average
 	if e.config.use_tflogger == True:
 		logger.log_scalar("loss", running_average, step+1)
 	

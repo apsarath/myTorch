@@ -29,6 +29,6 @@ def gumbel_softmax(logits, temperature=1, hard=True):
     """
     y = gumbel_softmax_sample(logits, temperature)
     if hard:
-        y_hard = torch.eq(y, torch.max(y, 1, keep_dims=True)).float()
+        y_hard = torch.eq(y, torch.max(y, 1, keep_dims=True)).type_as(y)
         y = (y_hard - y).detach() + y
     return y

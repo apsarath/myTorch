@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from myTorch.utils.gumbel_softmax import gumbel_softmax, gumbel_sigmoid
+from myTorch.utils.gumbel import gumbel_softmax, gumbel_sigmoid
 
 from torch.autograd import Variable
 
@@ -10,7 +10,7 @@ class TARDISCell(nn.Module):
 
     def __init__(self, input_size, hidden_size, micro_state_size=50, num_mem_cells=10, activation=None, use_gpu=False):
 
-        super(LSTMCell, self).__init__()
+        super(TARDISCell, self).__init__()
 
         self.use_gpu = use_gpu
 
@@ -38,7 +38,8 @@ class TARDISCell(nn.Module):
         self.W_h2c = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
         self.b_c = nn.Parameter(torch.Tensor(hidden_size))
 
-        self.memory = []
+        self.memory_matrix = Variable(torch.zeros(num_mem_cells, micro_state_size))
+	self.num_cells_written_so_far = torch.zeros(1)
         self.W_m = nn.Parameter(torch.Tensor(hidden_size, micro_state_size))
         self.b_m = nn.Parameter(torch.Tensor(micro_state_size))
 
@@ -54,6 +55,21 @@ class TARDISCell(nn.Module):
         self.reset_parameters()
 
     def forward(self, input, last_hidden):
+
+	# compute read weights
+        last_micro_state = torch.mm(last_hidden["h"], self.W_m) + self.b_m
+	import pdb; pdb.set_trace()
+        # dot product with memory so far.
+        logits = torch.mm(last_micro_state, self.memory_matrix)
+        sampled_one_hot_locations = gumbel_softmax(logits)
+        sampled_mirco_state = torch.add(torch.bmm(memory_matrix, sampled_one_hot_locations), 1)
+        sample_location = torch.argmax(sampled_one_hot_location)
+
+        alpha = torch.mm(h, self.w_a_h) + torch.mm(input, self.w_a_x) + torch.mm(sampled_mirco_state, self.w_a_r)
+        alpha = gumbel_sigmoid(alpha)
+        beta = torch.mm(h, self.w_b_h) + torch.mm(input, self.w_b_x) + torch.mm(sampled_mirco_state, self.w_b_r)
+        beta = gumbel_sigmoid(beta)
+	
 
         self.W_i = torch.cat((self.W_x2i, self.W_h2i, self.W_c2i), 0)
         self.W_f = torch.cat((self.W_x2f, self.W_h2f, self.W_c2f), 0)
@@ -75,19 +91,12 @@ class TARDISCell(nn.Module):
 
         # memory construction
         curr_micro_state = torch.mm(h, self.W_m) + self.b_m
-        if len(self.memory) < self.num_mem_cells:
-            self.memory.append(curr_micro_state)
-        else:
-            # dot product with memory so far.
-            memory_matrix = torch.stack(self.memory, axis=1)
-            logits = torch.squeeze(torch.bmm(memory_matrix, curr_micro_state), dim=-1)
-            sampled_locations = gumbel_softmax(logits)
-            sampled_mirco_state = torch.add(torch.bmm(memory_matrix, sampled_locations), 1)
 
-            alpha = torch.mm(h, self.w_a_h) + torch.mm(input, self.w_a_x) + torch.mm(sampled_mirco_state, self.w_a_r)
-            alpha = gumbel_sigmoid(alpha)
-            beta = torch.mm(h, self.w_b_h) + torch.mm(input, self.w_b_x) + torch.mm(sampled_mirco_state, self.w_b_r)
-            beta = gumbel_sigmoid(beta)
+	if self.memory.num_cells_written_so_far < self.num_mem_cells:
+	   self.memory[self.num_cells_written_so_far] = curr_micro_state
+	   self.num_cells_written_so_far.add_(1)
+	else:
+	   self.memory[sampled_location] = sampled_microstate
 
         hidden = {}
         hidden["h"] = h
