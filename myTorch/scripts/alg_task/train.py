@@ -86,7 +86,7 @@ for step in range(e.trainer.ex_seen, e.config.max_steps):
 	if e.config.use_tflogger == True:
 		logger.log_scalar("loss", running_average, step+1)
 	
-	seqloss.backward(retain_graph=True)
+	seqloss.backward()#retain_graph=True)
 
 	for param in e.model.parameters():
 		param.grad.data.clamp_(e.config.grad_clip[0], e.config.grad_clip[1])

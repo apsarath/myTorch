@@ -39,7 +39,6 @@ class TARDISCell(nn.Module):
         self.b_c = nn.Parameter(torch.Tensor(hidden_size))
 
 	# memory related parameters
-        self.memory_matrix = Variable(torch.zeros(num_mem_cells, micro_state_size))
 	self.read_loc_list = [torch.zeros((num_mem_cells))]
 	#self.num_cells_written_so_far = torch.IntTensor(1).zero_()
 	self.num_cells_written_so_far = 0
@@ -75,7 +74,7 @@ class TARDISCell(nn.Module):
         last_hidden_micro_state = torch.mm(last_hidden["h"], self.W_m) + self.b_m
 
         # Compute read vector
-        m_logits = torch.mm(torch.mm(last_hidden_micro_state, torch.t(self.memory_matrix)), self.W_g_m)
+        m_logits = torch.mm(torch.mm(last_hidden_micro_state, torch.t(last_hidden["mem"])), self.W_g_m)
 	h_logits = torch.mm(last_hidden["h"], self.W_g_h)
 	x_logits = torch.mm(input, self.W_g_x)
 	usage_vector = torch.sum(torch.stack(self.read_loc_list, 0),0, keepdim=True)
@@ -85,7 +84,7 @@ class TARDISCell(nn.Module):
 
         sampled_one_hot_location = gumbel_softmax(logits)
 	self.read_loc_list.append(sampled_one_hot_location.squeeze().detach().data)
-        sampled_mirco_state = torch.mm(sampled_one_hot_location, self.memory_matrix)
+        sampled_mirco_state = torch.mm(sampled_one_hot_location, last_hidden["mem"])
         sampled_location = torch.max(sampled_one_hot_location, 1)[1]
 
         self.W_i = torch.cat((self.W_x2i, self.W_h2i, self.W_c2i, self.W_m2i), 0)
@@ -121,24 +120,27 @@ class TARDISCell(nn.Module):
 	if self.num_cells_written_so_far < self.num_mem_cells:
 	   one_hot_mask = Variable(torch.Tensor(one_hot(self.num_cells_written_so_far)))
 	   inverse_hot_mask = Variable(torch.ones(one_hot_mask.size())) - one_hot_mask
-	   self.memory_matrix = curr_micro_state.repeat(10,1) * one_hot_mask + self.memory_matrix * inverse_hot_mask
+	   memory_matrix = curr_micro_state.repeat(self.num_mem_cells,1) * one_hot_mask + last_hidden["mem"] * inverse_hot_mask
            self.num_cells_written_so_far += 1
 	else:
 	   one_hot_mask = sampled_one_hot_location.view(-1,1)
 	   inverse_hot_mask = Variable(torch.ones(one_hot_mask.size())) - one_hot_mask
-	   self.memory_matrix = curr_micro_state.repeat(10,1) * one_hot_mask + self.memory_matrix * inverse_hot_mask
+	   memory_matrix = curr_micro_state.repeat(self.num_mem_cells,1) * one_hot_mask + last_hidden["mem"] * inverse_hot_mask
         hidden = {}
         hidden["h"] = h
         hidden["c"] = c
+        hidden["mem"] = memory_matrix
         return hidden
 
     def reset_hidden(self):
         hidden = {}
         hidden["h"] = Variable(torch.Tensor(np.zeros((1, self.hidden_size))))
         hidden["c"] = Variable(torch.Tensor(np.zeros((1, self.hidden_size))))
+	hidden["mem"] = Variable(torch.zeros(self.num_mem_cells, self.micro_state_size))
         if self.use_gpu:
             hidden["h"] = hidden["h"].cuda()
             hidden["c"] = hidden["c"].cuda()
+	    hidden["mem"] = hidden["mem"].cuda()
         return hidden
 
     def reset_parameters(self):
