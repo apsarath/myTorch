@@ -21,7 +21,7 @@ def copy_task_RNN():
 	config.l_rate = 0.00003
 	config.max_steps = 1000000
 	config.rseed = 5
-	config.use_gpu = True
+	config.use_gpu = False
 
 
 	# task specific details
@@ -31,7 +31,9 @@ def copy_task_RNN():
 
 	# saving details
 	config.use_tflogger = True
-	config.tflogdir = "/mnt/data/chinna/output/copyRNN/tflog/p2/"
-	config.out_folder = "/mnt/data/chinna/output/copyRNN/p2/"
+	config.tflogdir = "/mnt/data/chinna/output/copyRNN/{}/tflog/p2/".format(config.model)
+	config.out_folder = "/mnt/data/chinna/output/copyRNN/{}/p2/".format(config.model)
+	create_folder(config.tflogdir)
+        create_folder(config.out_folder)
 
 	return config
