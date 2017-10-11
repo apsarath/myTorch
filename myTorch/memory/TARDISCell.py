@@ -5,7 +5,6 @@ from myTorch.utils.gumbel import gumbel_softmax, gumbel_sigmoid
 
 from torch.autograd import Variable
 
-
 class TARDISCell(nn.Module):
 
     def __init__(self, input_size, hidden_size, micro_state_size=50, num_mem_cells=10, activation=None, use_gpu=False, batch_size=1):
@@ -39,7 +38,7 @@ class TARDISCell(nn.Module):
         self.b_c = nn.Parameter(torch.Tensor(hidden_size))
 
 	# memory related parameters
-	self.read_loc_list = [torch.zeros((num_mem_cells))]
+	self.read_loc_list = [self._variable(torch.zeros((num_mem_cells)))]
 	#self.num_cells_written_so_far = torch.IntTensor(1).zero_()
 	self.num_cells_written_so_far = 0
 
@@ -69,6 +68,13 @@ class TARDISCell(nn.Module):
         self.alpha_beta_params = [self.w_a_h, self.w_b_h, self.w_a_x, self.w_b_x, self.w_a_r, self.w_b_r]
         self.reset_parameters()
 
+    def _variable(self, input, gpu=None):
+	use_gpu = gpu or self.use_gpu
+        v = Variable(input)
+	if use_gpu:
+	    v = v.cuda()
+	return v
+
     def forward(self, input, last_hidden):
 	# compute read weights
         last_hidden_micro_state = torch.mm(last_hidden["h"], self.W_m) + self.b_m
@@ -82,7 +88,7 @@ class TARDISCell(nn.Module):
 	u_logits = torch.mm(usage_vector, self.W_g_u)
 	logits = m_logits + h_logits + x_logits + u_logits
 
-        sampled_one_hot_location = gumbel_softmax(logits)
+        sampled_one_hot_location = gumbel_softmax(logits, use_gpu=self.use_gpu)
 	self.read_loc_list.append(sampled_one_hot_location.squeeze().detach().data)
         sampled_mirco_state = torch.mm(sampled_one_hot_location, last_hidden["mem"])
         sampled_location = torch.max(sampled_one_hot_location, 1)[1]
@@ -92,9 +98,9 @@ class TARDISCell(nn.Module):
         self.W_o = torch.cat((self.W_x2o, self.W_h2o, self.W_c2o, self.W_m2o), 0)
 
 	alpha = torch.mm(last_hidden["h"], self.w_a_h) + torch.mm(input, self.w_a_x) + torch.mm(sampled_mirco_state, self.w_a_r)
-        alpha = gumbel_sigmoid(alpha, 0.3).repeat(last_hidden["h"].size())
+        alpha = gumbel_sigmoid(alpha, 0.3, use_gpu=self.use_gpu).repeat(last_hidden["h"].size())
         beta = torch.mm(last_hidden["h"], self.w_b_h) + torch.mm(input, self.w_b_x) + torch.mm(sampled_mirco_state, self.w_b_r)
-        beta = gumbel_sigmoid(beta, 0.3).repeat(last_hidden["h"].size())
+        beta = gumbel_sigmoid(beta, 0.3, use_gpu=self.use_gpu).repeat(last_hidden["h"].size())
 
         c_input = torch.cat((input, last_hidden["h"], last_hidden["c"], sampled_mirco_state), 1)
         i = torch.sigmoid(torch.mm(c_input, self.W_i) + self.b_i)
@@ -118,13 +124,13 @@ class TARDISCell(nn.Module):
 	   return o
 
 	if self.num_cells_written_so_far < self.num_mem_cells:
-	   one_hot_mask = Variable(torch.Tensor(one_hot(self.num_cells_written_so_far)))
-	   inverse_hot_mask = Variable(torch.ones(one_hot_mask.size())) - one_hot_mask
+	   one_hot_mask = self._variable(torch.Tensor(one_hot(self.num_cells_written_so_far)))
+	   inverse_hot_mask = self._variable(torch.ones(one_hot_mask.size())) - one_hot_mask
 	   memory_matrix = curr_micro_state.repeat(self.num_mem_cells,1) * one_hot_mask + last_hidden["mem"] * inverse_hot_mask
            self.num_cells_written_so_far += 1
 	else:
 	   one_hot_mask = sampled_one_hot_location.view(-1,1)
-	   inverse_hot_mask = Variable(torch.ones(one_hot_mask.size())) - one_hot_mask
+	   inverse_hot_mask = self._variable(torch.ones(one_hot_mask.size())) - one_hot_mask
 	   memory_matrix = curr_micro_state.repeat(self.num_mem_cells,1) * one_hot_mask + last_hidden["mem"] * inverse_hot_mask
         hidden = {}
         hidden["h"] = h
@@ -134,13 +140,9 @@ class TARDISCell(nn.Module):
 
     def reset_hidden(self):
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((1, self.hidden_size))))
-        hidden["c"] = Variable(torch.Tensor(np.zeros((1, self.hidden_size))))
-	hidden["mem"] = Variable(torch.zeros(self.num_mem_cells, self.micro_state_size))
-        if self.use_gpu:
-            hidden["h"] = hidden["h"].cuda()
-            hidden["c"] = hidden["c"].cuda()
-	    hidden["mem"] = hidden["mem"].cuda()
+        hidden["h"] = self._variable(torch.Tensor(np.zeros((1, self.hidden_size))))
+        hidden["c"] = self._variable(torch.Tensor(np.zeros((1, self.hidden_size))))
+	hidden["mem"] = self._variable(torch.zeros(self.num_mem_cells, self.micro_state_size))
         return hidden
 
     def reset_parameters(self):
