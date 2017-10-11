@@ -8,7 +8,7 @@ def copy_task_RNN():
 	config = MyContainer()
 
 	# model specific details
-	config.model = "LSTM"
+	config.model = "TARDIS"
 	config.input_size = 9
 	config.output_size = 9
 	config.num_layers = 2
@@ -21,7 +21,7 @@ def copy_task_RNN():
 	config.l_rate = 0.00003
 	config.max_steps = 1000000
 	config.rseed = 5
-	config.use_gpu = True
+	config.use_gpu = False
 
 
 	# task specific details
@@ -31,7 +31,7 @@ def copy_task_RNN():
 
 	# saving details
 	config.use_tflogger = True
-	config.tflogdir = "/mnt/data/sarath/output/copyRNN/tflog/p2/"
-	config.out_folder = "/mnt/data/sarath/output/copyRNN/p2/"
+	config.tflogdir = "/mnt/data/chinna/output/copyRNN/tflog/p2/"
+	config.out_folder = "/mnt/data/chinna/output/copyRNN/p2/"
 
 	return config
