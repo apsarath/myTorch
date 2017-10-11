@@ -79,7 +79,8 @@ class TARDISCell(nn.Module):
 	h_logits = torch.mm(last_hidden["h"], self.W_g_h)
 	x_logits = torch.mm(input, self.W_g_x)
 	usage_vector = torch.sum(torch.stack(self.read_loc_list, 0),0, keepdim=True)
-	u_logits = torch.mm(Variable(usage_vector), self.W_g_u)
+	usage_vector = torch.nn.functional.softmax(usage_vector).view_as(usage_vector)
+	u_logits = torch.mm(usage_vector, self.W_g_u)
 	logits = m_logits + h_logits + x_logits + u_logits
 
         sampled_one_hot_location = gumbel_softmax(logits)
