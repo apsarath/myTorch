@@ -11,8 +11,8 @@ def copy_task_RNN():
 	config.model = "TARDIS"
 	config.input_size = 9
 	config.output_size = 9
-	config.num_layers = 1
-	config.layer_size = [256]
+	config.num_layers = 2
+	config.layer_size = [256, 256]
 
 	# optimization specific details
 	config.optim_algo = optim.RMSprop
