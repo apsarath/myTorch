@@ -35,5 +35,4 @@ def gumbel_softmax(logits, temperature=1.0, hard=True, use_gpu=False):
     y_one_hot = my_variable(torch.zeros(y.size()), use_gpu)
     if hard:
 	y_one_hot.scatter_(1, torch.max(y,1,keepdim=True)[1], 1)
-        y = (y_one_hot - y).detach() + y
-    return y
+    return ((y_one_hot - y).detach() + y)
