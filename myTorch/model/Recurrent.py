@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 
 import myTorch
-from myTorch.memory import RNNCell, GRUCell, LSTMCell
+from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
 from myTorch.utils import act_name
 
 from torch.autograd import Variable
@@ -24,6 +24,8 @@ class Recurrent(nn.Module):
             cell = GRUCell
         elif mname=="RNN":
             cell = RNNCell
+	elif mname=="TARDIS":
+	    cell = TARDISCell
 
         self.num_layers = num_layers
         self.Cells.append(cell(input_size, layer_size[0], activation=activation, use_gpu=use_gpu))

@@ -2,8 +2,9 @@ from collections import OrderedDict
 import cPickle as pickle
 import inspect
 import os
-
 import torch
+from torch.autograd import Variable
+
 
 class MyContainer():
 
@@ -80,3 +81,9 @@ def create_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+
+def my_variable(input, use_gpu=False, volatile=False, requires_grad=True):
+    v = Variable(input, volatile=volatile, requires_grad=requires_grad)
+    if use_gpu:
+        v = v.cuda()
+    return v
