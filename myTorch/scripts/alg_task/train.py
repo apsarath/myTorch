@@ -59,7 +59,7 @@ if args.rdir != None:
 
 for step in range(e.trainer.ex_seen, e.config.max_steps):
 
-	data = e.data_gen.next()
+	data = e.data_iter.next()
 	seqloss = 0
 
 	for i in range(0, data["datalen"]):

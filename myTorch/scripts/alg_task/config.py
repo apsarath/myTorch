@@ -31,8 +31,8 @@ def copy_task_RNN():
 
 	# saving details
 	config.use_tflogger = True
-	config.tflogdir = "/mnt/data/chinna/output/copyRNN/{}/tflog/p2/".format(config.model)
-	config.out_folder = "/mnt/data/chinna/output/copyRNN/{}/p2/".format(config.model)
+	config.tflogdir = "/mnt/data/sarath/output/copyRNN/{}/tflog/p2/".format(config.model)
+	config.out_folder = "/mnt/data/sarath/output/copyRNN/{}/p2/".format(config.model)
 	create_folder(config.tflogdir)
         create_folder(config.out_folder)
 
