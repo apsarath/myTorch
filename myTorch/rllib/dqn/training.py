@@ -1,26 +1,76 @@
+import os
 import numpy as np
 import argparse
 
 import myTorch
-from myTorch.utils import modify_config_params, one_hot
+from myTorch.environment import make_environment
+from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
+from myTorch.rllib.dqn.q_networks import *
 
 from myTorch.rllib.dqn.config import *
-
+from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
+from myTorch.utils import MyContainer
+from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="DQN Training")
 parser.add_argument('--config', type=str, default="dqn", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
-parser.add_argument('--config_params', type=str, default=None, help="config params to change")
+parser.add_argument('--config_params', type=str, default="default", help="config params to change")
+parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
 args = parser.parse_args()
 
 
 def train_dqn_agent():
-
+	assert(args.base_dir)
 	config = eval(args.config)()
-	if args.config_params:
+	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
-		
-	
+
+	train_dir = os.path.join(args.base_dir, config.train_dir, config.exp_name, config.env_name, 
+		"{}__{}".format(args.config_params, args.exp_desc))
+
+	experiment = RLExperiment(config.exp_name, train_dir)
+	experiment.register_config(config)
+
+	env = make_environment(config.env_name)
+	experiment.register_env(env)
+
+	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+
+	optimizer = get_optimizer(qnet.parameters(), config)
+	experiment.register_optimizer(optimizer)
+
+	agent = DQNAgent(qnet, 
+			 		optimizer, 
+			 		discount_rate=config.discount_rate, 
+			 		grad_clip = None, 
+			 		target_net_update_freq=config.target_net_update_freq,
+			 		epsilon_start=config.epsilon_start, 
+			 		epsilon_end=config.epsilon_end, 
+			 		epsilon_end_t = config.epsilon_end_t, 
+			 		learn_start=config.learn_start)
+	experiment.register_agent(agent)
+
+
+	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, size=config.replay_buffer_size, compress=config.replay_compress)
+	experiment.register_replay_buffer(replay_buffer)
+
+	logger = None
+	if config.use_tflogger==True:
+		logger = Logger(config.logger_dir)
+	experiment.register_logger(logger)
+
+	tr = MyContainer()
+	tr.train_reward = []
+	tr.train_episode_len = []
+	tr.first_qval = []
+	tr.test_reward = []
+	tr.test_episode_len = []
+	tr.cur_iter = 0
+	tr.steps_done = 0
+	tr.updates_done = 0
+	tf.epochs_done = 0
+	experiment.register_trainer(tr)
 
 def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
 

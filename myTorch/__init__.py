@@ -4,3 +4,4 @@ from rllib import *
 from scripts import *
 from task import *
 from utils import *
+from environment import *

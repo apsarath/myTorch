@@ -5,24 +5,27 @@ from torch.autograd import Variable
 
 
 import myTorch
-from myTorch.rllib.dqn.q_networks import FeedForward
 from myTorch.utils import my_variable
 
 class DQNAgent(object):
 
-	def __init__(self, qnet, discount_rate=0.99, learning_rate=1e-3, target_net_update_freq=10000,
+	def __init__(self, qnet, optimizer, discount_rate=0.99, 
+		grad_clip = None, 
+		target_net_update_freq=10000,
 		epsilon_start=1, epsilon_end=0.1, epsilon_end_t = 1e5, learn_start=50000):
 
 		self._qnet = qnet
+		self._optimizer = optimizer
 		self._discount_rate = discount_rate
-		self._learning_rate = learning_rate
+		self._grad_clip = grad_clip
 		self._target_net_update_freq = target_net_update_freq
 		self._epsilon_start = epsilon_start
 		self._epsilon_end = epsilon_end
 		self._epsilon_end_t = epsilon_end_t
 		self._learn_start = learn_start
 
-		self._target_qnet = FeedForward.make_target_net(self._qnet)
+		self._target_qnet = self._qnet.make_target_net(self._qnet)
+		self._loss = nn.SmoothL1Loss()
 
 
 	def sample_action(self, obs, legal_moves=None, epsilon=0, step=None, is_training=True):
@@ -47,10 +50,15 @@ class DQNAgent(object):
 		qval = max(qvals)
 		return best_action, qval
 
-	def train_step(self, minibatch, steps_done, next_target_upd):
+	def train_step(self, minibatch):
+
+		self._optimizer.zero_grad()
 
 		for key in minibatch:
-			minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._qnet.use_gpu)
+			if key in ["observations_tp1", "legal_moves_tp1"]:
+				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._qnet.use_gpu, volatile=True, requires_grad=False)
+			else:
+				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._qnet.use_gpu)
 
 		predicted_action_values = self._qnet.forward(minibatch["observations"])
 		predicted_action_values *= minibatch["actions"]
@@ -58,14 +66,25 @@ class DQNAgent(object):
 
 		next_step_action_values = self._target_qnet.forward(minibatch["observations_tp1"])
 		next_step_action_values += minibatch["legal_moves_tp1"]
-		next_step_best_actions_values = torch.max(next_step_action_values, dim=1)
+		next_step_best_actions_values = torch.max(next_step_action_values, dim=1).detach()
 
 		action_value_targets = minibatch["rewards"] + self._discount_rate * self.next_step_best_actions_values * minibatch["pcontinues"]
 
-		loss = nn.SmoothL1Loss(self.predicted_action_values, self.action_value_targets)
+		loss = self._loss(self.predicted_action_values, self.action_value_targets)
 
+		loss.backward()
 
+		if self._grad_clip is not None:
+			for param in self._q_net.parameters():
+				param.grad.data.clamp_(self._grad_clip[0], self._grad_clip[1])
 
+		self._optimizer.step()
+
+		return loss.data.numpy()
+
+	def update_target_net(self):
+
+		self._target_qnet.set_params(self._qnet.get_params)
 
 if __name__=="__main__":
 

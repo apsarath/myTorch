@@ -24,7 +24,7 @@ class ReplayBuffer(object):
 		self._data["rewards"] = np.zeros(shape=[self._size], dtype=dtype)
 		self._data["observations_tp1"] = np.zeros(shape=[self._size, self._obs_dim], dtype=dtype)
 		self._data["legal_moves_tp1"] = np.zeros(shape=[self._size, self._action_dim], dtype=dtype)
-		self._data["pcontinues"] = np.zeros_like(rewards, dtype=dtype)
+		self._data["pcontinues"] = np.zeros_like(self._data["rewards"], dtype=dtype)
 
 		self._write_index = -1
 		self._n = 0

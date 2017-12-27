@@ -1,0 +1,41 @@
+import gym
+import myTorch
+from myTorch.environment import EnivironmentBase
+import numpy as np
+
+class GymEnvironment(EnivironmentBase):
+
+	def __init__(self, env_name):
+		self._env_name = env_name
+		self._env = gym.make(env_name)
+		self._action_dim = self._env.action_space.n
+		self._legal_moves = np.arange(self._action_dim)
+		self._obs_dim = self._env.observation_space.shape
+
+	@property
+	def action_dim(self):
+		return self._action_dim
+
+	@property
+	def obs_dim(self):
+		return self._obs_dim
+
+	def reset(self):
+		obs = self._env.reset()
+		legal_moves = np.arange(self._action_dim)
+		return obs, self._legal_moves
+
+	def step(self, action):
+		obs, reward, done, _ = self._env.step(action)
+		return obs, self._legal_moves, reward, done
+
+	def save(self, save_dir):
+		return
+		
+	def resume(self, save_dir):
+		return  
+
+
+if __name__=="__main__":
+	env = GymEnvironment("CartPole-v0")
+	import pdb; pdb.set_trace()

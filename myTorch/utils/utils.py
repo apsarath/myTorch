@@ -4,6 +4,7 @@ import inspect
 import os
 import torch
 from torch.autograd import Variable
+import torch.optim as optim
 
 
 class MyContainer():
@@ -101,3 +102,25 @@ def modify_config_params(config, config_flag):
             config.get()[flag] = eval(value)
         else:
             assert("Flag {} not present in config !".format(flag))
+
+def one_hot(x, n):
+    if isinstance(x, list):
+        x = np.array(x)
+    x = x.flatten()
+    o_h = np.zeros((len(x), n))
+    o_h[np.arange(len(x)), x] = 1
+    return o_h
+
+def get_optimizer(params, config):
+    if config.optim_name == "RMSprop":
+        return optim.RMSprop(params, lr=config.lr, alpha=config.alpha, eps=config.eps, weight_decay=config.weight_decay, momentum=config.momentum, centered=config.centered)
+    elif config.optim_name == "Adadelta":
+        return optim.Adadelta(params, lr=config.lr, rho=config.rho, eps=config.eps, weight_decay=config.weight_decay)
+    elif config.optim_name == "Adagrad":
+        return optim.Adagrad(params, lr=config.lr, lr_decay=config.lr_decay, weight_decay=config.weight_decay)
+    elif config.optim_name == "Adam":
+        optim.Adam(params, lr=config.lr, betas=(config.beta_0, config.beta_1), eps=config.eps, weight_decay=config.weight_decay, amsgrad=False)
+    elif config.optim_name == "SGD":
+        return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
+    else:
+        assert("Unsupported optimizer : {}. Valid optimizers : Adadelta, Adagrad, Adam, RMSprop, SGD".format(config.optim_name))
