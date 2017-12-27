@@ -6,11 +6,12 @@ import torch.nn.functional as F
 
 class FeedForward(nn.Module):
 
-	def __init__(self, obs_dim, action_dim, layer_sizes=None):
+	def __init__(self, obs_dim, action_dim, use_gpu=False):
 		super(FeedForward, self).__init__()
 
 		self._obs_dim = obs_dim
 		self._action_dim = action_dim
+		self._use_gpu = use_gpu
 
 		self._fc1 = nn.Linear(obs_dim, 64)
 		self._fc2 = nn.Linear(64, 64)
@@ -22,8 +23,16 @@ class FeedForward(nn.Module):
 		x = self._fc3(x)
 		return x
 
+	@property
+	def action_dim(self):
+		return self._action_dim
+
+	@property
+	def use_gpu(self):
+		return self._use_gpu
+
 	def get_attributes(self):
-		return (self._obs_dim, self._action_dim)
+		return (self._obs_dim, self._action_dim, self._use_gpu)
 
 	def get_params(self):
 		return self.state_dict()

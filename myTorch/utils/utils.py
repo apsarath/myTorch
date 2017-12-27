@@ -87,3 +87,17 @@ def my_variable(input, use_gpu=False, volatile=False, requires_grad=True):
     if use_gpu:
         v = v.cuda()
     return v
+
+def modify_config_params(config, config_flag):
+    config_flag = config_flag.split("__")
+    if len(config_flag) % 2 != 0:
+        print("format {config_param1}__{value1}__{config_param2}__{value2} ... ")
+        assert(0)
+
+    config_flag_values = [(flag, value) for flag, value in zip(config_flag[::2], config_flag[1::2])]
+    for flag, value in config_flag_values:
+        if flag in config.get():
+            print("Setting {} with value {}".format(flag, value))
+            config.get()[flag] = eval(value)
+        else:
+            assert("Flag {} not present in config !".format(flag))
