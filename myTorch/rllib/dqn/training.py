@@ -63,14 +63,58 @@ def train_dqn_agent():
 	tr = MyContainer()
 	tr.train_reward = []
 	tr.train_episode_len = []
+	tr.train_loss = []
 	tr.first_qval = []
 	tr.test_reward = []
 	tr.test_episode_len = []
 	tr.cur_iter = 0
 	tr.steps_done = 0
 	tr.updates_done = 0
-	tf.epochs_done = 0
+	tr.iterations_done = 0
+	tr.next_target_upd = config.target_net_update_freq
 	experiment.register_trainer(tr)
+
+	for i in xrange(tr.cur_iter, config.num_iterations):
+		print("iterations done: {}".format(tr.iterations_done))
+
+		for _ in xrange(config.episodes_per_iter):
+			rewards, first_qval = collect_episode(env, agent, replay_buffer, is_training=True, step=tr.steps_done)
+			tr.iterations_done += 1
+			tr.steps_done += len(rewards)
+
+			epi_reward = sum(rewards)
+			epi_len = len(rewards)
+			tr.train_reward.append(float(epi_reward))
+			tr.train_episode_len.append(float(epi_len))
+			if first_qval is not None:
+				tr.first_qval.append(first_qval)
+				log_scalar_rl("first_qval", tr.first_qval, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+			log_scalar_rl("train_reward", tr.train_reward, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+			log_scalar_rl("train_episode_len", tr.train_episode_len, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+
+		avg_loss = 0
+		try:
+			if tr.steps_done > config.learn_start:
+				total_loss = 0
+				for _ in xrange(config.updates_per_iter):
+					minibatch = replay_buffer.sample_minibatch(batch_size = config.batch_size)
+					loss = agent.train_step(minibatch)
+					total_loss += loss
+					tr.updates_done += 1
+				avg_loss = total_loss / config.updates_per_iter
+				tr.train_loss.append(avg_loss)
+				log_scalar_rl("train_loss", tr.train_loss, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+
+		except IndexError:
+			# Replay Buffer does not have enough transitions yet.
+			pass
+
+		#if tr.steps_done > config.learn_start:
+		#	if tr.cur_iter % config.test_freq == 0:
+
+
+
+
 
 def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
 
@@ -114,6 +158,8 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
 		if replay_buffer is not None:
 			for transition in transitions:
 				replay_buffer.add(transition)
+
+	return reward_list, first_qval
 
 
 def format_legal_moves(legal_moves, action_dim):
