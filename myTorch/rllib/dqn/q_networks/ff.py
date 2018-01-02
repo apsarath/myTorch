@@ -13,14 +13,13 @@ class FeedForward(nn.Module):
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
 
-		self._fc1 = nn.Linear(self._obs_dim, 64)
-		self._fc2 = nn.Linear(64, 64)
-		self._fc3 = nn.Linear(64, self._action_dim)
+		self._fc1 = nn.Linear(self._obs_dim, 100)
+		self._fc2 = nn.Linear(100, self._action_dim)
+
 
 	def forward(self, input):
 		x = F.relu(self._fc1(input))
-		x = F.relu(self._fc2(x))
-		x = self._fc3(x)
+		x = self._fc2(x)
 		return x
 
 	@property

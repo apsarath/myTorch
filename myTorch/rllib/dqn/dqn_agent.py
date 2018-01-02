@@ -10,15 +10,19 @@ from myTorch.utils import my_variable
 class DQNAgent(object):
 
 	def __init__(self, qnet, optimizer, discount_rate=0.99, 
-		grad_clip = None, 
+		grad_clip = None,
+		target_net_soft_update = False, 
 		target_net_update_freq=10000,
+		target_net_update_fraction=0.05,
 		epsilon_start=1, epsilon_end=0.1, epsilon_end_t = 1e5, learn_start=50000):
 
 		self._qnet = qnet
 		self._optimizer = optimizer
 		self._discount_rate = discount_rate
 		self._grad_clip = grad_clip
+		self._target_net_soft_update = target_net_soft_update
 		self._target_net_update_freq = target_net_update_freq
+		self._target_net_update_fraction = target_net_update_fraction
 		self._epsilon_start = epsilon_start
 		self._epsilon_end = epsilon_end
 		self._epsilon_end_t = epsilon_end_t
@@ -29,6 +33,7 @@ class DQNAgent(object):
 
 
 	def sample_action(self, obs, legal_moves=None, epsilon=0, step=None, is_training=True):
+
 
 		if is_training:
 			epsilon = (self._epsilon_end + max(0., (self._epsilon_start - self._epsilon_end)*
@@ -43,7 +48,8 @@ class DQNAgent(object):
 			r = np.random.randint(0, len(actions))
 			return actions[r], None
 
-		obs = my_variable(torch.from_numpy(obs), use_gpu=self._qnet.use_gpu)
+		# TO DO : check the need to convert to float tensor explictly.
+		obs = my_variable(torch.from_numpy(obs).type(torch.FloatTensor), use_gpu=self._qnet.use_gpu)
 		qvals = self._qnet.forward(obs).data.numpy().flatten()
 		qvals = qvals + legal_moves
 		best_action = np.argmax(qvals)
@@ -66,11 +72,11 @@ class DQNAgent(object):
 
 		next_step_action_values = self._target_qnet.forward(minibatch["observations_tp1"])
 		next_step_action_values += minibatch["legal_moves_tp1"]
-		next_step_best_actions_values = torch.max(next_step_action_values, dim=1).detach()
+		next_step_best_actions_values = torch.max(next_step_action_values, dim=1)[0].detach()
 
-		action_value_targets = minibatch["rewards"] + self._discount_rate * self.next_step_best_actions_values * minibatch["pcontinues"]
+		action_value_targets = minibatch["rewards"] + self._discount_rate * next_step_best_actions_values * minibatch["pcontinues"]
 
-		loss = self._loss(self.predicted_action_values, self.action_value_targets)
+		loss = self._loss(predicted_action_values, action_value_targets)
 
 		loss.backward()
 
@@ -84,7 +90,22 @@ class DQNAgent(object):
 
 	def update_target_net(self):
 
-		self._target_qnet.set_params(self._qnet.get_params)
+		if self._target_net_soft_update == False:
+
+			self._target_qnet.set_params(self._qnet.get_params())
+
+		else:
+
+			target_params = self._target_qnet.get_params()
+			current_params = self._qnet.get_params()
+			for key in target_params.keys():
+				target_params[key] = (1-self._target_net_update_fraction)*target_params[key] + self._target_net_update_fraction*current_params[key]
+			self._target_qnet.set_params(target_params)
+
+	@property
+	def action_dim(self):
+
+		return self._qnet.action_dim
 
 if __name__=="__main__":
 

@@ -32,7 +32,7 @@ class GymEnvironment(EnivironmentBase):
 	def save(self, save_dir):
 		return
 		
-	def resume(self, save_dir):
+	def load(self, save_dir):
 		return  
 
 

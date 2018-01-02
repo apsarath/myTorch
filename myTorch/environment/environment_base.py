@@ -16,7 +16,7 @@ class EnivironmentBase():
     	pass
 
     @abstractmethod
-    def resume(self, save_dir):
+    def load(self, save_dir):
     	pass	
 
     @abstractproperty

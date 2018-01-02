@@ -24,6 +24,34 @@ class Logger(object):
                                                      simple_value=value)])
         self.writer.add_summary(summary, step)
 
+
+    def log_scalar_rl(self, tag, value_list, avglen, step):
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_episodes", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[0])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_steps", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[1])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_updates", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[2])
+
+        avg_value = 0
+        if len(value_list) > avglen:
+            avg_value = sum(value_list[-avglen:])/avglen
+        else:
+            avg_value = sum(value_list)/len(value_list)
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_episodes", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[0])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_steps", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[1])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_updates", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[2])
+
+
     def log_images(self, tag, images, step):
         """Logs a list of images."""
 

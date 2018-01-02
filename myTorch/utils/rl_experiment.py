@@ -1,3 +1,4 @@
+import os
 import cPickle as pickle
 from myTorch.utils import create_folder
 
@@ -38,13 +39,42 @@ class RLExperiment(object):
 	def register_env(self, env):
 		self._env = env
 
-	def save(self):
-		return
+	def save(self, tag):		
+
+		print("saving model ...")
+
+		savedir = os.path.join(self._dir_name, tag)
+		create_folder(savedir)
+
+		if self._trainer is not None:
+			fname = os.path.join(self._dir_name, tag, "trainer.p")
+			self._trainer.save(fname)
+
+		if self._config is not None:
+			fname = os.path.join(self._dir_name, tag, "config.p")
+			self._config.save(fname)
+
+		if self._replay_buffer is not None:
+			buffer_dir = os.path.join(self._dir_name, tag, "buffer")
+			self._replay_buffer.save(buffer_dir)
 
 	def is_resumable(self):
-		return
+		return False
 
-	def resume(self):
-		return
+	def resume(self, tag):
+
+		print("loading model ...")
+
+		if self._trainer is not None:
+			fname = os.path.join(self._dir_name, tag, "trainer.p")
+			self._trainer.load(fname)
+
+		if self._config is not None:
+			fname = os.path.join(self._dir_name, tag, "config.p")
+			self._config.load(fname)
+		
+		if self._replay_buffer is not None:
+			buffer_dir = os.path.join(self._dir_name, tag, "buffer")
+			self._replay_buffer.load(buffer_dir)
 
 
