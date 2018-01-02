@@ -37,7 +37,7 @@ def dqn():
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
 	config.backup_logger = True
-	config.force_restart = True
+	config.force_restart = False
 
 	# optimizer params
 	config.optim_name = "Adam" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD

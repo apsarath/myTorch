@@ -77,9 +77,9 @@ def train_dqn_agent():
 	experiment.register_trainer(tr)
 
 	if not config.force_restart:
-		if experiment.is_resumable():
+		if experiment.is_resumable("current"):
 			print("resuming the experiment...")
-			exp.resume("current")
+			experiment.resume("current")
 	else:
 		experiment.force_restart("current")
 

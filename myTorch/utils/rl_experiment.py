@@ -1,4 +1,5 @@
 import os
+from os.path import isfile
 import cPickle as pickle
 from shutil import rmtree
 
@@ -47,6 +48,10 @@ class RLExperiment(object):
 		savedir = os.path.join(self._dir_name, tag)
 		create_folder(savedir)
 
+		flagfile = os.path.join(savedir, "flag.p")
+		if isfile(flagfile):
+			os.remove(flagfile)
+
 		if self._agent is not None:
 			self._agent.save(savedir)
 
@@ -70,9 +75,17 @@ class RLExperiment(object):
 			if self._backup_logger:
 				self._logger.save(os.path.join(self._dir_name,tag,"logger"))
 
+		f = open(flagfile, "w")
+		f.close()
 
-	def is_resumable(self):
-		return False
+
+	def is_resumable(self, tag):
+
+		flagfile = os.path.join(self._dir_name, tag, "flag.p")
+		if isfile(flagfile):
+			return True
+		else:
+			return False
 
 	def resume(self, tag):
 
