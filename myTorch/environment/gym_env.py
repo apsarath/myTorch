@@ -29,6 +29,18 @@ class GymEnvironment(EnivironmentBase):
 		obs, reward, done, _ = self._env.step(action)
 		return obs, self._legal_moves, reward, done
 
+	def render(self, mode='rgb_array'):
+		pass
+
+	def seed(self, seed):
+		self._env._seed(seed=seed)
+
+	def get_random_state(self):
+		pass
+
+	def set_random_state(self, state):
+		pass
+
 	def save(self, save_dir):
 		return
 		

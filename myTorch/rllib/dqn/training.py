@@ -3,6 +3,8 @@ import math
 import numpy as np
 import argparse
 
+import torch
+
 import myTorch
 from myTorch.environment import make_environment
 from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
@@ -37,7 +39,13 @@ def train_dqn_agent():
 	experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
 	experiment.register_config(config)
 
+	torch.manual_seed(config.seed)
+	numpy_rng = np.random.RandomState(seed=config.seed)
+
+
+
 	env = make_environment(config.env_name)
+	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
 	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
@@ -46,6 +54,7 @@ def train_dqn_agent():
 
 	agent = DQNAgent(qnet, 
 			 		optimizer, 
+			 		numpy_rng,
 			 		discount_rate=config.discount_rate, 
 			 		grad_clip = None, 
 			 		target_net_soft_update=config.target_net_soft_update,
@@ -58,7 +67,7 @@ def train_dqn_agent():
 	experiment.register_agent(agent)
 
 
-	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, size=config.replay_buffer_size, compress=config.replay_compress)
+	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
 	experiment.register_replay_buffer(replay_buffer)
 
 	logger = None
@@ -117,7 +126,6 @@ def train_dqn_agent():
 				avg_loss = total_loss / config.updates_per_iter
 				tr.train_loss.append(avg_loss)
 				logger.log_scalar_rl("train_loss", tr.train_loss, config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-
 				if tr.steps_done >= tr.next_target_upd:
 
 					agent.update_target_net()
@@ -147,6 +155,7 @@ def train_dqn_agent():
 
 		if math.fmod(i+1, config.save_freq) == 0:
 			experiment.save("current")
+		
 
 	experiment.save("current")
 
@@ -169,7 +178,6 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
 	while not episode_done:
 
 		c_step = None if not is_training else step + len(reward_list) + 1
-		#print(c_step)		
 		action, qval = agent.sample_action(obs, legal_moves, epsilon=epsilon, step=c_step, is_training=is_training)
 
 		if episode_begin:

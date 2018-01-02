@@ -10,7 +10,7 @@ from myTorch.utils import my_variable
 
 class DQNAgent(object):
 
-	def __init__(self, qnet, optimizer, discount_rate=0.99, 
+	def __init__(self, qnet, optimizer, numpy_rng, discount_rate=0.99, 
 		grad_clip = None,
 		target_net_soft_update = False, 
 		target_net_update_freq=10000,
@@ -19,6 +19,7 @@ class DQNAgent(object):
 
 		self._qnet = qnet
 		self._optimizer = optimizer
+		self._numpy_rng = numpy_rng
 		self._discount_rate = discount_rate
 		self._grad_clip = grad_clip
 		self._target_net_soft_update = target_net_soft_update
@@ -44,9 +45,9 @@ class DQNAgent(object):
 		if legal_moves is None:
 			legal_moves = np.zeros(self._qnet.action_dim)
 
-		if np.random.random_sample() < epsilon:
+		if self._numpy_rng.random_sample() < epsilon:
 			actions = np.where(legal_moves==0)[0]
-			r = np.random.randint(0, len(actions))
+			r = self._numpy_rng.randint(0, len(actions))
 			return actions[r], None
 
 		# TO DO : check the need to convert to float tensor explictly.

@@ -12,6 +12,22 @@ class EnivironmentBase():
     	pass
 
     @abstractmethod
+    def render(self, mode='rgb_array'):
+        pass
+
+    @abstractmethod
+    def seed(self, seed):
+        pass
+
+    @abstractmethod
+    def get_random_state(self):
+        pass
+
+    @abstractmethod
+    def set_random_state(self, state):
+        pass
+
+    @abstractmethod
     def save(self, save_dir):
     	pass
 

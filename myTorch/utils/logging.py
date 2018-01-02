@@ -135,4 +135,4 @@ class Logger(object):
         create_folder(self._log_dir)
         rmtree(self._log_dir)
         self.writer = tf.summary.FileWriter(self._log_dir)
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
