@@ -30,7 +30,7 @@ def train_dqn_agent():
 	train_dir = os.path.join(args.base_dir, config.train_dir, config.exp_name, config.env_name, 
 		"{}__{}".format(args.config_params, args.exp_desc))
 
-	experiment = RLExperiment(config.exp_name, train_dir)
+	experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
 	experiment.register_config(config)
 
 	env = make_environment(config.env_name)
@@ -39,7 +39,6 @@ def train_dqn_agent():
 	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
 	optimizer = get_optimizer(qnet.parameters(), config)
-	experiment.register_optimizer(optimizer)
 
 	agent = DQNAgent(qnet, 
 			 		optimizer, 
@@ -81,6 +80,8 @@ def train_dqn_agent():
 		if experiment.is_resumable():
 			print("resuming the experiment...")
 			exp.resume("current")
+	else:
+		experiment.force_restart("current")
 
 	for i in xrange(tr.iterations_done, config.num_iterations):
 		print("iterations done: {}".format(tr.iterations_done))

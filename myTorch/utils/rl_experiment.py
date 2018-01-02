@@ -1,18 +1,22 @@
 import os
 import cPickle as pickle
+from shutil import rmtree
+
+import myTorch
 from myTorch.utils import create_folder
+
 
 class RLExperiment(object):
 
-	def __init__(self, name, dir_name):
+	def __init__(self, name, dir_name, backup_logger=False):
 
 		self._name = name
 		self._dir_name = dir_name
 		create_folder(self._dir_name)
+		self._backup_logger = backup_logger
 
 		self._agent = None
 		self._trainer = None
-		self._optimizer = None
 		self._config = None
 		self._replay_buffer = None
 		self._logger = None
@@ -23,9 +27,6 @@ class RLExperiment(object):
 
 	def register_trainer(self, trainer):
 		self._trainer = trainer
-
-	def register_optimizer(self, optimizer):
-		self._optimizer = optimizer
 
 	def register_config(self, config):
 		self._config = config
@@ -46,6 +47,9 @@ class RLExperiment(object):
 		savedir = os.path.join(self._dir_name, tag)
 		create_folder(savedir)
 
+		if self._agent is not None:
+			self._agent.save(savedir)
+
 		if self._trainer is not None:
 			fname = os.path.join(self._dir_name, tag, "trainer.p")
 			self._trainer.save(fname)
@@ -58,12 +62,26 @@ class RLExperiment(object):
 			buffer_dir = os.path.join(self._dir_name, tag, "buffer")
 			self._replay_buffer.save(buffer_dir)
 
+		if self._env is not None:
+			fname = os.path.join(self._dir_name, tag, "env.p")
+			self._env.save(fname)
+
+		if self._logger is not None:
+			if self._backup_logger:
+				self._logger.save(os.path.join(self._dir_name,tag,"logger"))
+
+
 	def is_resumable(self):
 		return False
 
 	def resume(self, tag):
 
 		print("loading model ...")
+
+		savedir = os.path.join(self._dir_name, tag)
+
+		if self._agent is not None:
+			self._agent.load(savedir)
 
 		if self._trainer is not None:
 			fname = os.path.join(self._dir_name, tag, "trainer.p")
@@ -76,5 +94,27 @@ class RLExperiment(object):
 		if self._replay_buffer is not None:
 			buffer_dir = os.path.join(self._dir_name, tag, "buffer")
 			self._replay_buffer.load(buffer_dir)
+
+		if self._env is not None:
+			fname = os.path.join(self._dir_name, tag, "env.p")
+			self._env.load(fname)
+
+
+		if self._logger is not None:
+			if self._backup_logger:
+				self._logger.load(os.path.join(self._dir_name,tag,"logger"))
+
+	def force_restart(self, tag):
+
+		print("force restarting...")
+
+		savedir = os.path.join(self._dir_name, tag)
+		create_folder(savedir)
+		rmtree(savedir)
+
+		if self._logger is not None:
+			self._logger.force_restart()
+
+
 
 

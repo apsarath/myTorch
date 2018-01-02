@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -101,6 +102,30 @@ class DQNAgent(object):
 			for key in target_params.keys():
 				target_params[key] = (1-self._target_net_update_fraction)*target_params[key] + self._target_net_update_fraction*current_params[key]
 			self._target_qnet.set_params(target_params)
+
+	def save(self, dname):
+
+		fname = os.path.join(dname, "qnet.p")
+		torch.save(self._qnet.state_dict(), fname)
+
+		fname = os.path.join(dname, "target_qnet.p")
+		torch.save(self._target_qnet.state_dict(), fname)
+
+		fname = os.path.join(dname, "optimizer.p")
+		torch.save(self._optimizer.state_dict(), fname)
+
+
+	def load(self, dname):
+
+		fname = os.path.join(dname, "qnet.p")
+		self._qnet.load_state_dict(torch.load(fname))
+
+		fname = os.path.join(dname, "target_qnet.p")
+		self._target_qnet.load_state_dict(torch.load(fname))
+
+		fname = os.path.join(dname, "optimizer.p")
+		self._optimizer.load_state_dict(torch.load(fname))
+
 
 	@property
 	def action_dim(self):

@@ -36,6 +36,7 @@ def dqn():
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
+	config.backup_logger = True
 	config.force_restart = True
 
 	# optimizer params
