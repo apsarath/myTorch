@@ -30,6 +30,10 @@ def train_dqn_agent():
 	train_dir = os.path.join(args.base_dir, config.train_dir, config.exp_name, config.env_name, 
 		"{}__{}".format(args.config_params, args.exp_desc))
 
+	logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
+		"{}__{}".format(args.config_params, args.exp_desc))
+
+
 	experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
 	experiment.register_config(config)
 
@@ -59,7 +63,7 @@ def train_dqn_agent():
 
 	logger = None
 	if config.use_tflogger==True:
-		logger = Logger(config.logger_dir)
+		logger = Logger(logger_dir)
 	experiment.register_logger(logger)
 
 	tr = MyContainer()
