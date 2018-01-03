@@ -9,6 +9,7 @@ def dqn():
 	config.exp_name = "dqn"
 
 	config.env_name = "CartPole-v0"
+	config.qnet = "FeedForward"
 
 	config.epsilon_end = 0.1
 	config.epsilon_start = 0.1
