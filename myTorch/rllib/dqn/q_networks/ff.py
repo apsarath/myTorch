@@ -45,6 +45,8 @@ class FeedForward(nn.Module):
 
 	def make_target_net(self, qnet):
 		target_net = FeedForward(*qnet.get_attributes())
+		if self._use_gpu == True:
+			target_net.cuda()
 		return target_net
 
 if __name__=="__main__":

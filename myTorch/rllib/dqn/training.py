@@ -50,6 +50,9 @@ def train_dqn_agent():
 
 	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
+	if config.use_gpu == True:
+		qnet.cuda()
+
 	optimizer = get_optimizer(qnet.parameters(), config)
 
 	agent = DQNAgent(qnet, 

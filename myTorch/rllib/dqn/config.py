@@ -32,7 +32,7 @@ def dqn():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = False
+	config.use_gpu = True
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True

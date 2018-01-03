@@ -52,7 +52,7 @@ class DQNAgent(object):
 
 		# TO DO : check the need to convert to float tensor explictly.
 		obs = my_variable(torch.from_numpy(obs).type(torch.FloatTensor), use_gpu=self._qnet.use_gpu)
-		qvals = self._qnet.forward(obs).data.numpy().flatten()
+		qvals = self._qnet.forward(obs).data.cpu().numpy().flatten()
 		qvals = qvals + legal_moves
 		best_action = np.argmax(qvals)
 		qval = max(qvals)
@@ -61,6 +61,7 @@ class DQNAgent(object):
 	def train_step(self, minibatch):
 
 		self._optimizer.zero_grad()
+
 
 		for key in minibatch:
 			if key in ["observations_tp1", "legal_moves_tp1"]:
@@ -88,7 +89,7 @@ class DQNAgent(object):
 
 		self._optimizer.step()
 
-		return loss.data.numpy()
+		return loss.data[0]
 
 	def update_target_net(self):
 
