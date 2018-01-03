@@ -48,7 +48,7 @@ class A2CAgent(object):
 		loss_vf = 0
 		loss_pol = 0
 		for t in reversed(range(config.num_bptt_steps-1)):
-			R = R*self._discount_rate + torch.array(rewards_list[t])
+			R = R*self._discount_rate*ep_continue_list[t] + torch.array(rewards_list[t])
 			loss_vf += (R - torch.array(vvals_list[t]))**2
 			loss_pol += (R - torch.array(vvals_list[t])).detach()*(log_pvals_list[t])
 		loss_vf.backward()
