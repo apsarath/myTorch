@@ -48,7 +48,7 @@ def train_dqn_agent():
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
-	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
 	if config.use_gpu == True:
 		qnet.cuda()
