@@ -2,6 +2,12 @@ import tensorflow as tf
 from StringIO import StringIO
 import matplotlib.pyplot as plt
 import numpy as np
+from os import listdir
+from os.path import isfile, join
+from shutil import copyfile, rmtree
+
+import myTorch
+from myTorch.utils import create_folder
 
 class Logger(object):
     """Logging in tensorboard without tensorflow ops."""
@@ -9,6 +15,7 @@ class Logger(object):
     def __init__(self, log_dir):
         """Creates a summary writer logging to log_dir."""
         self.writer = tf.summary.FileWriter(log_dir)
+        self._log_dir = log_dir
 
     def log_scalar(self, tag, value, step):
         """Log a scalar variable.
@@ -23,6 +30,34 @@ class Logger(object):
         summary = tf.Summary(value=[tf.Summary.Value(tag=tag,
                                                      simple_value=value)])
         self.writer.add_summary(summary, step)
+
+
+    def log_scalar_rl(self, tag, value_list, avglen, step):
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_episodes", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[0])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_steps", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[1])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_updates", simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step[2])
+
+        avg_value = 0
+        if len(value_list) > avglen:
+            avg_value = sum(value_list[-avglen:])/avglen
+        else:
+            avg_value = sum(value_list)/len(value_list)
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_episodes", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[0])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_steps", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[1])
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_updates", simple_value=avg_value)])
+        self.writer.add_summary(summary, step[2])
+
 
     def log_images(self, tag, images, step):
         """Logs a list of images."""
@@ -75,3 +110,29 @@ class Logger(object):
         summary = tf.Summary(value=[tf.Summary.Value(tag=tag, histo=hist)])
         self.writer.add_summary(summary, step)
         self.writer.flush()
+
+    def save(self, dir_name):
+        create_folder(dir_name)
+        rmtree(dir_name)
+        create_folder(dir_name)
+
+        tfpath = self._log_dir
+        onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
+
+        for file in onlyfiles:
+            copyfile(join(tfpath,file),join(dir_name, file))
+
+    def load(self, dir_name):
+        rmtree(self._log_dir)
+        create_folder(self._log_dir)
+
+        onlyfiles = [f for f in listdir(dir_name) if isfile(join(dir_name, f))]
+
+        for file in onlyfiles:
+            copyfile(join(dir_name, file), join(self._log_dir, file))
+
+    def force_restart(self):
+        create_folder(self._log_dir)
+        rmtree(self._log_dir)
+        self.writer = tf.summary.FileWriter(self._log_dir)
+        #import pdb; pdb.set_trace()

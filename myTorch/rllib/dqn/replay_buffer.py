@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cPickle as pickle
 
@@ -6,10 +7,11 @@ from myTorch.utils import create_folder
 
 class ReplayBuffer(object):
 
-	def __init__(self, obs_dim, action_dim, size=1e5, compress=False):
+	def __init__(self, obs_dim, action_dim, numpy_rng, size=1e5, compress=False):
 
 		self._obs_dim = int(obs_dim)
 		self._action_dim = int(action_dim)
+		self._numpy_rng = numpy_rng
 		self._size = int(size)
 		self._compress = compress
 
@@ -42,12 +44,12 @@ class ReplayBuffer(object):
 		if self._n < batch_size:
 			raise IndexError("Buffer does not have batch_size=%d transitions yet." % batch_size)
 
-		indices = np.random.choice(self._n, size=batch_size, replace=False)
+		indices = self._numpy_rng.choice(self._n, size=batch_size, replace=False)
 		rval = {}
 		for key in self._data:
 			rval[key] = self._data[key][indices]
 
-		if self.compress == True:
+		if self._compress == True:
 			for key in rval:
 				rval[key] = np.asarray(rval[key], dtype="float32")
 
@@ -64,16 +66,20 @@ class ReplayBuffer(object):
 		sdict["write_index"] = self._write_index
 		sdict["n"] = self._n
 
-		with open("{}/meta.ckpt".format(fname), "wb") as f:
+		
+		full_name = os.path.join(fname, "meta.ckpt")
+		with open(full_name, "wb") as f:
 			pickle.dump(sdict, f)
 
 		for key in self._data:
-			with open("{}/{}.npy".format(fname, key),"w") as f:
+			full_name = os.path.join(fname, "{}.npy".format(key))
+			with open(full_name,"w") as f:
 				np.save(f, self._data[key])
 
 	def load(self, fname):
 
-		with open("{}/meta.ckpt".format(fname), "rb") as f:
+		full_name = os.path.join(fname, "meta.ckpt")
+		with open(full_name, "rb") as f:
 			sdict = pickle.load(f)
 
 		self._obs_dim = sdict["obs_dim"]
@@ -83,7 +89,8 @@ class ReplayBuffer(object):
 		self._n = sdict["n"]
 
 		for key in self._data:
-			with open("{}/{}.npy".format(fname, key),"r") as f:
+			full_name = os.path.join(fname, "{}.npy".format(key))
+			with open(full_name,"r") as f:
 				self._data[key] = np.load(f) 
 
 

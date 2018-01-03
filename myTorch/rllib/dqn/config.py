@@ -12,34 +12,38 @@ def dqn():
 	config.qnet = "FeedForward"
 
 	config.epsilon_end = 0.1
-	config.epsilon_start = 1.0
-	config.epsilon__end_t = 1e5
-	config.learn_start = 50000
+	config.epsilon_start = 0.1
+	config.epsilon_end_t = 1
+	config.learn_start = 1
 	config.discount_rate = 0.99
-	config.target_net_update_freq = 10000
+	config.target_net_soft_update = True
+	config.target_net_update_freq = 1
+	config.target_net_update_fraction = 0.05
 
-	config.num_iterations = 100000
+	config.num_iterations = 10000
 	config.episodes_per_iter = 1
-	config.test_freq = 10000
-	config.test_per_iter = 100
+	config.test_freq = 1
+	config.test_per_iter = 1
 	config.updates_per_iter = 5
 	config.batch_size = 64
 	config.replay_buffer_size = 1e5
 	config.replay_compress = False
 
-	config.save_freq = 1000
+	config.save_freq = 500
 	config.sliding_wsize = 30
-	config.seed = 786
+	config.seed = 1234
 	config.use_gpu = False
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
+	config.backup_logger = False
+	config.force_restart = True
 
 	# optimizer params
-	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
+	config.optim_name = "Adam" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
 	config.lr = 1e-3
 	config.rho = 0.9
-	config.eps = 1e-6
+	config.eps = 1e-8
 	config.weight_decay = 0
 	config.lr_decay = 0
 	config.beta_0 = 0.9
