@@ -34,6 +34,7 @@ def train_a2c_agent():
 
 	env = make_environment(config.env_name)
 	experiment.register_env(env)
+	# Introduce thing about vec_subprocess_env
 
 	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
@@ -52,9 +53,6 @@ def train_a2c_agent():
 	experiment.register_agent(agent)
 
 
-	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, size=config.replay_buffer_size, compress=config.replay_compress)
-	experiment.register_replay_buffer(replay_buffer)
-
 	logger = None
 	if config.use_tflogger==True:
 		logger = Logger(config.logger_dir)
@@ -64,44 +62,45 @@ def train_a2c_agent():
 	tr.train_reward = []
 	tr.train_episode_len = []
 	tr.train_loss = []
-	tr.first_qval = []
-	tr.test_reward = []
-	tr.test_episode_len = []
+	tr.first_vval = []
+	#tr.test_reward = []
+	#tr.test_episode_len = []
 	tr.cur_iter = 0
 	tr.steps_done = 0
 	tr.updates_done = 0
 	tr.iterations_done = 0
-	tr.next_target_upd = config.target_net_update_freq
+	tr.ep_counter = np.zeros(config.num_envs)
+	tr.ep_len_count = np.zeros(config.num_envs)
+	tr.cum_reward = np.zeros(config.num_envs)
+	tr.new_envs = np.ones(config.num_envs, dtype=bool)
 	experiment.register_trainer(tr)
 
 	for i in xrange(tr.cur_iter, config.num_iterations):
 		print("iterations done: {}".format(tr.iterations_done))
 
-		for _ in xrange(config.episodes_per_iter):
-			rewards, first_qval = collect_episode(env, agent, replay_buffer, is_training=True, step=tr.steps_done)
+		obs, legal_move = env.reset()
+		actions_list = []
+		log_pvals_list = []
+		vvals_list = []
+		rewards_list = []
+		ep_continue_list = []
+		for _ in xrange(config.num_bptt_steps):
+			actions, log_pvals, vvals, rewards, ep_continue_list, obs, legal_moves = train_step_prep(env, agent, obs, legal_move, \
+				is_training=True, step=tr.steps_done)
 			tr.iterations_done += 1
 			tr.steps_done += len(rewards)
-
-			epi_reward = sum(rewards)
-			epi_len = len(rewards)
-			tr.train_reward.append(float(epi_reward))
-			tr.train_episode_len.append(float(epi_len))
-			if first_qval is not None:
-				tr.first_qval.append(first_qval)
-				log_scalar_rl("first_qval", tr.first_qval, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
-			log_scalar_rl("train_reward", tr.train_reward, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
-			log_scalar_rl("train_episode_len", tr.train_episode_len, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
-
+			actions_list.append(actions)
+			log_pvals_list.append(log_pvals)
+			vvals_list.append(vvals)
+			ep_continue_list.append(ep_continue)
+			rewards_list.append(rewards)
 		avg_loss = 0
+		total_loss = 0
 		try:
 			if tr.steps_done > config.learn_start:
-				total_loss = 0
-				for _ in xrange(config.updates_per_iter):
-					minibatch = replay_buffer.sample_minibatch(batch_size = config.batch_size)
-					loss = agent.train_step(minibatch)
-					total_loss += loss
-					tr.updates_done += 1
-				avg_loss = total_loss / config.updates_per_iter
+				total_loss = agent.train_step(actions_list, log_pvals_list, vvals_list, rewards_list, ep_continue_list)
+				tr.updates_done += 1
+				avg_loss = total_loss / (n_env*config.num_bptt_steps)
 				tr.train_loss.append(avg_loss)
 				log_scalar_rl("train_loss", tr.train_loss, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
 
@@ -114,51 +113,51 @@ def train_a2c_agent():
 
 
 
+def train_step_prep(env, agent, obs, legal_moves, epsilon=0, is_training=False, step=None):
+	
+	rewards = []
+	done_masks = []
 
+	c_step = None if not is_training else step + len(reward_list_list) + 1
+	actions, log_pvals, vvals = agent.sample_action(obs, legal_moves, epsilon=epsilon, step=c_step, is_training=is_training)
 
-def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
-
+	next_obs, next_legal_moves, reward, episode_done = env.step(actions)
+	next_legal_moves = format_legal_moves(next_legal_moves)
+	#transitions = []
+	ep_continue = []
 	reward_list = []
-	first_qval = None
-	transitions = []
+	for n_env in range(config.num_envs):
 
-	obs, legal_moves = env.reset()
-	legal_moves = format_legal_moves(legal_moves)
-
-	for _ in range(config.num_bptt_steps):
-
-		c_step = None if not is_training else step + len(reward_list) + 1
-		actions, log_pvals, vvals = agent.sample_action(obs, legal_moves, epsilon=epsilon, step=c_step, is_training=is_training)
-
-		if episode_begin:
-			first_qval = qval
-			episode_begin = False
-
-		next_obs, next_legal_moves, reward, episode_done = env.step(action)
-		next_legal_moves = format_legal_moves(next_legal_moves)
-
-		transition = {}
-		transition["observations"] = obs
-		transition["legal_moves"] = legal_moves
-		transition["actions"] =  one_hot([action], env.action_dim)
-		transition["rewards"] = reward
-		transition["observations_tp1"] = next_obs
-		transition["legal_moves_tp1"] = next_legal_moves
-		transition["pcontinues"] = 0.0 if episode_done else 1.0
+		if episode_done[n_env]:
+			ep_continue.append(0.0)
+			tr.ep_counter[n_env] += 1
+			tr.train_reward.append(tr.cum_reward[n_env])
+			tr.train_episode_len.append(tr.ep_len_count[n_env])
+			log_scalar_rl("first_qval", tr.first_qval, config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+			log_scalar_rl("train_reward", tr.cum_reward[n_env], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+			log_scalar_rl("train_episode_len", tr.ep_len_count[n_env], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done], logger)
+			tr.ep_len_count[n_env] = 0
+			tr.cum_reward[n_env] = 0
+			obs[n_env], legal_move[n_env] = env[n_env].reset() #check
+		else:
+			ep_continue.append(1.0)
+			tr.cum_reward[n_env] += reward[n_env]
+			tr.ep_len_count[n_env] += 1
 		transitions.append(transition)
-		reward_list.append(reward)
+		rewards.append(reward)
 
-		obs = next_obs
-		legal_moves = next_legal_moves
+		obs[n_env] = next_obs[n_env]
+		legal_moves[n_env] = next_legal_moves[n_env]
 
-	return reward_list, first_qval
+	return actions, log_pvals, vvals, rewards, ep_continue, obs, legal_moves
 
 
 def format_legal_moves(legal_moves, action_dim):
 	
-	new_legal_moves = np.zeros(action_dim) - float("inf")
-	if len(legal_moves) > 0:
-		new_legal_moves[legal_moves] = 0
+	for n_env in range(config.num_envs):
+		new_legal_moves[n_env] = np.zeros(action_dim) - float("inf")
+		if len(legal_moves[n_env]) > 0:
+			new_legal_moves[n_env][legal_moves[n_env]] = 0	
 	return new_legal_moves
 
 

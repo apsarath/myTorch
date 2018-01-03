@@ -28,52 +28,35 @@ class A2CAgent(object):
 		self._loss = nn.SmoothL1Loss()
 
 
-	def sample_action(self, obs, legal_moves=None, epsilon=0, step=None, is_training=True):
+	def sample_action(self, obs, legal_moves=None, step=None):
 
-		if is_training:
-			epsilon = (self._epsilon_end + max(0., (self._epsilon_start - self._epsilon_end)*
-				(self._epsilon_end_t - max(0., step - self._learn_start))
-				/ self._epsilon_end_t))
-
-		
 		obs = my_variable(torch.from_numpy(obs), use_gpu=self._a2cnet.use_gpu)
 		pvals, vvals = self._a2cnet.forward(obs)
-		
+
 		if legal_moves is None:
 			legal_moves = my_variable(torch.ones_like(pvals))
-		
+
 		pvals = self._a2cnet.softmax(pvals + legal_moves)
 		actions = torch.multinomial(input=pvals, num_samples=1).squeeze()
 		log_pvals = torch.log(torch.gather(pvals, 1, actions))
 		return actions, log_pvals, vvals.squeeze()
 
-	def train_step(self, minibatch):
+	def train_step(self, actions_list, log_pvals_list, vvals_list, rewards_list, ep_continue_list):
 
 		self._optimizer.zero_grad()
-
-		for key in minibatch:
-			if key in ["observations_tp1", "legal_moves_tp1"]:
-				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._a2cnet.use_gpu, volatile=True, requires_grad=False)
-			else:
-				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._a2cnet.use_gpu)
-
-		predicted_action_values = self._a2cnet.forward(minibatch["observations"])
-		predicted_action_values *= minibatch["actions"]
-		predicted_action_values = torch.sum(predicted_action_values, dim=1)
-
-		next_step_action_values = self._target_a2cnet.forward(minibatch["observations_tp1"])
-		next_step_action_values += minibatch["legal_moves_tp1"]
-		next_step_best_actions_values = torch.max(next_step_action_values, dim=1).detach()
-
-		action_value_targets = minibatch["rewards"] + self._discount_rate * self.next_step_best_actions_values * minibatch["pcontinues"]
-
-		loss = self._loss(self.predicted_action_values, self.action_value_targets)
-
-		loss.backward()
-
-		if self._grad_clip is not None:
-			for param in self._q_net.parameters():
-				param.grad.data.clamp_(self._grad_clip[0], self._grad_clip[1])
+		R = np.torch([vvals_list[-1][i] for i in range(config.num_envs) if ep_continue_list[-1][i] else 0])
+		loss_vf = 0
+		loss_pol = 0
+		for t in reversed(range(config.num_bptt_steps-1)):
+			R = R*self._discount_rate + torch.array(rewards_list[t])
+			loss_vf += (R - torch.array(vvals_list[t]))**2
+			loss_pol += (R - torch.array(vvals_list[t])).detach()*(log_pvals_list[t])
+		loss_vf.backward()
+		loss_pol.backward()
+		
+		#if self._grad_clip is not None:
+		#	for param in self._q_net.parameters():
+		#		param.grad.data.clamp_(self._grad_clip[0], self._grad_clip[1])
 
 		self._optimizer.step()
 
