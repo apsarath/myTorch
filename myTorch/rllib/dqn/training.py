@@ -70,7 +70,7 @@ def train_dqn_agent():
 	experiment.register_agent(agent)
 
 
-	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
+	replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
 	experiment.register_replay_buffer(replay_buffer)
 
 	logger = None
@@ -194,7 +194,7 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
 		transition = {}
 		transition["observations"] = obs
 		transition["legal_moves"] = legal_moves
-		transition["actions"] =  one_hot([action], env.action_dim)
+		transition["actions"] =  one_hot([action], env.action_dim)[0]
 		transition["rewards"] = reward
 		transition["observations_tp1"] = next_obs
 		transition["legal_moves_tp1"] = next_legal_moves
