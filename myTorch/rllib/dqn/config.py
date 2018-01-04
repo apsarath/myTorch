@@ -1,14 +1,14 @@
 import myTorch
 from myTorch.utils import *
 
-def dqn():
+def cartpole():
 
 	config = MyContainer()
 
 
 	config.exp_name = "dqn"
 
-	config.env_name = "CartPole-v0-image"
+	config.env_name = "CartPole-v0"
 
 	config.epsilon_end = 0.1
 	config.epsilon_start = 0.1
