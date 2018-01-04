@@ -18,7 +18,7 @@ class FeedForwardCartPole(nn.Module):
 
 
 	def forward(self, input):
-		if len(input.shape) < 1:
+		if len(input.shape) < 2:
 			input = input.unsqueeze(0)
 		x = F.relu(self._fc1(input))
 		x = self._fc2(x)
