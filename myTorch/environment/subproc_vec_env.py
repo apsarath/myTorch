@@ -3,6 +3,7 @@
 import numpy as np
 from multiprocessing import Process, Pipe
 from myTorch.environment import EnivironmentBase
+from myTorch.environment import make_environment
 
 def worker(remote, parent_remote, env_fn_wrapper):
     parent_remote.close()
@@ -124,11 +125,7 @@ class SubprocVecEnv(EnivironmentBase):
     def obs_dim(self):
         return self.env_dim["obs_dim"]
 
-
-if __name__=="__main__":
-    env_name = "CartPole-v0"
-    num_cpu = 3
-    from myTorch.environment import make_environment
+def get_batched_env(env_name, batch_size=5):
     def make_env_fn_wrapper(rank):
         def _thunk():
             env = make_environment(env_name)
@@ -137,12 +134,18 @@ if __name__=="__main__":
         return _thunk
 
 
-    env = SubprocVecEnv([make_env_fn_wrapper(i) for i in range(num_cpu)])
+    env = SubprocVecEnv([make_env_fn_wrapper(i) for i in range(batch_size)])
+    return env
+
+if __name__=="__main__":
+    env_name = "CartPole-v0"
+    batch_size = 3
+    env = get_batched_env(env_name, batch_size)
     obs, legal_moves = env.reset()
     assert(obs.shape[0] == legal_moves.shape[0])
     assert(obs[0,:].shape == env.obs_dim)
 
-    obs, legal_moves, rewards, dones = env.step([0]*num_cpu)
+    obs, legal_moves, rewards, dones = env.step([0]*batch_size)
     assert(obs.shape[0] == legal_moves.shape[0] == rewards.shape[0] == dones.shape[0])
     assert(obs[0,:].shape == env.obs_dim)
     print "Basic tests passed for batched enviroment!"
