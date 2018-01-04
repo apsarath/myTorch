@@ -100,7 +100,10 @@ def modify_config_params(config, config_flag):
     for flag, value in config_flag_values:
         if flag in config.get():
             print("Setting {} with value {}".format(flag, value))
-            config.get()[flag] = eval(value)
+            if isinstance(config.get()[flag], str):
+                config.config.get()[flag] = value
+            else:
+                config.get()[flag] = eval(value)
         else:
             assert("Flag {} not present in config !".format(flag))
 

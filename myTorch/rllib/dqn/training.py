@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import math
 import numpy as np
@@ -16,7 +18,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="DQN Training")
-parser.add_argument('--config', type=str, default="dqn", help="config name")
+parser.add_argument('--config', type=str, default="cartpole", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -25,9 +27,11 @@ args = parser.parse_args()
 
 def train_dqn_agent():
 	assert(args.base_dir)
+	#import pdb; pdb.set_trace()
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
+
 
 	train_dir = os.path.join(args.base_dir, config.train_dir, config.exp_name, config.env_name, 
 		"{}__{}".format(args.config_params, args.exp_desc))
@@ -48,7 +52,7 @@ def train_dqn_agent():
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
-	qnet = eval(config.qnet)(env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
 	if config.use_gpu == True:
 		qnet.cuda()
@@ -70,7 +74,7 @@ def train_dqn_agent():
 	experiment.register_agent(agent)
 
 
-	replay_buffer = ReplayBuffer(qnet.obs_dim, qnet.action_dim, numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
+	replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
 	experiment.register_replay_buffer(replay_buffer)
 
 	logger = None
@@ -194,7 +198,7 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
 		transition = {}
 		transition["observations"] = obs
 		transition["legal_moves"] = legal_moves
-		transition["actions"] =  one_hot([action], env.action_dim)
+		transition["actions"] =  one_hot([action], env.action_dim)[0]
 		transition["rewards"] = reward
 		transition["observations_tp1"] = next_obs
 		transition["legal_moves_tp1"] = next_legal_moves
