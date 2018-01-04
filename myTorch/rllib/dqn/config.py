@@ -74,13 +74,13 @@ def cartpole_image():
 	config.discount_rate = 0.999
 	config.target_net_soft_update = True
 	config.target_net_update_freq = 1
-	config.target_net_update_fraction = 0.05
+	config.target_net_update_fraction = 1
 
 	config.num_iterations = 10000
 	config.episodes_per_iter = 1
 	config.test_freq = 1
 	config.test_per_iter = 1
-	config.updates_per_iter = 5
+	config.updates_per_iter = 1
 	config.batch_size = 128
 	config.replay_buffer_size = 1e4
 	config.replay_compress = False
@@ -88,7 +88,7 @@ def cartpole_image():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.use_gpu = False
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -96,8 +96,8 @@ def cartpole_image():
 	config.force_restart = True
 
 	# optimizer params
-	config.optim_name = "Adam" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
-	config.lr = 1e-3
+	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
+	config.lr = 1e-2
 	config.rho = 0.9
 	config.eps = 1e-8
 	config.weight_decay = 0
