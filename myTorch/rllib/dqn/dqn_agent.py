@@ -83,7 +83,7 @@ class DQNAgent(object):
 
 		loss.backward()
 
-		if self._grad_clip is not None:
+		if self._grad_clip[0] is not None:
 			for param in self._q_net.parameters():
 				param.grad.data.clamp_(self._grad_clip[0], self._grad_clip[1])
 

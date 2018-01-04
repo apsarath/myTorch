@@ -52,6 +52,8 @@ def cartpole():
 	config.centered = False
 	config.dampening = 0
 	config.nesterov = False 
+	config.grad_clip_min = None
+	config.grad_clip_max = None
 
 	return config
 
@@ -107,5 +109,7 @@ def cartpole_image():
 	config.centered = False
 	config.dampening = 0
 	config.nesterov = False 
+	config.grad_clip_min = -1
+	config.grad_clip_max = 1
 
 	return config
