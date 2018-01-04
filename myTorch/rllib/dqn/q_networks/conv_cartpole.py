@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class ConvCartPoleV1(nn.Module):
+class ConvCartPole(nn.Module):
 
 	def __init__(self, obs_dim, action_dim, use_gpu=False):
 		super(self.__class__, self).__init__()
@@ -23,6 +23,8 @@ class ConvCartPoleV1(nn.Module):
 
 
 	def forward(self, x):
+		if len(x.shape) < 4:
+			x = x.unsqueeze(0)
 		x = F.relu(self._bn1(self._conv1(x)))
 		x = F.relu(self._bn2(self._conv2(x)))
 		x = F.relu(self._bn3(self._conv3(x)))

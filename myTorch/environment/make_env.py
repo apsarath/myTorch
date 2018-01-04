@@ -8,7 +8,8 @@ def make_environment(env_name):
 		env = GymEnvironment(env_name)
 		return env
 	elif env_name == "CartPole-v0-image" or env_name == "CartPole-v1-image":
-		env = CartPoleImage(env_name)
+		env = CartPoleImage(env_name.replace("-image",""))
+		return env
 	else:
 		assert("unsupported environment : {}".format(env_name))
 

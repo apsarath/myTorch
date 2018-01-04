@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class FeedForwardCartPoleV0(nn.Module):
+class FeedForwardCartPole(nn.Module):
 
 	def __init__(self, obs_dim, action_dim, use_gpu=False):
 		super(self.__class__, self).__init__()
@@ -18,6 +18,8 @@ class FeedForwardCartPoleV0(nn.Module):
 
 
 	def forward(self, input):
+		if len(input.shape) < 1:
+			input = input.unsqueeze(0)
 		x = F.relu(self._fc1(input))
 		x = self._fc2(x)
 		return x

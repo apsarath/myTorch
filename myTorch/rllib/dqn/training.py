@@ -16,7 +16,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="DQN Training")
-parser.add_argument('--config', type=str, default="dqn", help="config name")
+parser.add_argument('--config', type=str, default="cartpole_image", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -25,9 +25,11 @@ args = parser.parse_args()
 
 def train_dqn_agent():
 	assert(args.base_dir)
+	#import pdb; pdb.set_trace()
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
+
 
 	train_dir = os.path.join(args.base_dir, config.train_dir, config.exp_name, config.env_name, 
 		"{}__{}".format(args.config_params, args.exp_desc))

@@ -2,6 +2,7 @@ import gym
 import myTorch
 from myTorch.environment import EnivironmentBase
 import numpy as np
+import torch
 import torchvision.transforms as T
 from PIL import Image
 
@@ -10,7 +11,8 @@ class CartPoleImage(EnivironmentBase):
 	def __init__(self, env_name):
 		assert( env_name == "CartPole-v0" or env_name == "CartPole-v1")
 		self._env_name = env_name
-		self._env = gym.make(env_name)
+		self._env = gym.make(env_name).unwrapped
+		self._screen_width = 600
 		self._action_dim = self._env.action_space.n
 		self._legal_moves = np.arange(self._action_dim)
 		self._obs_dim = self._env.observation_space.shape
@@ -18,8 +20,8 @@ class CartPoleImage(EnivironmentBase):
 
 	def _get_cart_location(self):
 		world_width = self._env.x_threshold * 2
-		scale = screen_width / world_width
-		return int(self._env.state[0] * scale + screen_width / 2.0)  # MIDDLE OF CART
+		scale = self._screen_width / world_width
+		return int(self._env.state[0] * scale + self._screen_width / 2.0)  # MIDDLE OF CART
 
 	def _get_screen(self):
 		screen = self._env.render(mode='rgb_array').transpose(
@@ -27,10 +29,10 @@ class CartPoleImage(EnivironmentBase):
 		# Strip off the top and bottom of the screen
 		screen = screen[:, 160:320]
 		view_width = 320
-		cart_location = get_cart_location()
+		cart_location = self._get_cart_location()
 		if cart_location < view_width // 2:
 			slice_range = slice(view_width)
-		elif cart_location > (screen_width - view_width // 2):
+		elif cart_location > (self._screen_width - view_width // 2):
 			slice_range = slice(-view_width, None)
 		else:
 			slice_range = slice(cart_location - view_width // 2,
@@ -40,10 +42,9 @@ class CartPoleImage(EnivironmentBase):
 		# Convert to float, rescare, convert to torch tensor
 		# (this doesn't require a copy)
 		screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
-		import pdb; pdb.set_trace()
 		screen = torch.from_numpy(screen)
 		# Resize, and add a batch dimension (BCHW)
-		return self._resize(screen).unsqueeze(0).type(Tensor)
+		return self._resize(screen).numpy()
 
 
 	@property

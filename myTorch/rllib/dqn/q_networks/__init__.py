@@ -1,3 +1,3 @@
-from conv_cartpole_v1 import *
-from ff_cartpole_v0 import *  
+from conv_cartpole import *
+from ff_cartpole import *  
 from get_qnet import *
