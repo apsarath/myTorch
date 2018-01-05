@@ -30,7 +30,11 @@ class A2CAgent(object):
 
 		pvals = self._a2cnet.softmax(pvals*legal_moves)
 		entropies = -torch.sum(pvals * torch.log(pvals), dim=1)
-		actions = torch.multinomial(pvals, 1).detach()
+		if is_training:
+			actions = torch.multinomial(pvals, 1).detach()
+		else:
+			actions = torch.max(pvals, dim=1)[1]
+
 		log_taken_pvals = torch.log(torch.gather(pvals, 1, actions))
 		return actions.data.cpu().numpy().squeeze(1), log_taken_pvals.squeeze(1), vvals.squeeze(1), entropies
 
