@@ -37,8 +37,8 @@ class FeedForwardCartPole(nn.Module):
 		p = F.relu(self._fcp3(p))
 		return p, v
 
-	def softmax(self, inp):
-		return F.softmax(inp)
+	def softmax(self, inp, dim=1):
+		return F.softmax(inp, dim=dim)
 
 	@property
 	def action_dim(self):

@@ -2,7 +2,7 @@ import myTorch
 from myTorch.environment import GymEnvironment
 from myTorch.rllib.a2c.a2c_networks import *
 
-def get_qnet(env_name, obs_dim, action_dim, use_gpu):
+def get_a2cnet(env_name, obs_dim, action_dim, use_gpu):
 
 	if env_name == "CartPole-v0" or env_name == "CartPole-v1":
 		return FeedForwardCartPole(obs_dim, action_dim, use_gpu)

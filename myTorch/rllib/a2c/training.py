@@ -10,15 +10,15 @@ import torch
 import myTorch
 from myTorch.environment import get_batched_env
 from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
-from myTorch.rllib.dqn.a2c_networks import *
+from myTorch.rllib.a2c.a2c_networks import *
 
 from myTorch.rllib.a2c.config import *
 from myTorch.rllib.a2c import A2CAgent
 from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
-parser = argparse.ArgumentParser(description="DQN Training")
-parser.add_argument('--config', type=str, default="cartpole_image", help="config name")
+parser = argparse.ArgumentParser(description="A2C Training")
+parser.add_argument('--config', type=str, default="cartpole", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -95,14 +95,12 @@ def train_a2c_agent():
 
 
 	obs, legal_moves = env.reset()
-	legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
 	for i in xrange(tr.iterations_done, num_iterations):
 		
 		print("iterations done: {}".format(tr.iterations_done))
 
-		update_dict = {"actions":[],
-					   "log_taken_pvals":[],
+		update_dict = {"log_taken_pvals":[],
 					   "vvals":[],
 					   "entropies":[],
 					   "rewards":[],
@@ -113,12 +111,11 @@ def train_a2c_agent():
 			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
 
-			update_dict["actions"].append(actions)
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
 			update_dict["vvals"].append(vvals)
 			update_dict["entropies"].append(entropies)
 			update_dict["rewards"].append(rewards)
-			update_dict["episode_dones"].append(episode_dones)
+			update_dict["episode_dones"].append(episode_dones.astype(np.float32))
 
 		agent.train_step(update_dict)
 
