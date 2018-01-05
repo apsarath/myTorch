@@ -25,7 +25,7 @@ parser.add_argument('--exp_desc', type=str, default="default", help="additional 
 args = parser.parse_args()
 
 
-def train_dqn_agent():
+def train_a2c_agent():
 	assert(args.base_dir)
 	config = eval(args.config)()
 	if args.config_params != "default":
@@ -45,36 +45,24 @@ def train_dqn_agent():
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
 
-
-
-	env = get_batched_env(config.env_name, config.batch_size)
-	env.seed(seed=config.seed)
+	env = get_batched_env(config.env_name, config.num_env)
+	#env.seed(seed=config.seed) TODO
 	experiment.register_env(env)
 
-	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
 
 	if config.use_gpu == True:
-		qnet.cuda()
+		a2cnet.cuda()
 
-	optimizer = get_optimizer(qnet.parameters(), config)
+	optimizer = get_optimizer(a2cnet.parameters(), config)
 
-	agent = A2CAgent(qnet, 
+	agent = A2CAgent(a2cnet, 
 			 		optimizer, 
 			 		numpy_rng,
 			 		discount_rate=config.discount_rate, 
-			 		grad_clip = [config.grad_clip_min, config.grad_clip_max], 
-			 		target_net_soft_update=config.target_net_soft_update,
-			 		target_net_update_freq=config.target_net_update_freq,
-			 		target_net_update_fraction=config.target_net_update_fraction,
-			 		epsilon_start=config.epsilon_start, 
-			 		epsilon_end=config.epsilon_end, 
-			 		epsilon_end_t = config.epsilon_end_t, 
-			 		learn_start=config.learn_start)
+			 		grad_clip = [config.grad_clip_min, config.grad_clip_max])
 	experiment.register_agent(agent)
 
-
-	replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
-	experiment.register_replay_buffer(replay_buffer)
 
 	logger = None
 	if config.use_tflogger==True:
@@ -89,9 +77,11 @@ def train_dqn_agent():
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
 	tr.iterations_done = 0
-	tr.steps_done = 0
+	tr.global_steps_done = 0
 	tr.updates_done = 0
 	tr.episodes_done = 0
+
+
 	experiment.register_trainer(tr)
 
 	if not config.force_restart:
@@ -101,133 +91,46 @@ def train_dqn_agent():
 	else:
 		experiment.force_restart("current")
 
-	for i in xrange(tr.iterations_done, config.num_iterations):
-		print("iterations done: {}".format(tr.iterations_done))
+	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
 
-		# iterate over 
-
-
-
-
-
-
-		for _ in xrange(config.episodes_per_iter):
-			rewards, first_qval = collect_episode(env, agent, replay_buffer, is_training=True, step=tr.steps_done)
-			tr.episodes_done += 1
-			tr.steps_done += len(rewards)
-
-			epi_reward = sum(rewards)
-			epi_len = len(rewards)
-			append_to(tr.train_reward, tr, float(epi_reward))
-			append_to(tr.train_episode_len, tr, float(epi_len))
-			logger.log_scalar_rl("train_reward", tr.train_reward[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-			logger.log_scalar_rl("train_episode_len", tr.train_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-			if first_qval is not None:
-				append_to(tr.first_qval, tr, first_qval)
-				logger.log_scalar_rl("first_qval", tr.first_qval[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-
-
-		avg_loss = 0
-		try:
-			if tr.steps_done > config.learn_start:
-				total_loss = 0
-				for _ in xrange(config.updates_per_iter):
-					minibatch = replay_buffer.sample_minibatch(batch_size = config.batch_size)
-					loss = agent.train_step(minibatch)
-					total_loss += loss
-					tr.updates_done += 1
-				avg_loss = total_loss / config.updates_per_iter
-				append_to(tr.train_loss, tr, avg_loss)
-				logger.log_scalar_rl("train_loss", tr.train_loss[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-				if tr.steps_done >= tr.next_target_upd:
-
-					agent.update_target_net()
-					tr.next_target_upd += config.target_net_update_freq
-
-		except IndexError:
-			# Replay Buffer does not have enough transitions yet.
-			pass
-
-		tr.iterations_done += 1
-
-		if tr.steps_done > config.learn_start:
-			if tr.iterations_done % config.test_freq == 0:
-				epi_reward = 0.0
-				epi_len = 0.0
-				for _ in xrange(config.test_per_iter):
-					rewards, first_qval = collect_episode(env, agent, epsilon=0.0, is_training=False)
-					epi_reward += sum(rewards)
-					epi_len += len(rewards)
-				epi_reward = epi_reward / config.test_per_iter
-				epi_len = epi_len / config.test_per_iter
-				append_to(tr.test_reward, tr, epi_reward)
-				append_to(tr.test_episode_len, tr, epi_len)
-				logger.log_scalar_rl("test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-				logger.log_scalar_rl("test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-
-
-		if math.fmod(i+1, config.save_freq) == 0:
-			experiment.save("current")
-		
-
-	experiment.save("current")
-
-
-
-
-
-def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
-
-	reward_list = []
-	first_qval = None
-	transitions = []
 
 	obs, legal_moves = env.reset()
 	legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
-	episode_done = False
-	episode_begin = True
+	for i in xrange(tr.iterations_done, num_iterations):
+		
+		print("iterations done: {}".format(tr.iterations_done))
 
-	while not episode_done:
+		update_dict = {"actions":[],
+					   "log_taken_pvals":[],
+					   "vvals":[],
+					   "entropies":[],
+					   "rewards":[],
+					   "episode_dones":[]}
 
-		c_step = None if not is_training else step + len(reward_list) + 1
-		action, qval = agent.sample_action(obs, legal_moves, epsilon=epsilon, step=c_step, is_training=is_training)
+		for t in range(config.num_steps_per_upd):
 
-		if episode_begin:
-			first_qval = qval
-			episode_begin = False
+			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, is_training=True)
+			obs, legal_moves, rewards, episode_dones = env.step(actions)
 
-		next_obs, next_legal_moves, reward, episode_done = env.step(action)
-		next_legal_moves = format_legal_moves(next_legal_moves, agent.action_dim)
+			update_dict["actions"].append(actions)
+			update_dict["log_taken_pvals"].append(log_taken_pvals)
+			update_dict["vvals"].append(vvals)
+			update_dict["entropies"].append(entropies)
+			update_dict["rewards"].append(rewards)
+			update_dict["episode_dones"].append(episode_dones)
 
-		transition = {}
-		transition["observations"] = obs
-		transition["legal_moves"] = legal_moves
-		transition["actions"] =  one_hot([action], env.action_dim)[0]
-		transition["rewards"] = reward
-		transition["observations_tp1"] = next_obs
-		transition["legal_moves_tp1"] = next_legal_moves
-		transition["pcontinues"] = 0.0 if episode_done else 1.0
-		transitions.append(transition)
-		reward_list.append(reward)
+		agent.train_step(update_dict)
 
-		obs = next_obs
-		legal_moves = next_legal_moves
-
-	if is_training:
-		if replay_buffer is not None:
-			for transition in transitions:
-				replay_buffer.add(transition)
-
-	return reward_list, first_qval
+		tr.iterations_done+=1
+		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd
 
 
-def format_legal_moves(legal_moves, action_dim):
-	
-	new_legal_moves = np.zeros(action_dim) - float("inf")
-	if len(legal_moves) > 0:
-		new_legal_moves[legal_moves] = 0
-	return new_legal_moves
+		if math.fmod(tr.global_steps_done, config.save_freq) == 0:
+			experiment.save("current")
+
+	experiment.save("current")
+
 
 def append_to(tlist, tr, val):
 	tlist[0].append(val)
@@ -235,5 +138,5 @@ def append_to(tlist, tr, val):
 
 
 if __name__=="__main__":
-	train_dqn_agent()
+	train_a2c_agent()
 

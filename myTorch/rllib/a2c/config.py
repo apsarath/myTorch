@@ -10,14 +10,12 @@ def cartpole():
 
 	config.env_name = "CartPole-v0"
 
-	config.epsilon_end = 0.1
-	config.epsilon_start = 0.1
-	config.epsilon_end_t = 1
-	config.learn_start = 1
 	config.discount_rate = 0.99
-	config.target_net_soft_update = True
-	config.target_net_update_freq = 1
-	config.target_net_update_fraction = 0.05
+
+	config.global_num_steps = 10000
+	config.num_env = 10
+	config.num_steps_per_upd = 10
+
 
 	config.num_iterations = 10000
 	config.episodes_per_iter = 1
