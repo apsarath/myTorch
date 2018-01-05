@@ -119,6 +119,7 @@ def train_a2c_agent():
 			update_dict["rewards"].append(rewards)
 			update_dict["episode_dones"].append(episode_dones.astype(np.float32))
 
+		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, is_training=True)
 		agent.train_step(update_dict)
 
 		tr.iterations_done+=1

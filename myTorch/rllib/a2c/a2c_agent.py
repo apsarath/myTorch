@@ -49,26 +49,21 @@ class A2CAgent(object):
 		for data_key in ["episode_dones","rewards"]:
 			minibatch[data_key] = my_variable(torch.from_numpy(np.stack(minibatch[data_key])).type(torch.FloatTensor), use_gpu=self._a2cnet.use_gpu) 
 	
-		# Stack the list of data into a Tensor
-		for data_key in ["vvals", "log_taken_pvals", "episode_dones"]:
-			minibatch[data_key] = torch.stack(minibatch[data_key])
-
-		R = [(1 - minibatch["episode_dones"][-1]) * minibatch["vvals"][-1]]
-		for t in reversed(range(num_steps-1)):
-			R.append((minibatch["rewards"][t] + self._discount_rate* R[-1]) * ( 1  - minibatch["episode_dones"][t] ) + \
-				(minibatch["vvals"][t] * minibatch["episode_dones"][t]))
+		R = [minibatch["vvals_step_plus_one"]]
+		for t in reversed(range(num_steps)):
+			R.append(minibatch["rewards"][t] + self._discount_rate* R[-1]*(1  - minibatch["episode_dones"][t]))
 
 		R = R[::-1]
 
 		# Compute loss
 		pg_loss, val_loss, entropy_loss = 0, 0, 0
-		for t in range(num_steps-1):
+		for t in range(num_steps):
 			pg_loss += torch.mean((R[t] -  minibatch["vvals"][t]).detach()* minibatch["log_taken_pvals"][t])
 			val_loss += torch.nn.functional.mse_loss(minibatch["vvals"][t], R[t].detach())
 			entropy_loss -= torch.mean(minibatch["entropies"][t])
 
 		loss = pg_loss + self._vf_coef * val_loss + self._ent_coef * entropy_loss
-		loss = loss / (num_steps-1)
+		loss = loss / num_steps
 		
 		loss.backward()
 
