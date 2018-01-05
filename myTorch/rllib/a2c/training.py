@@ -59,6 +59,8 @@ def train_a2c_agent():
 	agent = A2CAgent(a2cnet, 
 			 		optimizer, 
 			 		numpy_rng,
+					ent_coef = config.ent_coef,
+					vf_coef = config.vf_coef,
 			 		discount_rate=config.discount_rate, 
 			 		grad_clip = [config.grad_clip_min, config.grad_clip_max])
 	experiment.register_agent(agent)

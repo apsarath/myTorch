@@ -49,7 +49,7 @@ class A2CAgent(object):
 		for data_key in ["vvals", "log_taken_pvals", "episode_dones"]:
 			minibatch[data_key] = torch.stack(minibatch[data_key])
 
-		R = (1 - [minibatch["episode_dones"][-1]) * minibatch["vvals"][-1]]
+		R = [(1 - minibatch["episode_dones"][-1]) * minibatch["vvals"][-1]]
 		for t in reversed(range(num_steps-1)):
 			R.append((minibatch["rewards"][t] + self._discount_rate* R[-1]) * ( 1  - minibatch["episode_dones"][t] ) + \
 				(minibatch["vvals"][t] * minibatch["episode_dones"][t]))
