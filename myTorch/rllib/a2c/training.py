@@ -74,13 +74,14 @@ def train_a2c_agent():
 	tr = MyContainer()
 	tr.train_reward = [[],[]]
 	tr.train_episode_len = [[],[]]
-	tr.train_loss = [[],[]]
-	tr.first_qval = [[],[]]
+	tr.pg_loss = [[],[]]
+	tr.val_loss = [[],[]]
+	tr.entropy_loss = [[],[]]
+	tr.first_val = [[],[]]
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
 	tr.iterations_done = 0
 	tr.global_steps_done = 0
-	tr.updates_done = 0
 	tr.episodes_done = 0
 
 
@@ -120,7 +121,7 @@ def train_a2c_agent():
 			update_dict["episode_dones"].append(episode_dones.astype(np.float32))
 
 		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, is_training=True)
-		agent.train_step(update_dict)
+		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
 
 		tr.iterations_done+=1
 		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd

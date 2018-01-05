@@ -28,7 +28,7 @@ class A2CAgent(object):
 		if legal_moves is None:
 				legal_moves = torch.ones_like(pvals)
 
-		pvals = self._a2cnet.softmax(pvals*legal_moves)
+		pvals = torch.softmax(pvals*legal_moves, dim=1)
 		entropies = -torch.sum(pvals * torch.log(pvals), dim=1)
 		if is_training:
 			actions = torch.multinomial(pvals, 1).detach()
