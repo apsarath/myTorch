@@ -1,5 +1,7 @@
 import myTorch
-from myTorch.environment import GymEnvironment, CartPoleImage
+from myTorch.environment.Blocksworld import *
+from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment
+
 
 def make_environment(env_name):
 
@@ -11,6 +13,7 @@ def make_environment(env_name):
 		return MazeBaseEnvironment("MazeBaseInstr-v0")
 	elif env_name == "SingleMazeInstr-v0":
 		return MazeBaseEnvironment("SingleMazeInstr-v0")
+	elif env_name == "blocksworld_none":
+		return BlocksEnvironment()
 	else:
 		assert("unsupported environment : {}".format(env_name))
-
