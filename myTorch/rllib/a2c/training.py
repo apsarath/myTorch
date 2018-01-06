@@ -132,6 +132,20 @@ def train_a2c_agent():
 		if math.fmod(tr.global_steps_done, config.save_freq) == 0:
 			experiment.save("current")
 
+
+	import pdb
+	pdb.set_trace()
+	env = get_batched_env(config.env_name, 1, config.seed)
+
+	rewards = []
+	epi_len = []
+
+	for i in range(0, 100):
+
+		obs, legal_moves = env.reset()
+
+
+
 	experiment.save("current")
 
 

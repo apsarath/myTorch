@@ -70,14 +70,15 @@ class A2CAgent(object):
 		
 		loss.backward()
 
-		if self._a2cnet.is_rnn_policy:
-			self._a2cnet.detach_hidden()
 
 		if self._grad_clip[0] is not None:
 			for param in self._a2cnet.parameters():
 				param.grad.data.clamp_(self._grad_clip[0], self._grad_clip[1])
 
 		self._optimizer.step()
+
+		if self._a2cnet.is_rnn_policy:
+			self._a2cnet.detach_hidden()
 
 		return pg_loss.data[0], val_loss.data[0], entropy_loss.data[0]
 

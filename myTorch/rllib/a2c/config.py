@@ -16,7 +16,7 @@ def cartpole():
 	config.vf_coef = 1.0
 
 	config.global_num_steps = 10000
-	config.num_env = 10
+	config.num_env = 1
 	config.num_steps_per_upd = 10
 
 	config.num_iterations = 10000

@@ -2,7 +2,7 @@ import myTorch
 from myTorch.environment import EnivironmentBase
 import numpy as np
 import os
-from blocksworldEnv import *
+from myTorch.environment.Blocksworld import *
 
 class BlocksEnvironment(EnivironmentBase):
     def __init__(self):
