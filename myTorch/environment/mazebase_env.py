@@ -7,7 +7,7 @@ class MazeBaseEnvironment(EnivironmentBase):
 
 	def __init__(self, env_name):
 		import mazebaseinstr
-		self._env = gym.make('MazeBaseInstr-v0')
+		self._env = gym.make(env_name)
 		self._action_dim = self._env.action_space.n
 		self._legal_moves = np.arange(self._action_dim)
 		self._obs_dim = self._env.observation_space.shape
