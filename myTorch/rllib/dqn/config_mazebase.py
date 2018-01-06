@@ -1,3 +1,6 @@
+import myTorch
+from myTorch.utils import *
+
 def mazebase_array():
 
 	config = MyContainer()
