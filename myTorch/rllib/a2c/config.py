@@ -9,6 +9,7 @@ def cartpole():
 	config.exp_name = "a2c"
 
 	config.env_name = "CartPole-v0"
+	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
 
 	config.discount_rate = 0.99
 	config.ent_coef = 1.0

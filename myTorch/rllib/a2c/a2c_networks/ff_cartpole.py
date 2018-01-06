@@ -12,6 +12,7 @@ class FeedForwardCartPole(nn.Module):
 		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
+		self._is_rnn_policy = False
 
 		self._fc1 = nn.Linear(self._obs_dim, 64)
 		self._fc2 = nn.Linear(64, 64)
@@ -51,6 +52,10 @@ class FeedForwardCartPole(nn.Module):
 	@property
 	def use_gpu(self):
 		return self._use_gpu
+	
+	@property
+	def is_rnn_policy(self):
+		return self._is_rnn_policy
 
 	def get_attributes(self):
 		return (self._obs_dim, self._action_dim, self._use_gpu)

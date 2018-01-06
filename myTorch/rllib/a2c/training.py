@@ -9,7 +9,7 @@ import torch
 
 import myTorch
 from myTorch.environment import get_batched_env
-from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
+from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer, my_variable
 from myTorch.rllib.a2c.a2c_networks import *
 
 from myTorch.rllib.a2c.config import *
@@ -48,7 +48,7 @@ def train_a2c_agent():
 	env = get_batched_env(config.env_name, config.num_env, config.seed)
 	experiment.register_env(env)
 
-	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
 
 	if config.use_gpu == True:
 		a2cnet.cuda()
@@ -110,16 +110,19 @@ def train_a2c_agent():
 
 		for t in range(config.num_steps_per_upd):
 
-			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, is_training=True)
+			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
 
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
 			update_dict["vvals"].append(vvals)
 			update_dict["entropies"].append(entropies)
-			update_dict["rewards"].append(rewards)
-			update_dict["episode_dones"].append(episode_dones.astype(np.float32))
+			update_dict["rewards"].append(my_variable(torch.from_numpy(rewards).type(torch.FloatTensor), use_gpu=config.use_gpu))
+			update_dict["episode_dones"].append(my_variable(torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor), use_gpu=config.use_gpu))
 
-		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, is_training=True)
+		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, 
+																		  dones=update_dict["episode_dones"], 
+																		  is_training=True, 
+																		  update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
 
 		tr.iterations_done+=1

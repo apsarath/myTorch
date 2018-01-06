@@ -21,9 +21,16 @@ class A2CAgent(object):
 		self._loss = nn.SmoothL1Loss()
 
 
-	def sample_action(self, obs, legal_moves=None, is_training=True):
+	def sample_action(self, obs, dones=[], legal_moves=None, is_training=True, update_agent_state=True):
 		obs = my_variable(torch.from_numpy(obs).type(torch.FloatTensor), use_gpu=self._a2cnet.use_gpu)
-		pvals, vvals = self._a2cnet.forward(obs)
+		if len(dones) > 0:
+			if self._a2cnet.is_rnn_policy:
+				self._a2cnet.update_hidden((1 - dones[-1]).unsqueeze(1))
+
+		if self._a2cnet.is_rnn_policy:
+			pvals, vvals = self._a2cnet.forward(obs, update_agent_state)
+		else:
+			pvals, vvals = self._a2cnet.forward(obs)
 
 		if legal_moves is None:
 				legal_moves = torch.ones_like(pvals)
@@ -45,10 +52,6 @@ class A2CAgent(object):
 		num_steps = len(minibatch.values()[0])
 		batch_size = minibatch["episode_dones"][0].shape[0]
 		
-		# Convert from numpy arrays into torch Variables
-		for data_key in ["episode_dones","rewards"]:
-			minibatch[data_key] = my_variable(torch.from_numpy(np.stack(minibatch[data_key])).type(torch.FloatTensor), use_gpu=self._a2cnet.use_gpu) 
-	
 		R = [minibatch["vvals_step_plus_one"]]
 		for t in reversed(range(num_steps)):
 			R.append(minibatch["rewards"][t] + self._discount_rate* R[-1]*(1  - minibatch["episode_dones"][t]))
@@ -66,6 +69,9 @@ class A2CAgent(object):
 		loss = loss / num_steps
 		
 		loss.backward()
+
+		if self._a2cnet.is_rnn_policy:
+			self._a2cnet.detach_hidden()
 
 		if self._grad_clip[0] is not None:
 			for param in self._a2cnet.parameters():
