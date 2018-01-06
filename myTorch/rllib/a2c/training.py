@@ -45,8 +45,7 @@ def train_a2c_agent():
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
 
-	env = get_batched_env(config.env_name, config.num_env)
-	#env.seed(seed=config.seed) TODO
+	env = get_batched_env(config.env_name, config.num_env, config.seed)
 	experiment.register_env(env)
 
 	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
