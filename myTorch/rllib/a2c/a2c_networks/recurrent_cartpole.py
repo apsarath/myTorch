@@ -71,7 +71,7 @@ class RecurrentCartPole(nn.Module):
 			self._hidden = (my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu), 
 							my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu))
 
-	def forward(self, obs):
+	def forward(self, obs, update_hidden_state):
 		if self._hidden is None:
 			self._reset_hidden(obs.shape[0])
 
@@ -80,7 +80,8 @@ class RecurrentCartPole(nn.Module):
 		x = F.relu(self._fc3(x))
 		x = F.relu(self._fc4(x))
 		rnn_output, hidden_next = self._rnn_step(x)
-		self._hidden = hidden_next
+		if update_hidden_state:
+			self._hidden = hidden_next
 		p = F.relu(self._fcp(rnn_output))
 		v = F.relu(self._fcv(rnn_output))
 		return p, v

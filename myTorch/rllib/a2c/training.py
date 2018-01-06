@@ -119,7 +119,10 @@ def train_a2c_agent():
 			update_dict["rewards"].append(my_variable(torch.from_numpy(rewards).type(torch.FloatTensor), use_gpu=config.use_gpu))
 			update_dict["episode_dones"].append(my_variable(torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor), use_gpu=config.use_gpu))
 
-		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
+		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, 
+																		  dones=update_dict["episode_dones"], 
+																		  is_training=True, 
+																		  update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
 
 		tr.iterations_done+=1
