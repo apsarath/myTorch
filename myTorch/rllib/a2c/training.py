@@ -48,7 +48,7 @@ def train_a2c_agent():
 	env = get_batched_env(config.env_name, config.num_env, config.seed)
 	experiment.register_env(env)
 
-	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
+	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
 
 	if config.use_gpu == True:
 		a2cnet.cuda()

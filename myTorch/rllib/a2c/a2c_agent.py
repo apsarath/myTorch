@@ -21,8 +21,11 @@ class A2CAgent(object):
 		self._loss = nn.SmoothL1Loss()
 
 
-	def sample_action(self, obs, legal_moves=None, is_training=True):
+	def sample_action(self, obs, dones=None, rnn_policy=True, legal_moves=None, is_training=True):
 		obs = my_variable(torch.from_numpy(obs).type(torch.FloatTensor), use_gpu=self._a2cnet.use_gpu)
+		if self._a2cnet.is_rnn_policy:
+			self._a2cnet.update_hidden(dones)
+
 		pvals, vvals = self._a2cnet.forward(obs)
 
 		if legal_moves is None:
