@@ -5,7 +5,6 @@ import torch.nn.functional as F
 from myTorch.utils import my_variable
 
 
-
 class RecurrentCartPole(nn.Module):
 
 	def __init__(self, obs_dim, action_dim, use_gpu=False, rnn_type="LSTM"):
@@ -60,10 +59,10 @@ class RecurrentCartPole(nn.Module):
 	def _rnn_step(self, x):
 		if self._rnn_type == "GRU":
 			hidden_next = self._rnn(x, self._hidden)
-			return hidden_next, hidden_next
+			return (hidden_next, hidden_next)
 		elif self._rnn_type == "LSTM":
 			rnn_output, hidden_next = self._rnn(x, self._hidden)
-			return rnn_output, hidden_next
+			return (rnn_output, hidden_next)
 
 	def _reset_hidden(self, batch_size):
 		if self._rnn_type == "GRU":
@@ -73,26 +72,34 @@ class RecurrentCartPole(nn.Module):
 							my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu))
 
 	def forward(self, obs):
-		if not self._hidden:
+		if self._hidden is None:
 			self._reset_hidden(obs.shape[0])
 
-			x = self._conv_to_linear(obs) if self._is_obs_image else self._fc1(obs)
-			x = F.relu(self._fc2(x))
-			x = F.relu(self._fc3(x))
-			x = F.relu(self._fc4(x))
-			rnn_output, hidden_next = self._rnn_step(x)
-			self._hidden = hidden_next
-			p = F.relu(self._fcp(rnn_output))
-			v = F.relu(self._fcv(rnn_output))
-			return p, v
+		x = self._conv_to_linear(obs) if self._is_obs_image else self._fc1(obs)
+		x = F.relu(self._fc2(x))
+		x = F.relu(self._fc3(x))
+		x = F.relu(self._fc4(x))
+		rnn_output, hidden_next = self._rnn_step(x)
+		self._hidden = hidden_next
+		p = F.relu(self._fcp(rnn_output))
+		v = F.relu(self._fcv(rnn_output))
+		return p, v
 
-	def update_hidden(self, dones):
-		if not self._hidden:
-			return
-
+	def update_hidden(self, mask):
 		if self._rnn_type == "GRU":
-			import pdb; pdb.set_trace()
-		
+			self._hidden = mask.expand(-1,self._rnn_hidden_size) * self._hidden
+		elif self._rnn_type == "LSTM":
+			h, c = self._hidden
+			self._hidden = (mask.expand(-1,self._rnn_hidden_size) * h, 
+							mask.expand(-1,self._rnn_hidden_size) * c)
+	def detach_hidden(self):
+		if self._rnn_type == "GRU":
+			hidden_value = self._hidden.data.cpu().numpy()
+			self._hidden = my_variable(torch.from_numpy(hidden_value), use_gpu=self._use_gpu)
+		elif self._rnn_type == "LSTM":
+			h_v, c_v = self._hidden[0].data.cpu().numpy(), self._hidden[1].data.cpu().numpy()
+			self._hidden = (my_variable(torch.from_numpy(h_v), use_gpu=self._use_gpu),
+							my_variable(torch.from_numpy(c_v), use_gpu=self._use_gpu))
 		
 	@property
 	def action_dim(self):
