@@ -1,5 +1,5 @@
 import myTorch
-from myTorch.environment import GymEnvironment, CartPoleImage
+from myTorch.environment import GymEnvironment, CartPoleImage, MazeBaseEnvironment
 
 def make_environment(env_name):
 
