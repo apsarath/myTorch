@@ -120,19 +120,38 @@ def train_a2c_agent():
 			update_dict["episode_dones"].append(my_variable(torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor), use_gpu=config.use_gpu))
 
 		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, 
-																		  dones=update_dict["episode_dones"], 
-																		  is_training=True, 
-																		  update_agent_state=False)
+																		dones=update_dict["episode_dones"], 
+																		is_training=True, 
+																		update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
+		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss )
 
 		tr.iterations_done+=1
 		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd
-
-
-		if math.fmod(tr.global_steps_done, config.save_freq) == 0:
+	
+	inference_prep(config, agent)
+	if math.fmod(tr.global_steps_done, config.save_freq) == 0:
 			experiment.save("current")
+		
 
-
+def inference_prep(config, test_agent):
+	test_env = get_batched_env(config.env_name, 1, config.seed)
+	obs, legal_moves = test_env.reset()
+	rewards, episode_lens = [], []
+	for i in range(100):
+		done, total_reward, episode_len = False, 0 ,0
+		obs, legal_moves = test_env.reset()
+		test_agent.reset_agent_state(1)
+		while not done:
+			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
+			obs, legal_moves, reward, episode_dones = test_env.step(actions)
+			done = episode_dones[0]
+			total_reward += reward[0]
+			episode_len += 1
+		rewards.append(total_reward)
+		episode_lens.append(episode_len)
+	
+	print("Avg reward : {}".format(sum(rewards)/100))
 
 	experiment.save("current")
 

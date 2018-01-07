@@ -18,7 +18,6 @@ class A2CAgent(object):
 		self._ent_coef = ent_coef
 		self._vf_coef = vf_coef
 		self._grad_clip = grad_clip
-		self._loss = nn.SmoothL1Loss()
 
 
 	def sample_action(self, obs, dones=[], legal_moves=None, is_training=True, update_agent_state=True):
@@ -40,10 +39,13 @@ class A2CAgent(object):
 		if is_training:
 			actions = torch.multinomial(pvals, 1).detach()
 		else:
-			actions = torch.max(pvals, dim=1)[1]
+			actions = torch.max(pvals, dim=1)[1].unsqueeze(1)
 
 		log_taken_pvals = torch.log(torch.gather(pvals, 1, actions))
 		return actions.data.cpu().numpy().squeeze(1), log_taken_pvals.squeeze(1), vvals.squeeze(1), entropies
+
+	def reset_agent_state(self, batch_size):
+		self._a2cnet.reset_hidden(batch_size)
 
 	def train_step(self, minibatch):
 
