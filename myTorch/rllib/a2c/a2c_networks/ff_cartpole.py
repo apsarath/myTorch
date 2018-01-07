@@ -14,28 +14,17 @@ class FeedForwardCartPole(nn.Module):
 		self._use_gpu = use_gpu
 		self._is_rnn_policy = False
 
-		self._fc1 = nn.Linear(self._obs_dim, 64)
-		self._fc2 = nn.Linear(64, 64)
+		self._fc1 = nn.Linear(self._obs_dim, 100)
 		
-		self._fcv1 = nn.Linear(64, 64)
-		self._fcv2 = nn.Linear(64, 32)
-		self._fcv3 = nn.Linear(32, 1)
+		self._fcv = nn.Linear(100, 1)
 
-		self._fcp1 = nn.Linear(64, 64)
-		self._fcp2 = nn.Linear(64, 32)
-		self._fcp3 = nn.Linear(32, self._action_dim)
+		self._fcp = nn.Linear(100, self._action_dim)
 
 	def forward(self, input):
 		x = F.relu(self._fc1(input))
-		x = F.relu(self._fc2(x))
 
-		v = F.relu(self._fcv1(x))
-		v = F.relu(self._fcv2(v))
-		v = F.relu(self._fcv3(v))
-		
-		p = F.relu(self._fcp1(x))
-		p = F.relu(self._fcp2(p))
-		p = F.relu(self._fcp3(p))
+		v = self._fcv(x)
+		p = self._fcp(x)
 		return p, v
 
 	def softmax(self, inp, dim=1):
@@ -65,6 +54,13 @@ class FeedForwardCartPole(nn.Module):
 
 	def set_params(self, state_dict):
 		self.load_state_dict(state_dict)
+
+	def make_inference_net(self):
+		inference_net = self.__class__(*self.get_attributes())
+		if self._use_gpu == True:
+			inference_net.cuda()
+		inference_net.set_params(self.get_params())
+		return inference_net
 
 
 if __name__=="__main__":

@@ -12,11 +12,11 @@ def cartpole():
 	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
 
 	config.discount_rate = 0.99
-	config.ent_coef = 1.0
-	config.vf_coef = 1.0
+	config.ent_coef = 0.01
+	config.vf_coef = 0.5
 
-	config.global_num_steps = 10000
-	config.num_env = 1
+	config.global_num_steps = 100000
+	config.num_env = 10
 	config.num_steps_per_upd = 10
 
 	config.num_iterations = 10000

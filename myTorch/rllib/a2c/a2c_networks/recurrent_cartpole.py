@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from myTorch.utils import my_variable
+from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
 
 
 class RecurrentCartPole(nn.Module):
@@ -24,9 +25,9 @@ class RecurrentCartPole(nn.Module):
 		self._rnn_type = rnn_type
 		self._is_rnn_policy = True
 		if self._rnn_type == "LSTM": 
-			self._rnn = torch.nn.LSTMCell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, bias=True)
+			self._rnn = LSTMCell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, use_gpu=use_gpu)
 		elif self._rnn_type == "GRU":
-			self._rnn = torch.nn.GRUCell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, bias=True)
+			self._rnn = GRUCell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, use_gpu=use_gpu)
 		self._hidden = None
 
 		if self._is_obs_image:
@@ -56,51 +57,36 @@ class RecurrentCartPole(nn.Module):
 			x = F.relu(self._bn3(self._conv3(x)))
 			return self._fc1(x.view(x.size(0), -1))
 
-	def _rnn_step(self, x):
-		if self._rnn_type == "GRU":
-			hidden_next = self._rnn(x, self._hidden)
-			return (hidden_next, hidden_next)
-		elif self._rnn_type == "LSTM":
-			rnn_output, hidden_next = self._rnn(x, self._hidden)
-			return (rnn_output, hidden_next)
-
-	def _reset_hidden(self, batch_size):
-		if self._rnn_type == "GRU":
-			self._hidden = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
-		elif self._rnn_type == "LSTM":
-			self._hidden = (my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu), 
-							my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu))
+	def reset_hidden(self, batch_size):
+		self._hidden = {}
+		self._hidden["h"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
+		
+		if self._rnn_type == "LSTM":
+			self._hidden["c"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
 
 	def forward(self, obs, update_hidden_state):
 		if self._hidden is None:
-			self._reset_hidden(obs.shape[0])
+			self.reset_hidden(obs.shape[0])
 
 		x = self._conv_to_linear(obs) if self._is_obs_image else self._fc1(obs)
 		x = F.relu(self._fc2(x))
 		x = F.relu(self._fc3(x))
 		x = F.relu(self._fc4(x))
-		rnn_output, hidden_next = self._rnn_step(x)
+		hidden_next = self._rnn(x, self._hidden)
 		if update_hidden_state:
 			self._hidden = hidden_next
-		p = F.relu(self._fcp(rnn_output))
-		v = F.relu(self._fcv(rnn_output))
+		p = self._fcp(hidden_next["h"])
+		v = self._fcv(hidden_next["h"])
 		return p, v
 
 	def update_hidden(self, mask):
-		if self._rnn_type == "GRU":
-			self._hidden = mask.expand(-1,self._rnn_hidden_size) * self._hidden
-		elif self._rnn_type == "LSTM":
-			h, c = self._hidden
-			self._hidden = (mask.expand(-1,self._rnn_hidden_size) * h, 
-							mask.expand(-1,self._rnn_hidden_size) * c)
+		for k in self._hidden:
+			self._hidden[k] = mask.expand(-1,self._rnn_hidden_size) * self._hidden[k]
+
 	def detach_hidden(self):
-		if self._rnn_type == "GRU":
-			hidden_value = self._hidden.data.cpu().numpy()
-			self._hidden = my_variable(torch.from_numpy(hidden_value), use_gpu=self._use_gpu)
-		elif self._rnn_type == "LSTM":
-			h_v, c_v = self._hidden[0].data.cpu().numpy(), self._hidden[1].data.cpu().numpy()
-			self._hidden = (my_variable(torch.from_numpy(h_v), use_gpu=self._use_gpu),
-							my_variable(torch.from_numpy(c_v), use_gpu=self._use_gpu))
+		for k in self._hidden:
+			hidden_value = self._hidden[k].data.cpu().numpy()
+			self._hidden[k] =  my_variable(torch.from_numpy(hidden_value), use_gpu=self._use_gpu)
 		
 	@property
 	def action_dim(self):
@@ -119,13 +105,20 @@ class RecurrentCartPole(nn.Module):
 		return self._is_rnn_policy
 
 	def get_attributes(self):
-		return (self._obs_dim, self._action_dim, self._use_gpu)
+		return (self._obs_dim, self._action_dim, self._use_gpu, self._rnn_type)
 
 	def get_params(self):
 		return self.state_dict()
 
 	def set_params(self, state_dict):
 		self.load_state_dict(state_dict)
+
+	def make_inference_net(self):
+		inference_net = self.__class__(*self.get_attributes())
+		if self._use_gpu == True:
+				inference_net.cuda()
+		inference_net.set_params(self.get_params())
+		return inference_net
 
 
 if __name__=="__main__":
