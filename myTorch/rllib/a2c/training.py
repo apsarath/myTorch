@@ -95,8 +95,9 @@ def train_a2c_agent():
 
 	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
 
-
 	obs, legal_moves = env.reset()
+	logger.reset_training_metrics(config.num_env)
+	pg_losses, val_losses, entropy_losses = [],[],[]
 
 	for i in xrange(tr.iterations_done, num_iterations):
 		
@@ -112,6 +113,7 @@ def train_a2c_agent():
 
 			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
+			logger.track_training_metrics(episode_dones, rewards)
 
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
 			update_dict["vvals"].append(vvals)
@@ -124,11 +126,23 @@ def train_a2c_agent():
 																		is_training=True, 
 																		update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
+		pg_losses.append(pg_loss)
+		val_losses.append(val_loss)
+		entropy_losses.append(entropy_loss)
+		logger.log_scalar_rl("pg_loss", pg_losses, 2, [int(tr.iterations_done)]*3)
+		logger.log_scalar_rl("val_loss", val_losses, 2, [int(tr.iterations_done)]*3)
+		logger.log_scalar_rl("entropy_loss", entropy_losses, 30, [int(tr.iterations_done)]*3)
 		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss )
 
 		tr.iterations_done+=1
 		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd
-	
+
+	metrics = logger.flattened_metrics()
+	for k in metrics:
+		steps = np.arange(len(metrics[k]))
+		for step in steps:
+			logger.log_scalar_rl("Avg_{}".format(k), metrics[k], 30, [step, step, step])
+
 	inference_prep(config, agent)
 	if math.fmod(tr.global_steps_done, config.save_freq) == 0:
 			experiment.save("current")
@@ -145,7 +159,6 @@ def inference_prep(config, test_agent):
 		while not done:
 			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
-			import pdb; pdb.set_trace()
 			done = episode_dones[0]
 			total_reward += reward[0]
 			episode_len += 1
@@ -154,13 +167,12 @@ def inference_prep(config, test_agent):
 	
 	print("Avg reward : {}".format(sum(rewards)/100))
 
-	experiment.save("current")
+	#experiment.save("current")
 
 
 def append_to(tlist, tr, val):
 	tlist[0].append(val)
 	tlist[1].append([tr.episodes_done, tr.steps_done, tr.updates_done])
-
 
 if __name__=="__main__":
 	train_a2c_agent()

@@ -111,6 +111,28 @@ class Logger(object):
         self.writer.add_summary(summary, step)
         self.writer.flush()
 
+    def track_training_metrics(self, episode_dones, rewards):
+        for env_id, episode_done in enumerate(episode_dones):
+            if episode_done:
+                self._training_metrics["episode_lens"][env_id].append(0)
+                self._training_metrics["rewards"][env_id].append(0)
+            else:
+                self._training_metrics["episode_lens"][env_id][-1]+=1
+                self._training_metrics["rewards"][env_id][-1] += rewards[env_id]
+
+    def flattened_metrics(self):
+        for k in self._training_metrics:
+            self._flattened_metrics[k] = [v for vals_per_env in self._training_metrics[k] for v in vals_per_env]
+        return self._flattened_metrics
+
+    def reset_training_metrics(self, num_envs):
+        self._training_metrics = {}
+        self._flattened_metrics = {}
+        self._training_metrics["episode_lens"] = [[0] for _ in range(num_envs)]
+        self._training_metrics["rewards"] = [[0] for _ in range(num_envs)]
+        self._flattened_metrics["episode_lens"] = []
+        self._flattened_metrics["rewards"] = []
+
     def save(self, dir_name):
         create_folder(dir_name)
         rmtree(dir_name)
