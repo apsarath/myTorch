@@ -1,3 +1,4 @@
+import pdb
 import numpy as np
 import torch
 import torch.nn as nn
@@ -13,20 +14,18 @@ class ConvMazeBase(nn.Module):
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
 
-		self._conv1 = nn.Conv2d(4, 16, kernel_size=5, stride=2)
+		self._conv1 = nn.Conv2d(4, 16, kernel_size=5, stride=1)
 		self._bn1 = nn.BatchNorm2d(16)
-		self._conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
+		self._conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=1)
 		self._bn2 = nn.BatchNorm2d(32)
-		self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		self._bn3 = nn.BatchNorm2d(32)
 		self._head = nn.Linear(448, action_dim)
 
 	def forward(self, x):
 		if len(x.shape) < 4:
 			x = x.unsqueeze(0)
+		pdb.set_trace()
 		x = F.relu(self._bn1(self._conv1(x)))
 		x = F.relu(self._bn2(self._conv2(x)))
-		x = F.relu(self._bn3(self._conv3(x)))
 		return self._head(x.view(x.size(0), -1))
 
 	@property
