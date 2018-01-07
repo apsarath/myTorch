@@ -45,7 +45,8 @@ class A2CAgent(object):
 		return actions.data.cpu().numpy().squeeze(1), log_taken_pvals.squeeze(1), vvals.squeeze(1), entropies
 
 	def reset_agent_state(self, batch_size):
-		self._a2cnet.reset_hidden(batch_size)
+		if self._a2cnet.is_rnn_policy:
+			self._a2cnet.reset_hidden(batch_size)
 
 	def train_step(self, minibatch):
 

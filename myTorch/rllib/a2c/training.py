@@ -145,6 +145,7 @@ def inference_prep(config, test_agent):
 		while not done:
 			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
+			import pdb; pdb.set_trace()
 			done = episode_dones[0]
 			total_reward += reward[0]
 			episode_len += 1

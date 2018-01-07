@@ -75,8 +75,8 @@ class RecurrentCartPole(nn.Module):
 		hidden_next = self._rnn(x, self._hidden)
 		if update_hidden_state:
 			self._hidden = hidden_next
-		p = F.relu(self._fcp(hidden_next["h"]))
-		v = F.relu(self._fcv(hidden_next["h"]))
+		p = self._fcp(hidden_next["h"])
+		v = self._fcv(hidden_next["h"])
 		return p, v
 
 	def update_hidden(self, mask):
