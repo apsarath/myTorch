@@ -129,8 +129,8 @@ def train_a2c_agent():
 		pg_losses.append(pg_loss)
 		val_losses.append(val_loss)
 		entropy_losses.append(entropy_loss)
-		logger.log_scalar_rl("pg_loss", pg_losses, 2, [int(tr.iterations_done)]*3)
-		logger.log_scalar_rl("val_loss", val_losses, 2, [int(tr.iterations_done)]*3)
+		logger.log_scalar_rl("pg_loss", pg_losses, 30, [int(tr.iterations_done)]*3)
+		logger.log_scalar_rl("val_loss", val_losses, 30, [int(tr.iterations_done)]*3)
 		logger.log_scalar_rl("entropy_loss", entropy_losses, 30, [int(tr.iterations_done)]*3)
 		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss )
 
@@ -141,7 +141,7 @@ def train_a2c_agent():
 	for k in metrics:
 		steps = np.arange(len(metrics[k]))
 		for step in steps:
-			logger.log_scalar_rl("Avg_{}".format(k), metrics[k], 30, [step, step, step])
+			logger.log_scalar_rl(k, metrics[k][:step+1], 30, [step, step, step])
 
 	inference_prep(config, agent)
 	if math.fmod(tr.global_steps_done, config.save_freq) == 0:

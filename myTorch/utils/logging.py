@@ -122,7 +122,7 @@ class Logger(object):
 
     def flattened_metrics(self):
         for k in self._training_metrics:
-            self._flattened_metrics[k] = [v for vals_per_env in self._training_metrics[k] for v in vals_per_env]
+            self._flattened_metrics[k] = [v for v in self._training_metrics[k][0]]
         return self._flattened_metrics
 
     def reset_training_metrics(self, num_envs):
