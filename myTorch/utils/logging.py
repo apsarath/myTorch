@@ -31,9 +31,26 @@ class Logger(object):
                                                      simple_value=value)])
         self.writer.add_summary(summary, step)
 
+    def log_scalar_avg(self, tag, value_list, avglen, step):
+        if tag not in self._tag_tracker:
+            self._tag_tracker[tag] = len(value_list)
+        else:
+            if len(value_list) == self._tag_tracker[tag]:
+                return
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag, simple_value=value_list[-1])])
+        self.writer.add_summary(summary, step)
+
+        avg_value = 0
+        if len(value_list) > avglen:
+            avg_value = sum(value_list[-avglen:])/avglen
+        else:
+            avg_value = sum(value_list)/len(value_list)
+
+        summary = tf.Summary(value=[tf.Summary.Value(tag="Avg_{}".format(tag), simple_value=avg_value)])
+        self.writer.add_summary(summary, step)
 
     def log_scalar_rl(self, tag, value_list, avglen, step):
-
         summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_episodes", simple_value=value_list[-1])])
         self.writer.add_summary(summary, step[0])
 
@@ -45,9 +62,9 @@ class Logger(object):
 
         avg_value = 0
         if len(value_list) > avglen:
-            avg_value = sum(value_list[-avglen:])/avglen
+            avg_value = float(sum(value_list[-avglen:]))/avglen
         else:
-            avg_value = sum(value_list)/len(value_list)
+            avg_value = float(sum(value_list))/len(value_list)
 
         summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_episodes", simple_value=avg_value)])
         self.writer.add_summary(summary, step[0])
@@ -111,27 +128,31 @@ class Logger(object):
         self.writer.add_summary(summary, step)
         self.writer.flush()
 
-    def track_training_metrics(self, episode_dones, rewards):
+    def track_a2c_training_metrics(self, episode_dones, rewards):
         for env_id, episode_done in enumerate(episode_dones):
             if episode_done:
                 self._training_metrics["episode_lens"][env_id].append(0)
-                self._training_metrics["rewards"][env_id].append(0)
+                self._training_metrics["rewards"][env_id].append(rewards[env_id])
+                self._tag_per_env_tracker[env_id] = True
             else:
-                self._training_metrics["episode_lens"][env_id][-1]+=1
+                self._training_metrics["episode_lens"][env_id][-1]+=1.0
                 self._training_metrics["rewards"][env_id][-1] += rewards[env_id]
+                self._tag_per_env_tracker[env_id] = False
 
-    def flattened_metrics(self):
+    def reset_a2c_training_metrics(self, num_envs):
+        self._training_metrics, self._flattened_metrics = {}, {}
+        self._tag_per_env_tracker, self._tag_tracker = {}, {}
+        for tag in ["episode_lens", "rewards"]:
+            self._training_metrics[tag] = [[0] for _ in range(num_envs)]
+            self._flattened_metrics[tag] = []
+
+    def log_a2c_training_metrics(self, avglen, step):
         for k in self._training_metrics:
-            self._flattened_metrics[k] = [v for v in self._training_metrics[k][0]]
-        return self._flattened_metrics
-
-    def reset_training_metrics(self, num_envs):
-        self._training_metrics = {}
-        self._flattened_metrics = {}
-        self._training_metrics["episode_lens"] = [[0] for _ in range(num_envs)]
-        self._training_metrics["rewards"] = [[0] for _ in range(num_envs)]
-        self._flattened_metrics["episode_lens"] = []
-        self._flattened_metrics["rewards"] = []
+            for env_id in range(len(self._training_metrics[k])):
+                if self._tag_per_env_tracker[env_id]:
+                    self._flattened_metrics[k] += [self._training_metrics[k][env_id][-2]]
+            if len(self._flattened_metrics[k]):
+                self.log_scalar_avg("train_{}".format(k), self._flattened_metrics[k], avglen, step)
 
     def save(self, dir_name):
         create_folder(dir_name)

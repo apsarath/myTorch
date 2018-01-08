@@ -107,6 +107,10 @@ class A2CAgent(object):
 	def action_dim(self):
 		return self._a2cnet.action_dim
 
+	@property
+	def a2cnet(self):
+		return self._a2cnet
+
 if __name__=="__main__":
 
 	from myTorch.rllib.a2c.a2c_networks import *
