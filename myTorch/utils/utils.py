@@ -128,3 +128,15 @@ def get_optimizer(params, config):
         return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
     else:
         assert("Unsupported optimizer : {}. Valid optimizers : Adadelta, Adagrad, Adam, RMSprop, SGD".format(config.optim_name))
+
+def num_present(input_string):
+    return any(i.isdigit() for i in input_string)
+
+def remove_adjacent(nums):
+    i = 1
+    while i < len(nums):
+        if nums[i] == nums[i-1]:
+            nums.pop(i)
+            i -= 1
+        i += 1
+    return nums
