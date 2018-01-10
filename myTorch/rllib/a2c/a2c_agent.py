@@ -64,7 +64,7 @@ class A2CAgent(object):
 		# Compute loss
 		pg_loss, val_loss, entropy_loss = 0, 0, 0
 		for t in range(num_steps):
-			pg_loss += torch.mean((R[t] -  minibatch["vvals"][t]).detach()* minibatch["log_taken_pvals"][t])
+			pg_loss -= torch.mean((R[t] -  minibatch["vvals"][t]).detach()* minibatch["log_taken_pvals"][t])
 			val_loss += torch.nn.functional.mse_loss(minibatch["vvals"][t], R[t].detach())
 			entropy_loss -= torch.mean(minibatch["entropies"][t])
 
@@ -106,6 +106,10 @@ class A2CAgent(object):
 	@property
 	def action_dim(self):
 		return self._a2cnet.action_dim
+
+	@property
+	def a2cnet(self):
+		return self._a2cnet
 
 if __name__=="__main__":
 

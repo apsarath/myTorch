@@ -47,6 +47,7 @@ def train_a2c_agent():
 
 	env = get_batched_env(config.env_name, config.num_env, config.seed)
 	experiment.register_env(env)
+	test_env = get_batched_env(config.env_name, 1, config.seed)
 
 	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
 
@@ -63,6 +64,16 @@ def train_a2c_agent():
 			 		discount_rate=config.discount_rate, 
 			 		grad_clip = [config.grad_clip_min, config.grad_clip_max])
 	experiment.register_agent(agent)
+
+	test_agent = A2CAgent(a2cnet.make_inference_net(),
+										optimizer,
+										numpy_rng,
+										ent_coef = config.ent_coef,
+										vf_coef = config.vf_coef,
+										discount_rate=config.discount_rate,
+										grad_clip = [config.grad_clip_min, config.grad_clip_max])
+	experiment.register_agent(test_agent)
+
 
 
 	logger = None
@@ -95,8 +106,9 @@ def train_a2c_agent():
 
 	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
 
-
 	obs, legal_moves = env.reset()
+	logger.reset_a2c_training_metrics(config.num_env)
+	pg_losses, val_losses, entropy_losses = [],[],[]
 
 	for i in xrange(tr.iterations_done, num_iterations):
 		
@@ -112,6 +124,7 @@ def train_a2c_agent():
 
 			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
+			logger.track_a2c_training_metrics(episode_dones, rewards)
 
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
 			update_dict["vvals"].append(vvals)
@@ -124,42 +137,46 @@ def train_a2c_agent():
 																		is_training=True, 
 																		update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
+		pg_losses.append(pg_loss)
+		val_losses.append(val_loss)
+		entropy_losses.append(entropy_loss)
+		logger.log_scalar_avg("train_pg_loss", pg_losses, 30, tr.iterations_done)
+		logger.log_scalar_avg("train_val_loss", val_losses, 30, tr.iterations_done)
+		logger.log_scalar_avg("train_entropy_loss", entropy_losses, 30, tr.iterations_done)
 		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss )
+
+		logger.log_a2c_training_metrics(30, tr.iterations_done)
 
 		tr.iterations_done+=1
 		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd
-	
-	inference_prep(config, agent)
+
+		if tr.iterations_done % config.test_freq == 0:
+			print "Testing..."
+			test_agent.a2cnet.set_params(agent.a2cnet.get_params())
+			reward, episode_len = inference(config, test_agent, test_env)
+			logger.log_scalar("Test_reward", reward, tr.iterations_done)
+			logger.log_scalar("Test_episode_len", episode_len, tr.iterations_done)
+ 
 	if math.fmod(tr.global_steps_done, config.save_freq) == 0:
-			experiment.save("current")
+		experiment.save("current")
 		
 
-def inference_prep(config, test_agent):
-	test_env = get_batched_env(config.env_name, 1, config.seed)
+def inference(config, test_agent, test_env):
 	obs, legal_moves = test_env.reset()
 	rewards, episode_lens = [], []
-	for i in range(100):
+	for i in range(10):
 		done, total_reward, episode_len = False, 0 ,0
 		obs, legal_moves = test_env.reset()
 		test_agent.reset_agent_state(1)
 		while not done:
 			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
-			import pdb; pdb.set_trace()
 			done = episode_dones[0]
 			total_reward += reward[0]
-			episode_len += 1
-		rewards.append(total_reward)
+			episode_len += 1.0
+		rewards.append(float(total_reward))
 		episode_lens.append(episode_len)
-	
-	print("Avg reward : {}".format(sum(rewards)/100))
-
-	experiment.save("current")
-
-
-def append_to(tlist, tr, val):
-	tlist[0].append(val)
-	tlist[1].append([tr.episodes_done, tr.steps_done, tr.updates_done])
+	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens)  
 
 
 if __name__=="__main__":
