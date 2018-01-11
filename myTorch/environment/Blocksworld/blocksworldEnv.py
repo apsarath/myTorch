@@ -197,7 +197,7 @@ class Environment:
     world with colored blocks and the goal is checked with matching the location with exact stacking of blocks of same color.
     None defines a world with all blocks of blue color and the goal condition is checked only by matching the
     number of blocks on target locations with current location.'''
-    def __init__(self,mode, image_dir, target = None, problem =0):
+    def __init__(self,mode, image_dir, target = None, problem =0, max_episode_len=50):
         self.mode = mode
         self.image_dir = image_dir
         self.actions = ['left','right','pick','drop']
@@ -206,6 +206,8 @@ class Environment:
         self.problem = problem
         self.observation_space = tuple([6,315,200])
         self.inpos = -100
+        self.max_episode_len = max_episode_len
+        self.curr_episode_len = 0 
 
     def reset(self,mode,target = None,problem =0, min_b = 1, max_b = 10):
         '''Resets the world and creates a new instance of the game with new target and state'''
@@ -304,6 +306,7 @@ class Environment:
                                 comp_ind+=[b.index]
         self.RenderInit()
         _, _, image = self.step(3)
+        self.curr_episode_len = 0
         return image
 
     def RenderInit(self):
@@ -379,6 +382,9 @@ class Environment:
         self.RenderInit()
         done, reward = self.check()
         image = np.transpose(np.concatenate([pygame.surfarray.pixels3d(sub1),pygame.surfarray.pixels3d(sub2)],axis=2))
+        self.curr_episode_len += 1
+        if self.curr_episode_len > self.max_episode_len:
+            done = True
         return done, reward, image
 
     def random_step(self):
