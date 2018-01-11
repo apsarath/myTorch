@@ -303,7 +303,8 @@ class Environment:
                                 b.position = (OFFSET+b.position[0]+(loc-1)*UNIT_DISTANCE_X,b.position[1]-pos*UNIT_DISTANCE)
                                 comp_ind+=[b.index]
         self.RenderInit()
-        return self.step(3)
+        _, _, image = self.step(3)
+        return image
 
     def RenderInit(self):
         '''Initializes the rendering objects.'''

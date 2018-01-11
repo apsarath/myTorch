@@ -9,7 +9,7 @@ class BlocksEnvironment(EnivironmentBase):
         self._env = blocksworldEnv.Environment('None', "../../environment/Blocksworld/images/")
         self._action_dim = len(self._env.actions)
         self._legal_moves = np.arange(self._action_dim)
-        self._obs_dim = len(self._env.observation_space)
+        self._obs_dim = self._env.observation_space
 
     @property
     def action_dim(self):
