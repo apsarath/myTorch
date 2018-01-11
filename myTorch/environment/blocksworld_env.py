@@ -21,12 +21,11 @@ class BlocksEnvironment(EnivironmentBase):
 
     def reset(self):
         obs = self._env.reset('None','../../environment/Blocksworld/problem.txt',0)
-        legal_moves = np.arange(self._action_dim)
-        return obs, legal_moves
+        return obs, self._legal_moves
 
     def step(self, action):
         done, reward, obs = self._env.step(action)
-        return [curr_state, target], self._legal_moves, reward, done
+        return obs, self._legal_moves, reward, done
 
     def render(self, mode='rgb_array'):
         pass

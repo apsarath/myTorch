@@ -376,10 +376,10 @@ class Environment:
         rect = pygame.Rect(345, 0 , 315, 200)
         sub2 = screen_copy.subsurface(rect)
         self.RenderInit()
-        if action!=None:
-            return [self.check(), np.transpose(np.concatenate([pygame.surfarray.pixels3d(sub1),pygame.surfarray.pixels3d(sub2)],axis=2),[2,0,1])]
-        else:
-            return [0,0,0]
+        done, reward = self.check()
+        image = np.transpose(np.concatenate([pygame.surfarray.pixels3d(sub1),pygame.surfarray.pixels3d(sub2)],axis=2))
+        return done, reward, image
+
     def random_step(self):
         '''A random agent that selects actions uniformly at random'''
         return self.step(np.random.randint(len(self.actions)))
