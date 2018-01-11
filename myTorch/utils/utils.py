@@ -101,7 +101,7 @@ def modify_config_params(config, config_flag):
         if flag in config.get():
             print("Setting {} with value {}".format(flag, value))
             if isinstance(config.get()[flag], str):
-                config.config.get()[flag] = value
+                config.get()[flag] = value
             else:
                 config.get()[flag] = eval(value)
         else:

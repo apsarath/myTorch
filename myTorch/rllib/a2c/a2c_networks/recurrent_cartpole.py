@@ -20,7 +20,7 @@ class RecurrentCartPole(nn.Module):
 
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
-		self._rnn_input_size = 20
+		self._rnn_input_size = self._obs_dim
 		self._rnn_hidden_size = 30
 		self._rnn_type = rnn_type
 		self._is_rnn_policy = True
@@ -38,12 +38,6 @@ class RecurrentCartPole(nn.Module):
 			self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
 			self._bn3 = nn.BatchNorm2d(32)
 			self._fc1 = nn.Linear(448, 64)
-		else:
-			self._fc1 = nn.Linear(self._obs_dim, 64)
-
-		self._fc2 = nn.Linear(64, 64)
-		self._fc3 = nn.Linear(64, 64)
-		self._fc4 = nn.Linear(64, self._rnn_input_size)
 
 		self._fcv = nn.Linear(self._rnn_hidden_size, 1)
 		self._fcp = nn.Linear(self._rnn_hidden_size, self._action_dim)
@@ -68,10 +62,7 @@ class RecurrentCartPole(nn.Module):
 		if self._hidden is None:
 			self.reset_hidden(obs.shape[0])
 
-		x = self._conv_to_linear(obs) if self._is_obs_image else self._fc1(obs)
-		x = F.relu(self._fc2(x))
-		x = F.relu(self._fc3(x))
-		x = F.relu(self._fc4(x))
+		x = self._conv_to_linear(obs) if self._is_obs_image else obs
 		hidden_next = self._rnn(x, self._hidden)
 		if update_hidden_state:
 			self._hidden = hidden_next

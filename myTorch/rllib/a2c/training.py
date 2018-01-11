@@ -72,7 +72,6 @@ def train_a2c_agent():
 										vf_coef = config.vf_coef,
 										discount_rate=config.discount_rate,
 										grad_clip = [config.grad_clip_min, config.grad_clip_max])
-	experiment.register_agent(test_agent)
 
 
 
@@ -107,8 +106,7 @@ def train_a2c_agent():
 	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
 
 	obs, legal_moves = env.reset()
-	logger.reset_a2c_training_metrics(config.num_env)
-	pg_losses, val_losses, entropy_losses = [],[],[]
+	logger.reset_a2c_training_metrics(config.num_env, tr, config.sliding_wsize)
 
 	for i in xrange(tr.iterations_done, num_iterations):
 		
@@ -121,7 +119,7 @@ def train_a2c_agent():
 					   "episode_dones":[]}
 
 		for t in range(config.num_steps_per_upd):
-
+			# TO DO : make changes to avoid passing the "dones" as a list
 			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
 			logger.track_a2c_training_metrics(episode_dones, rewards)
@@ -137,25 +135,27 @@ def train_a2c_agent():
 																		is_training=True, 
 																		update_agent_state=False)
 		pg_loss, val_loss, entropy_loss = agent.train_step(update_dict)
-		pg_losses.append(pg_loss)
-		val_losses.append(val_loss)
-		entropy_losses.append(entropy_loss)
-		logger.log_scalar_avg("train_pg_loss", pg_losses, 30, tr.iterations_done)
-		logger.log_scalar_avg("train_val_loss", val_losses, 30, tr.iterations_done)
-		logger.log_scalar_avg("train_entropy_loss", entropy_losses, 30, tr.iterations_done)
-		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss )
-
-		logger.log_a2c_training_metrics(30, tr.iterations_done)
 
 		tr.iterations_done+=1
 		tr.global_steps_done = tr.iterations_done*config.num_env*config.num_steps_per_upd
+
+		append_to(tr.pg_loss, tr, pg_loss)
+		append_to(tr.val_loss, tr, val_loss)
+		append_to(tr.entropy_loss, tr, entropy_loss)
+
+		logger.log_scalar_rl("train_pg_loss", tr.pg_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
+		logger.log_scalar_rl("train_val_loss", tr.val_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
+		logger.log_scalar_rl("train_entropy_loss", tr.entropy_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
+		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss)
 
 		if tr.iterations_done % config.test_freq == 0:
 			print "Testing..."
 			test_agent.a2cnet.set_params(agent.a2cnet.get_params())
 			reward, episode_len = inference(config, test_agent, test_env)
-			logger.log_scalar("Test_reward", reward, tr.iterations_done)
-			logger.log_scalar("Test_episode_len", episode_len, tr.iterations_done)
+			append_to(tr.test_reward, tr, reward)
+			append_to(tr.test_episode_len, tr, episode_len)
+			logger.log_scalar_rl("Test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
+			logger.log_scalar_rl("Test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
  
 	if math.fmod(tr.global_steps_done, config.save_freq) == 0:
 		experiment.save("current")
@@ -164,10 +164,10 @@ def train_a2c_agent():
 def inference(config, test_agent, test_env):
 	obs, legal_moves = test_env.reset()
 	rewards, episode_lens = [], []
-	for i in range(10):
+	for i in range(config.test_per_iter):
 		done, total_reward, episode_len = False, 0 ,0
 		obs, legal_moves = test_env.reset()
-		test_agent.reset_agent_state(1)
+		test_agent.reset_agent_state(batch_size=1)
 		while not done:
 			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
@@ -176,8 +176,11 @@ def inference(config, test_agent, test_env):
 			episode_len += 1.0
 		rewards.append(float(total_reward))
 		episode_lens.append(episode_len)
-	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens)  
+	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens)
 
+def append_to(tlist, tr, val):
+		tlist[0].append(val)
+		tlist[1].append([tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 
 if __name__=="__main__":
 	train_a2c_agent()
