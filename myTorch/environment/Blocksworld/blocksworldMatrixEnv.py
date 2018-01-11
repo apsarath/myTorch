@@ -12,13 +12,10 @@ class BlocksWorld(object):
         assert(self._num_blocks < self._height * self._width)
         self._num_unique_blocks = num_unique_blocks
         self._is_agent_present = is_agent_present
-        if self._is_agent_present:
-            self._world = np.zeros((1 + self._num_unique_blocks, self._height, self._width), dtype=np.float32)
-            self._agent_states = ["free", "carrying"]
-            self._agent_state = "free"
-        else:
-            self._world = np.zeros((self._num_unique_blocks, self._height, self._width), dtype=np.float32)
-            self._agent_state = None
+        self._world = np.zeros((self._width, self._height))
+        self._agent_states = ["free", "carrying"]
+        self._agent_state = None
+        self._agent_id = (self._num_unique_blocks + 1)
 
     def reset(self, block_ids):
         # Create target world
@@ -29,7 +26,7 @@ class BlocksWorld(object):
             while True:
                 loc = np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
-                    self._world[block_id, self._height_at_loc[loc], loc] = 1.0
+                    self._world[loc, self._height_at_loc[loc]] = block_id
                     self._block_id_lookup[(loc, self._height_at_loc[loc])] = block_id
                     self._height_at_loc[loc] += 1
                     break
@@ -39,7 +36,7 @@ class BlocksWorld(object):
             while True:
                 loc = np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
-                    self._world[-1, self._height_at_loc[loc], loc] = 1.0
+                    self._world[loc, self._height_at_loc[loc]] = self._agent_id
                     self._agent_loc = (loc, self._height_at_loc[loc])
                     self._height_at_loc[loc] += 1
                     break
@@ -54,15 +51,19 @@ class BlocksWorld(object):
         return self._agent_loc
     
     def is_matching(self, target):
-        return np.array_equal(self._world[:-1], target.as_numpy())
+        x,y = self._agent_loc
+        self._world[x, y] = 0
+        is_match = np.array_equal(self._world, target.as_numpy())
+        self._world[x, y] = self._agent_id
+        return is_match
 
     def _move_agent(self, new_loc):
         curr_x, curr_y = self._agent_loc
-        self._world[-1, curr_y, curr_x] = 0.0
+        self._world[curr_x, curr_y] = 0
         self._height_at_loc[curr_x] -= 1
         
         new_x, new_y = new_loc
-        self._world[-1, new_y, new_x] = 1.0
+        self._world[new_x, new_y] = self._agent_id
         self._height_at_loc[new_x] += 1
         self._agent_loc = new_loc
 
@@ -70,11 +71,11 @@ class BlocksWorld(object):
         block_id = self._block_id_lookup[curr_loc]
         del self._block_id_lookup[curr_loc]
         curr_x, curr_y = curr_loc
-        self._world[block_id, curr_y, curr_x] = 0.0
+        self._world[curr_x, curr_y] = 0
         self._height_at_loc[curr_x] -= 1
         
         new_x, new_y = new_loc
-        self._world[block_id, new_y, new_x] = 1.0
+        self._world[new_x, new_y] = block_id
         self._height_at_loc[new_x] += 1
         self._block_id_lookup[new_loc] = block_id
 
@@ -132,7 +133,7 @@ class BlocksWorld(object):
 
         for loc, block_id in self._block_id_lookup.items():
             w, h = loc
-            world[h][w] = block_syms[block_id]
+            world[h][w] = block_syms[block_id-1]
 
         if self._is_agent_present:
             agent_sym = "A"
@@ -141,6 +142,9 @@ class BlocksWorld(object):
         
         for row in world[::-1]: 
             print row
+
+        print "=========== World matrix ============"
+        print np.transpose(self._world)
         
         return "************************"
 
@@ -162,7 +166,7 @@ class BlocksWorldMatrixEnv(object):
         self._num_steps_done = 0
 
     def reset(self):
-        block_ids = np.random.randint(self._num_unique_blocks, size=self._num_blocks)
+        block_ids = np.random.randint(1, self._num_unique_blocks+1, size=self._num_blocks)
         self._input_world.reset(block_ids)
         self._target_world.reset(block_ids)
         self._obs = np.concatenate((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
@@ -196,7 +200,7 @@ class BlocksWorldMatrixEnv(object):
         return self._target_world
 
 if __name__=="__main__":
-    env = BlocksWorldMatrixEnv(num_blocks=4, num_unique_blocks=2)
+    env = BlocksWorldMatrixEnv()
     env.reset()
     print "Target World :"
     print env.target_world
