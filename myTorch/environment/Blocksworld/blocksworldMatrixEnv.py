@@ -20,12 +20,12 @@ class BlocksWorld(object):
             self._world = np.zeros((self._num_unique_blocks, self._height, self._width), dtype=np.float32)
             self._agent_state = None
 
-    def reset(self):
+    def reset(self, block_ids):
         # Create target world
         self._height_at_loc = [0]*self._width
         self._block_id_lookup = {}
-        for _ in range(self._num_blocks):
-            block_id = np.random.randint(self._num_unique_blocks)
+        for i in range(self._num_blocks):
+            block_id = block_ids[i]
             while True:
                 loc = np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
@@ -162,8 +162,9 @@ class BlocksWorldMatrixEnv(object):
         self._num_steps_done = 0
 
     def reset(self):
-        self._input_world.reset()
-        self._target_world.reset()
+        block_ids = np.random.randint(self._num_unique_blocks, size=self._num_blocks)
+        self._input_world.reset(block_ids)
+        self._target_world.reset(block_ids)
         self._obs = np.concatenate((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
         self._num_steps_done = 0
         return self._obs
@@ -195,7 +196,7 @@ class BlocksWorldMatrixEnv(object):
         return self._target_world
 
 if __name__=="__main__":
-    env = BlocksWorldMatrixEnv()
+    env = BlocksWorldMatrixEnv(num_blocks=4, num_unique_blocks=2)
     env.reset()
     print "Target World :"
     print env.target_world
