@@ -17,3 +17,8 @@ def make_environment(env_name):
 		return BlocksEnvironment()
 	else:
 		assert("unsupported environment : {}".format(env_name))
+
+if __name__=="__main__":
+	env = make_environment("blocksworld_none")
+	obs, legal_moves = env.reset()
+	import pdb; pdb.set_trace()
