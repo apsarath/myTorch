@@ -197,7 +197,7 @@ class Environment:
     world with colored blocks and the goal is checked with matching the location with exact stacking of blocks of same color.
     None defines a world with all blocks of blue color and the goal condition is checked only by matching the
     number of blocks on target locations with current location.'''
-    def __init__(self,mode, image_dir, target = None, problem =0, max_episode_len=50):
+    def __init__(self,mode, image_dir, target = None, problem =0, max_episode_len=20):
         self.mode = mode
         self.image_dir = image_dir
         self.actions = ['left','right','pick','drop']
