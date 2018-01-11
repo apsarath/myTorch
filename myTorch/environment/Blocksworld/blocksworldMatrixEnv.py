@@ -58,11 +58,11 @@ class BlocksWorld(object):
 
     def _move_agent(self, new_loc):
         curr_x, curr_y = self._agent_loc
-        self._world[-1, curr_x, curr_y] = 0.0
+        self._world[-1, curr_y, curr_x] = 0.0
         self._height_at_loc[curr_x] -= 1
         
         new_x, new_y = new_loc
-        self._world[-1, new_x, new_y] = 1.0
+        self._world[-1, new_y, new_x] = 1.0
         self._height_at_loc[new_x] += 1
         self._agent_loc = new_loc
 
@@ -70,11 +70,11 @@ class BlocksWorld(object):
         block_id = self._block_id_lookup[curr_loc]
         del self._block_id_lookup[curr_loc]
         curr_x, curr_y = curr_loc
-        self._world[block_id, curr_x, curr_y] = 0.0
+        self._world[block_id, curr_y, curr_x] = 0.0
         self._height_at_loc[curr_x] -= 1
         
         new_x, new_y = new_loc
-        self._world[block_id, new_x, new_y] = 1.0
+        self._world[block_id, new_y, new_x] = 1.0
         self._height_at_loc[new_x] += 1
         self._block_id_lookup[new_loc] = block_id
 
@@ -141,6 +141,7 @@ class BlocksWorld(object):
         
         for row in world[::-1]: 
             print row
+        
         return "************************"
 
 
