@@ -3,6 +3,7 @@
 import os
 import math
 import numpy as np
+from myTorch.environment import EnivironmentBase
 
 class Tower(object):
     def __init__(self, block_id_lookup, height_at_loc, order_look_up=None):
@@ -216,7 +217,7 @@ class BlocksWorld(object):
         return "************************"
 
 
-class BlocksWorldMatrixEnv(object):
+class BlocksWorldMatrixEnv(EnivironmentBase):
     def __init__(self, height=5, width=5, num_blocks=1, num_unique_blocks=1, 
                  max_reward = 10, min_reward = 0, num_steps_cutoff=20) :
         # initialize matrix
@@ -259,12 +260,38 @@ class BlocksWorldMatrixEnv(object):
         return self._obs, reward, done
 
     @property
+    def action_dim(self):
+        return len(self._actions) 
+
+    @property
+    def obs_dim(self):
+        return (height, width)
+
+    @property
     def input_world(self):
         return self._input_world
 
     @property
     def target_world(self):
         return self._target_world
+    
+    def render(self, mode='rgb_array'):
+        pass
+
+    def seed(self, seed):
+        pass
+
+    def get_random_state(self):
+        pass
+
+    def set_random_state(self, state):
+        pass
+
+    def save(self, save_dir):
+        pass
+
+    def load(self, save_dir):
+        pass
 
 if __name__=="__main__":
     env = BlocksWorldMatrixEnv()
@@ -283,5 +310,3 @@ if __name__=="__main__":
             print "Reward : {}, done : {}".format(reward,done)
     
     import pdb; pdb.set_trace()
-
-
