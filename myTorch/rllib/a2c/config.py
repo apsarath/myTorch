@@ -55,3 +55,8 @@ def cartpole_image():
 	config = cartpole()
 	config.env_name = "CartPole-v0-image"
 	return config
+
+def blocksworld_matrix():
+    config = cartpole()
+    config.env_name = "blocksworld_matrix"
+    return config

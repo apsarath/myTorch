@@ -105,7 +105,6 @@ class BlocksWorld(object):
         self._block_lookup[new_loc] = block
 
     def update(self, action):
-        print "prev agent state: {}".format(self._agent.state)
         (x, y) = self._agent.loc
 
         if action == "left":

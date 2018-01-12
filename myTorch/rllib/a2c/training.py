@@ -18,7 +18,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="A2C Training")
-parser.add_argument('--config', type=str, default="cartpole", help="config name")
+parser.add_argument('--config', type=str, default="blocksworld_matrix", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")

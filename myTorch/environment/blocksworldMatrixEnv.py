@@ -8,7 +8,7 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=5, width=5, num_blocks=5, num_colors=1, num_steps_cutoff=30) :
+    def __init__(self, height=50, width=50, num_blocks=6, num_colors=3, num_steps_cutoff=50) :
         # initialize matrix
         self._height = height
         self._width = width
@@ -34,7 +34,6 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
     def step(self, action):
         # adjust the 2 x matrix and provide the reward if it is a legal move.
         self._num_steps_done += 1
-
         done = False
         reward = self._input_world.update(self._actions[action])
 
@@ -43,7 +42,8 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         if self._actions[action] == "drop":
             if self._input_world.has_game_ended():
                 done = True
-        elif self._num_steps_done == self._num_steps_cutoff:
+
+        if self._num_steps_done >= self._num_steps_cutoff:
             done = True
             
         return self._obs, self._legal_moves, reward, done
