@@ -336,7 +336,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._input_world.reset([Block(i+1, color) for i, color in enumerate(colors)], 
                                 order_look_up=self._target_world.tower.order_look_up,
                                 target_height_at_loc=self._target_world.height_at_loc)
-        self._obs = np.concatenate((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
+        self._obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
         self._num_steps_done = 0
         return self._obs
 
@@ -347,7 +347,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         done = False
         reward = self._input_world.update(self._actions[action])
 
-        self._obs = np.concatenate((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
+        self._obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
         
         if self._actions[action] == "drop":
             if self._input_world.has_game_ended():
@@ -364,7 +364,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
     @property
     def obs_dim(self):
-        return (height, width)
+        return (2, height, width)
 
     @property
     def input_world(self):
