@@ -4,8 +4,63 @@ import os
 import math
 import numpy as np
 
+class Tower(object):
+    def __init__(self, block_id_lookup, height_at_loc, order_look_up=None):
+        self._block_id_lookup = block_id_lookup
+        self._order_look_up = order_look_up
+        self._height_at_loc = height_at_loc
+        self._width = len(height_at_loc)
+        self._ground = "ground"
+
+    @property
+    def order_look_up(self):
+        return self._order_look_up
+
+    def in_position(self, loc):
+        return self._in_position[loc]
+
+    def set_in_position_flag(self, loc):
+        x, y = loc
+        block_id = self._block_id_lookup[loc]
+        if y > 0:
+            if not self._in_position[(x,y-1)]:
+                self._in_position[(x,y)] = False
+            else:
+                block_id_below = self._block_id_lookup[(x,y-1)]
+                self._in_position[loc] = (self._order_look_up[block_id] == block_id_below)
+        elif y == 0:
+            self._in_position[loc] = (self._order_look_up[block_id] == self._ground)
+        else:
+            assert(0)
+
+    def init_in_position_flags(self):
+        self._in_position = {}
+
+        for x in range(self._width):
+            for y in range(self._height_at_loc[x]):
+                block_id = self._block_id_lookup[(x,y)]
+                if y == 0:
+                    self._in_position[(x,y)] = (self._order_look_up[block_id] == self._ground)
+                else:
+                    block_id_below = self._block_id_lookup[(x,y-1)]
+                    if not self._in_position[(x,y-1)]:
+                        self._in_position[(x,y)] = False
+                    else:
+                        self._in_position[(x,y)] = (self._order_look_up[block_id] == block_id_below)
+
+    def compute_order_look_up(self):
+        self._order_look_up = {}
+        for x in range(self._width):
+            for y in range(self._height_at_loc[x]):
+                block_id = self._block_id_lookup[(x,y)]
+                if y == 0:
+                    self._order_look_up[block_id] = self._ground
+                else:
+                    self._order_look_up[block_id] = self._block_id_lookup[(x,y-1)]
+        return self._order_look_up
+
 class BlocksWorld(object):
-    def __init__(self, height=50, width=50, num_blocks=1,num_unique_blocks=1, is_agent_present=False):
+    def __init__(self, height=50, width=50, num_blocks=1, num_unique_blocks=1, is_agent_present=False):
         self._height = height
         self._width = width
         self._num_blocks = num_blocks
@@ -17,7 +72,11 @@ class BlocksWorld(object):
         self._agent_state = None
         self._agent_id = (self._num_unique_blocks + 1)
 
-    def reset(self, block_ids):
+    @property
+    def tower(self):
+        return self._tower
+
+    def reset(self, block_ids, order_look_up=None):
         # Create target world
         self._height_at_loc = [0]*self._width
         self._block_id_lookup = {}
@@ -30,6 +89,13 @@ class BlocksWorld(object):
                     self._block_id_lookup[(loc, self._height_at_loc[loc])] = block_id
                     self._height_at_loc[loc] += 1
                     break
+
+        self._tower = Tower(self._block_id_lookup, self._height_at_loc, order_look_up)
+
+        if order_look_up is None:
+            self._tower.compute_order_look_up()
+
+        self._tower.init_in_position_flags()
 
         if self._is_agent_present:
             self._agent_state = "free"
@@ -113,8 +179,9 @@ class BlocksWorld(object):
 
         elif action == "drop":
             if self._agent_state == "free": return
-            self._move_agent((x,y+1))
-            self._move_block((x,y+1),(x,y))
+            self._move_agent((x, y+1))
+            self._move_block((x, y+1),(x, y))
+            self._tower.set_in_position_flag((x, y))
             self._agent_state = "free"
             return
 
@@ -167,8 +234,8 @@ class BlocksWorldMatrixEnv(object):
 
     def reset(self):
         block_ids = np.random.randint(1, self._num_unique_blocks+1, size=self._num_blocks)
-        self._input_world.reset(block_ids)
         self._target_world.reset(block_ids)
+        self._input_world.reset(block_ids, order_look_up=self._target_world.tower.order_look_up)
         self._obs = np.concatenate((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
         self._num_steps_done = 0
         return self._obs
