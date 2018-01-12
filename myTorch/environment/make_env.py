@@ -15,5 +15,12 @@ def make_environment(env_name):
 		return MazeBaseEnvironment("SingleMazeInstr-v0")
 	elif env_name == "blocksworld_none":
 		return BlocksEnvironment()
+	elif env_name == "blocksworld_matrix":
+		return BlocksWorldMatrixEnv()
 	else:
 		assert("unsupported environment : {}".format(env_name))
+
+if __name__=="__main__":
+	env = make_environment("blocksworld_none")
+	obs, legal_moves = env.reset()
+	import pdb; pdb.set_trace()

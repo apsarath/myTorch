@@ -18,7 +18,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="DQN Training")
-parser.add_argument('--config', type=str, default="cartpole_image", help="config name")
+parser.add_argument('--config', type=str, default="blocksworld", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")

@@ -3,6 +3,7 @@ __author__ = "Prasanna"
 __credits__ = ["Sarath", "Chinna"]
 
 import pygame, math, sys
+import os
 from pygame.locals import *
 import numpy as np
 import time
@@ -105,12 +106,12 @@ class Block_Sprite(pygame.sprite.Sprite):
     MAX_REVERSE_SPEED = 0
     ACCELERATION = 0
     TURN_SPEED = 0
-    def __init__(self, position,index,color, number = None):
+    def __init__(self, image_dir, position,index,color, number = None):
         pygame.sprite.Sprite.__init__(self)
         self.number = number
         if self.number!=None:
-            self.src_image1 = pygame.image.load('/Users/prasanna/Documents/Blocksworld/images/'+str(number+1)+'.bmp')
-        self.src_image = pygame.image.load('/Users/prasanna/Documents/Blocksworld/images/'+color+'.bmp')
+            self.src_image1 = pygame.image.load(os.path.join(image_dir, str(number+1)+'.bmp'))
+        self.src_image = pygame.image.load(os.path.join(image_dir, color +'.bmp'))
         m = 1
         if index == 'bar' or index == 'table':
             m=5
@@ -196,23 +197,26 @@ class Environment:
     world with colored blocks and the goal is checked with matching the location with exact stacking of blocks of same color.
     None defines a world with all blocks of blue color and the goal condition is checked only by matching the
     number of blocks on target locations with current location.'''
-    def __init__(self,mode,target = None, problem =0):
+    def __init__(self,mode, image_dir, target = None, problem =0, max_episode_len=20):
         self.mode = mode
+        self.image_dir = image_dir
         self.actions = ['left','right','pick','drop']
         self.colors = ['red','blue','green','purple']
         self.target = target
         self.problem = problem
         self.observation_space = tuple([6,315,200])
         self.inpos = -100
+        self.max_episode_len = max_episode_len
+        self.curr_episode_len = 0 
 
     def reset(self,mode,target = None,problem =0, min_b = 1, max_b = 10):
         '''Resets the world and creates a new instance of the game with new target and state'''
         if target!=None:
             self.target = target
         self.mode = mode
-        self.bar1 = Block_Sprite((TABLE-UNIT_DISTANCE_X,HEIGHT),'bar','bar')
-        self.bar2 = Block_Sprite((OFFSET-10,HEIGHT - UNIT_DISTANCE),'bar','bar')
-        self.tab = Block_Sprite((TABLE+UNIT_DISTANCE_X,HEIGHT+50),'table','tab')
+        self.bar1 = Block_Sprite(self.image_dir, (TABLE-UNIT_DISTANCE_X,HEIGHT),'bar','bar')
+        self.bar2 = Block_Sprite(self.image_dir, (OFFSET-10,HEIGHT - UNIT_DISTANCE),'bar','bar')
+        self.tab = Block_Sprite(self.image_dir, (TABLE+UNIT_DISTANCE_X,HEIGHT+50),'table','tab')
         self.Blocks =[]
         self.T_Blocks = []
         self.problem =problem
@@ -245,14 +249,14 @@ class Environment:
                 r = self.colors[r]
             else:
                 r = self.selected_colors[i]
-            self.Blocks+= [Block_Sprite((TABLE,HEIGHT),i,r)]
+            self.Blocks+= [Block_Sprite(self.image_dir, (TABLE,HEIGHT),i,r)]
             self.color_dict.update({i:self.selected_colors[i]})
-        self.Agent = Agent_Sprite('images/agent_stand.bmp',(TABLE,HEIGHT),'Agent')
+        self.Agent = Agent_Sprite(os.path.join(self.image_dir, 'agent_stand.bmp'),(TABLE,HEIGHT),'Agent')
         self.All_locations = [location() for i in range(MAX_LOCATIONS)]
         self.Target = [location() for i in range(MAX_LOCATIONS)]
         for i in range(NO_OF_BLOCKS):
             #r = np.random.randint(len(self.selected_colors))
-            self.T_Blocks += [Block_Sprite((TABLE,HEIGHT),i,self.color_dict[i])]
+            self.T_Blocks += [Block_Sprite(self.image_dir, (TABLE,HEIGHT),i,self.color_dict[i])]
             #self.selected_colors.remove(self.selected_colors[r])
         self.Blocks += [self.Agent]
 
@@ -301,7 +305,9 @@ class Environment:
                                 b.position = (OFFSET+b.position[0]+(loc-1)*UNIT_DISTANCE_X,b.position[1]-pos*UNIT_DISTANCE)
                                 comp_ind+=[b.index]
         self.RenderInit()
-        return self.step(3)
+        _, _, image = self.step(3)
+        self.curr_episode_len = 0
+        return image
 
     def RenderInit(self):
         '''Initializes the rendering objects.'''
@@ -374,10 +380,13 @@ class Environment:
         rect = pygame.Rect(345, 0 , 315, 200)
         sub2 = screen_copy.subsurface(rect)
         self.RenderInit()
-        if action!=None:
-            return [self.check(), np.transpose(np.concatenate([pygame.surfarray.pixels3d(sub1),pygame.surfarray.pixels3d(sub2)],axis=2),[2,0,1])]
-        else:
-            return [0,0,0]
+        done, reward = self.check()
+        image = np.transpose(np.concatenate([pygame.surfarray.pixels3d(sub1),pygame.surfarray.pixels3d(sub2)],axis=2))
+        self.curr_episode_len += 1
+        if self.curr_episode_len > self.max_episode_len:
+            done = True
+        return done, reward, image
+
     def random_step(self):
         '''A random agent that selects actions uniformly at random'''
         return self.step(np.random.randint(len(self.actions)))

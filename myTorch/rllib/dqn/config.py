@@ -31,7 +31,7 @@ def cartpole():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.use_gpu = False
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -54,14 +54,11 @@ def cartpole():
 	config.nesterov = False 
 	config.grad_clip_min = None
 	config.grad_clip_max = None
-
 	return config
-
 
 def cartpole_image():
 
 	config = MyContainer()
-
 
 	config.exp_name = "dqn"
 
@@ -88,7 +85,7 @@ def cartpole_image():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = False
+	config.use_gpu = True
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -112,4 +109,11 @@ def cartpole_image():
 	config.grad_clip_min = -1
 	config.grad_clip_max = 1
 
+	return config
+
+
+def blocksworld():
+	config = cartpole_image()
+	config.env_name = "blocksworld_none"
+	config.lr = 1e-3
 	return config
