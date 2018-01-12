@@ -8,16 +8,14 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=5, width=5, num_blocks=1, num_colors=1, 
-                 max_reward = 10, min_reward = 0, num_steps_cutoff=20) :
+    def __init__(self, height=5, width=5, num_blocks=5, num_colors=1, num_steps_cutoff=30) :
         # initialize matrix
         self._height = height
         self._width = width
         self._num_blocks = num_blocks
         self._num_colors = num_colors 
-        self._max_reward = max_reward
-        self._min_reward = min_reward
         self._actions = {0:'left',1:'right',2:'pick',3:'drop'}
+        self._legal_moves = np.array(self._actions.keys())
         self._input_world = BlocksWorld(height, width, num_blocks, num_colors, is_agent_present=True)
         self._target_world = BlocksWorld(height, width, num_blocks, num_colors, is_agent_present=False)
         self._num_steps_cutoff = num_steps_cutoff
@@ -31,7 +29,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
                                 target_height_at_loc=self._target_world.height_at_loc)
         self._obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
         self._num_steps_done = 0
-        return self._obs
+        return self._obs, self._legal_moves
 
     def step(self, action):
         # adjust the 2 x matrix and provide the reward if it is a legal move.
@@ -44,12 +42,11 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         
         if self._actions[action] == "drop":
             if self._input_world.has_game_ended():
-                reward = self._max_reward
                 done = True
         elif self._num_steps_done == self._num_steps_cutoff:
             done = True
             
-        return self._obs, reward, done
+        return self._obs, self._legal_moves, reward, done
 
     @property
     def action_dim(self):
@@ -57,7 +54,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
     @property
     def obs_dim(self):
-        return (2, height, width)
+        return (2, self._input_world.as_numpy().shape[0],  self._input_world.as_numpy().shape[1])
 
     @property
     def input_world(self):
