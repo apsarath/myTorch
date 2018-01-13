@@ -24,8 +24,6 @@ class Agent(object):
         self._block.set_loc((ax, ay))
         block_lookup[self._block.loc] = self._block
         self._loc = ((bx, by))
-        
-        
 
     def pick_up_block(self, block, world, block_lookup):
         self._block = block

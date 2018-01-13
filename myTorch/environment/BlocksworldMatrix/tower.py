@@ -19,8 +19,6 @@ class Tower(object):
         return self._order_look_up
 
     def _init_in_position_flags(self):
-        self._in_position = {}
-
         self._num_blocks_in_position = 0
         for x in range(self._width):
             for y in range(self._height_at_loc[x]):

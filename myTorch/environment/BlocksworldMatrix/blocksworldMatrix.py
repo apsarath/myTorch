@@ -14,6 +14,7 @@ class BlocksWorld(object):
         assert(self._num_blocks < self._height * self._width)
         self._num_colors = num_colors
         self._is_agent_present = is_agent_present
+        self._agent = None
 
     @property
     def tower(self):
@@ -22,6 +23,10 @@ class BlocksWorld(object):
     @property
     def height_at_loc(self):
         return self._height_at_loc
+
+    @property
+    def agent(self):
+        return self._agent
 
     def reset(self, blocks, order_look_up=None, target_height_at_loc=None):
         # reset world
@@ -32,7 +37,7 @@ class BlocksWorld(object):
         self._blocks = blocks
         for block in self._blocks:
             while True:
-                loc = np.random.randint(self._width)
+                loc = 0 #np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
                     self._world[loc, self._height_at_loc[loc]] = block.id
                     self._block_lookup[(loc, self._height_at_loc[loc])] = block
@@ -118,19 +123,17 @@ class BlocksWorld(object):
 
             in_position_after_drop = block.in_position
             reward = 0
-            if in_position_before_drop == True and in_position_after_drop == False:
-                reward = -1
-                self._tower.add_to_num_blocks_in_position(-1)
-            elif in_position_before_drop == False and in_position_after_drop == True:
-                reward = 1
-                self._tower.add_to_num_blocks_in_position(1)
+            if self._num_colors > 1:
+                if in_position_before_drop == True and in_position_after_drop == False:
+                    reward = -1
+                    self._tower.add_to_num_blocks_in_position(-1)
+                elif in_position_before_drop == False and in_position_after_drop == True:
+                    reward = 1
+                    self._tower.add_to_num_blocks_in_position(1)
 
             elif self._num_colors == 1:
-                reward = 0
                 if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
                     reward = 10
-                elif (self._height_at_loc[x] - 1) - self._target_height_at_loc[x] == 1:
-                    reward = 0
 
             done = self._has_game_ended()
             return reward, done
