@@ -24,7 +24,7 @@ def cartpole():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = False
+	config.use_gpu = True
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -57,6 +57,13 @@ def cartpole_image():
 	return config
 
 def blocksworld_matrix():
-    config = cartpole()
-    config.env_name = "blocksworld_matrix"
-    return config
+	config = cartpole()
+	config.env_name = "blocksworld_matrix"
+	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
+	config.global_num_steps = 2000000
+	config.discount_rate = 0.99
+	config.lr = 0.000025
+	config.eps = 1e-6
+	config.test_freq = 1
+	return config
+

@@ -133,7 +133,7 @@ class BlocksWorld(object):
 
             elif self._num_colors == 1:
                 if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
-                    reward = 10
+                    reward = 1
 
             done = self._has_game_ended()
             return reward, done

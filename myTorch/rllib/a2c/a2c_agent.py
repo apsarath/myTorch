@@ -42,7 +42,7 @@ class A2CAgent(object):
 			actions = torch.max(pvals, dim=1)[1].unsqueeze(1)
 
 		log_taken_pvals = torch.log(torch.gather(pvals, 1, actions))
-		return actions.data.cpu().numpy().squeeze(1), log_taken_pvals.squeeze(1), vvals.squeeze(1), entropies
+		return actions.data.cpu().numpy().squeeze(1), log_taken_pvals.squeeze(1), vvals.squeeze(1), entropies, pvals
 
 	def reset_agent_state(self, batch_size):
 		if self._a2cnet.is_rnn_policy:
