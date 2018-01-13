@@ -8,7 +8,7 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=50, width=50, num_blocks=6, num_colors=3, num_steps_cutoff=50) :
+    def __init__(self, height=4, width=4, num_blocks=1, num_colors=1, num_steps_cutoff=50) :
         # initialize matrix
         self._height = height
         self._width = width
@@ -22,9 +22,9 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._num_steps_done = 0
 
     def reset(self):
-        colors = np.random.randint(self._num_colors, size=self._num_blocks)
-        self._target_world.reset([Block(i+1, color) for i, color in enumerate(colors)])
-        self._input_world.reset([Block(i+1, color) for i, color in enumerate(colors)], 
+        colors = [0] #np.random.randint(self._num_colors, size=self._num_blocks)
+        self._target_world.reset([Block(i+2, color) for i, color in enumerate(colors)])
+        self._input_world.reset([Block(i+2, color) for i, color in enumerate(colors)], 
                                 order_look_up=self._target_world.tower.order_look_up,
                                 target_height_at_loc=self._target_world.height_at_loc)
         self._obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
@@ -83,7 +83,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         pass
 
 if __name__=="__main__":
-    env = BlocksWorldMatrixEnv(num_blocks=3, num_colors=1)
+    env = BlocksWorldMatrixEnv()
     env.reset()
     print "Target World :"
     print env.target_world
@@ -94,7 +94,7 @@ if __name__=="__main__":
     while True:
         action = raw_input("Action: Choose among: l,r,p,d \n")
         if action in action_dict:
-            _, reward, done = env.step(action_dict[action])
+            _, _, reward, done = env.step(action_dict[action])
             print "Target World :"
             print env.target_world
             print "Input World :"

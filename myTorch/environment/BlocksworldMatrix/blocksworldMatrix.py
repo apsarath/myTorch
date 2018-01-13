@@ -13,10 +13,7 @@ class BlocksWorld(object):
         self._num_blocks = num_blocks
         assert(self._num_blocks < self._height * self._width)
         self._num_colors = num_colors
-        self._world = np.zeros((self._width, self._height))
         self._is_agent_present = is_agent_present
-        if self._is_agent_present:
-            self._agent = Agent((self._num_blocks + 1), state="free")
 
     @property
     def tower(self):
@@ -27,7 +24,9 @@ class BlocksWorld(object):
         return self._height_at_loc
 
     def reset(self, blocks, order_look_up=None, target_height_at_loc=None):
-        # Create target world
+        # reset world
+        self._world = np.zeros((self._width, self._height))
+
         self._height_at_loc = [0]*self._width
         self._block_lookup = {}
         self._blocks = blocks
@@ -47,7 +46,7 @@ class BlocksWorld(object):
             self._target_height_at_loc = target_height_at_loc
 
         if self._is_agent_present:
-            self._agent.set_state("free")
+            self._agent = Agent(agent_id=1)
             while True:
                 loc = np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
@@ -81,64 +80,37 @@ class BlocksWorld(object):
                     return False
             return True
 
-    def _move_agent(self, new_loc):
-        curr_x, curr_y = self._agent.loc
-        self._world[curr_x, curr_y] = 0
-        self._height_at_loc[curr_x] -= 1
-        
-        new_x, new_y = new_loc
-        self._world[new_x, new_y] = self._agent.id
-        self._height_at_loc[new_x] += 1
-        self._agent.set_loc(new_loc)
-
-    def _move_block(self, curr_loc, new_loc):
-        block = self._block_lookup[curr_loc]
-        del self._block_lookup[curr_loc]
-
-        curr_x, curr_y = curr_loc
-        self._world[curr_x, curr_y] = 0
-        self._height_at_loc[curr_x] -= 1
-        
-        new_x, new_y = new_loc
-        self._world[new_x, new_y] = block.id
-        self._height_at_loc[new_x] += 1
-        self._block_lookup[new_loc] = block
-
     def update(self, action):
         (x, y) = self._agent.loc
 
         if action == "left":
             if x == 0: return 0
-            if self._agent.state == "free":
-                if self._height - self._height_at_loc[x-1] > 0:
-                    self._move_agent((x-1, self._height_at_loc[x-1]))
-                return 0
-            elif self._agent.state == "carrying":
-                if self._height - self._height_at_loc[x-1] > 1:
-                    self._move_agent((x-1, self._height_at_loc[x-1]))
-                    self._move_block((x,y+1), (x-1, self._height_at_loc[x-1]))
+            if self._height - self._height_at_loc[x-1] > 1:
+                dest_loc = (x-1, self._height_at_loc[x-1])
+                self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
                 return 0
                     
         elif action == "right":
             if x == (self._width - 1): return 0
-            if self._agent.state == "free":
-                if self._height - self._height_at_loc[x+1] > 0:
-                    self._move_agent((x+1, self._height_at_loc[x+1]))
-                return 0
-            elif self._agent.state == "carrying":
-                if self._height - self._height_at_loc[x+1] > 1:
-                    self._move_agent((x+1, self._height_at_loc[x+1]))
-                    self._move_block((x,y+1), (x+1, self._height_at_loc[x+1]))
+            if self._height - self._height_at_loc[x+1] > 1:
+                dest_loc = (x+1, self._height_at_loc[x+1])
+                self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
                 return 0
 
+        elif action == "pick":
+            if self._agent.block is not None: return 0
+            if y == 0: return 0
+            if (x,y-1) in self._block_lookup:
+                block = self._block_lookup[(x,y-1)]
+                self._agent.pick_up_block(block, self._world, self._block_lookup)
+            return 0
+
         elif action == "drop":
-            if self._agent.state == "free": return 0
-            self._move_agent((x, y+1))
-            self._move_block((x, y+1),(x, y))
-            self._agent.set_state("free")
- 
-            block = self._block_lookup[(x,y)]
+            if self._agent.block is None: return 0
+            block = self._agent.block
             in_position_before_drop = block.in_position
+
+            self._agent.drop_block(self._world, self._block_lookup)
             if y > 0:
                 block.set_in_position_flag(self._tower.order_look_up, self._block_lookup[(x,y-1)])
             else:
@@ -156,20 +128,11 @@ class BlocksWorld(object):
             elif self._num_colors == 1:
                 reward = 0
                 if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
-                    reward = 1
+                    reward = 10
                 elif (self._height_at_loc[x] - 1) - self._target_height_at_loc[x] == 1:
-                    reward = -1
+                    reward = 0
                 
             return reward
-
-        elif action == "pick":
-            if self._agent.state == "carrying": return 0
-            if y == 0: return 0
-            if (x,y-1) in self._block_lookup:
-                self._move_agent((x,y-1))
-                self._move_block((x,y-1),(x,y))
-                self._agent.set_state("carrying")
-            return 0 
 
     def __str__(self):
         world = [ ["   "]*self._width for _ in range(self._height)]
@@ -195,4 +158,6 @@ class BlocksWorld(object):
                 print "----------------------\n"
                 print "input : ", self._height_at_loc
                 print "target", self._target_height_at_loc
+
+            print np.flipud(np.transpose(self._world))
         return "************************"
