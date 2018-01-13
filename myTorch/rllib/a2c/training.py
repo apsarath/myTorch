@@ -18,7 +18,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="A2C Training")
-parser.add_argument('--config', type=str, default="cartpole", help="config name")
+parser.add_argument('--config', type=str, default="blocksworld_matrix", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -120,7 +120,7 @@ def train_a2c_agent():
 
 		for t in range(config.num_steps_per_upd):
 			# TO DO : make changes to avoid passing the "dones" as a list
-			actions, log_taken_pvals, vvals, entropies = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
+			actions, log_taken_pvals, vvals, entropies, pvals = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
 			obs, legal_moves, rewards, episode_dones = env.step(actions)
 			logger.track_a2c_training_metrics(episode_dones, rewards)
 
@@ -130,7 +130,7 @@ def train_a2c_agent():
 			update_dict["rewards"].append(my_variable(torch.from_numpy(rewards).type(torch.FloatTensor), use_gpu=config.use_gpu))
 			update_dict["episode_dones"].append(my_variable(torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor), use_gpu=config.use_gpu))
 
-		_, _, update_dict["vvals_step_plus_one"], _ = agent.sample_action(obs, 
+		_, _, update_dict["vvals_step_plus_one"], _, _ = agent.sample_action(obs, 
 																		dones=update_dict["episode_dones"], 
 																		is_training=True, 
 																		update_agent_state=False)
@@ -169,11 +169,15 @@ def inference(config, test_agent, test_env):
 		obs, legal_moves = test_env.reset()
 		test_agent.reset_agent_state(batch_size=1)
 		while not done:
-			actions, log_taken_pvals, vvals, entropies = test_agent.sample_action(obs, is_training=False)
+			actions, log_taken_pvals, vvals, entropies, pvals = test_agent.sample_action(obs, is_training=False)
+			#sampled_actions,_,_,_, sampled_pvals = test_agent.sample_action(obs, is_training=True, update_agent_state=False)
+			#print "Arg Max action: {}, sampled action : {}".format(actions, sampled_actions)
+			#print "Test pvals ",pvals
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
 			done = episode_dones[0]
 			total_reward += reward[0]
 			episode_len += 1.0
+				
 		rewards.append(float(total_reward))
 		episode_lens.append(episode_len)
 	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens)
