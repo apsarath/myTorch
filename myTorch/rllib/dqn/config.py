@@ -114,6 +114,6 @@ def cartpole_image():
 
 def blocksworld():
 	config = cartpole_image()
-	config.env_name = "blocksworld_none"
+	config.env_name = "blocksworld_matrix"
 	config.lr = 1e-3
 	return config

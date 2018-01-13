@@ -15,26 +15,24 @@ class ConvBlocksWorld(nn.Module):
 
 		self._conv1 = nn.Conv2d(self._obs_dim, 16, kernel_size=5, stride=2)
 		self._bn1 = nn.BatchNorm2d(16)
-		self._conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
-		self._bn2 = nn.BatchNorm2d(32)
-		self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		self._bn3 = nn.BatchNorm2d(32)
-		self._conv4 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		self._bn4 = nn.BatchNorm2d(32)
-		self._conv5 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		self._bn5 = nn.BatchNorm2d(32)
-		self._head = nn.Linear(576, self._action_dim)
+		#self._conv2 = nn.Conv2d(16, 32, kernel_size=5, stride=2)
+		#self._bn2 = nn.BatchNorm2d(32)
+		#self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+		#self._bn3 = nn.BatchNorm2d(32)
+		#self._conv4 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+		#self._bn4 = nn.BatchNorm2d(32)
+		#self._conv5 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
+		#self._bn5 = nn.BatchNorm2d(32)
+		self._fc1 = nn.Linear(144,100)
+		self._head = nn.Linear(100, self._action_dim)
 
 
 	def forward(self, x):
 		if len(x.shape) < 4:
 			x = x.unsqueeze(0)
 		x = F.relu(self._bn1(self._conv1(x)))
-		x = F.relu(self._bn2(self._conv2(x)))
-		x = F.relu(self._bn3(self._conv3(x)))
-		x = F.relu(self._bn4(self._conv4(x)))
-		x = F.relu(self._bn5(self._conv5(x)))
-		return self._head(x.view(x.size(0), -1))
+		x = F.relu(self._fc1(x.view(x.size(0), -1)))
+		return self._head(x)
 
 
 	@property
