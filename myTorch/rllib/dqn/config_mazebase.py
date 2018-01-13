@@ -11,21 +11,21 @@ def mazebase_array():
 	config.env_name = "SingleMazeInstr-v0"
 
 	config.epsilon_end = 0.05
-	config.epsilon_start = 0.9
-	config.epsilon_end_t = 2000
-	config.learn_start = 1
+	config.epsilon_start = 1
+	config.epsilon_end_t = 100000
+	config.learn_start = 10000
 	config.discount_rate = 0.999
-	config.target_net_soft_update = True
-	config.target_net_update_freq = 1
+	config.target_net_soft_update = False
+	config.target_net_update_freq = 10000
 	config.target_net_update_fraction = 1
 
-	config.num_iterations = 10000
+	config.num_iterations = 1000000
 	config.episodes_per_iter = 1
-	config.test_freq = 1
-	config.test_per_iter = 1
-	config.updates_per_iter = 1
-	config.batch_size = 128
-	config.replay_buffer_size = 1e4
+	config.test_freq = 1000
+	config.test_per_iter = 100
+	config.updates_per_iter = 5
+	config.batch_size = 64
+	config.replay_buffer_size = 1e5
 	config.replay_compress = False
 
 	config.save_freq = 500
@@ -40,7 +40,7 @@ def mazebase_array():
 
 	# optimizer params
 	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
-	config.lr = 1e-2
+	config.lr = 1e-3
 	config.rho = 0.9
 	config.eps = 1e-8
 	config.weight_decay = 0
