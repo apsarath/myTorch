@@ -67,7 +67,7 @@ class BlocksWorld(object):
         self._world[x, y] = self._agent.id
         return is_match
 
-    def has_game_ended(self):
+    def _has_game_ended(self):
         if self._num_colors > 1:
             return (self._tower.num_blocks_in_position == self._num_blocks)
         else:
@@ -84,29 +84,29 @@ class BlocksWorld(object):
         (x, y) = self._agent.loc
 
         if action == "left":
-            if x == 0: return 0
+            if x == 0: return 0, False
             if self._height - self._height_at_loc[x-1] > 1:
                 dest_loc = (x-1, self._height_at_loc[x-1])
                 self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
-                return 0
+                return 0, False
                     
         elif action == "right":
-            if x == (self._width - 1): return 0
+            if x == (self._width - 1): return 0, False
             if self._height - self._height_at_loc[x+1] > 1:
                 dest_loc = (x+1, self._height_at_loc[x+1])
                 self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
-                return 0
+                return 0, False
 
         elif action == "pick":
-            if self._agent.block is not None: return 0
-            if y == 0: return 0
+            if self._agent.block is not None: return 0, False
+            if y == 0: return 0, False
             if (x,y-1) in self._block_lookup:
                 block = self._block_lookup[(x,y-1)]
                 self._agent.pick_up_block(block, self._world, self._block_lookup)
-            return 0
+            return 0, False
 
         elif action == "drop":
-            if self._agent.block is None: return 0
+            if self._agent.block is None: return 0, False
             block = self._agent.block
             in_position_before_drop = block.in_position
 
@@ -131,33 +131,6 @@ class BlocksWorld(object):
                     reward = 10
                 elif (self._height_at_loc[x] - 1) - self._target_height_at_loc[x] == 1:
                     reward = 0
-                
-            return reward
 
-    def __str__(self):
-        world = [ ["   "]*self._width for _ in range(self._height)]
-
-        for loc, block in self._block_lookup.items():
-            w, h = loc
-            world[h][w] = "B{}{}".format(block.id, block.color)
-
-        if self._is_agent_present:
-            agent_sym = "AAA"
-            w, h = self._agent.loc
-            world[h][w] = agent_sym
-        
-        for row in world[::-1]: 
-            print row
-
-        if self._is_agent_present:
-            if self._num_colors > 1:
-                print "----------------------\n"
-                for block in self._blocks:
-                    print "Block : {} - in_position : {}".format(block.id, block.in_position)
-            else:
-                print "----------------------\n"
-                print "input : ", self._height_at_loc
-                print "target", self._target_height_at_loc
-
-            print np.flipud(np.transpose(self._world))
-        return "************************"
+            done = self._has_game_ended()
+            return reward, done

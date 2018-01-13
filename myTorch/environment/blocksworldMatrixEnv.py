@@ -8,7 +8,7 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=4, width=4, num_blocks=1, num_colors=1, num_steps_cutoff=50) :
+    def __init__(self, height=10, width=10, num_blocks=1, num_colors=1, num_steps_cutoff=50) :
         # initialize matrix
         self._height = height
         self._width = width
@@ -32,20 +32,11 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         return self._obs, self._legal_moves
 
     def step(self, action):
-        # adjust the 2 x matrix and provide the reward if it is a legal move.
         self._num_steps_done += 1
-        done = False
-        reward = self._input_world.update(self._actions[action])
-
-        self._obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
-        
-        if self._actions[action] == "drop":
-            if self._input_world.has_game_ended():
-                done = True
-
+        reward, done = self._input_world.update(self._actions[action])
+        self._obs[0] = self._input_world.as_numpy()
         if self._num_steps_done >= self._num_steps_cutoff:
             done = True
-            
         return self._obs, self._legal_moves, reward, done
 
     @property
@@ -54,7 +45,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
     @property
     def obs_dim(self):
-        return (2, self._input_world.as_numpy().shape[0],  self._input_world.as_numpy().shape[1])
+        return (2, self._width, self._height)
 
     @property
     def input_world(self):
@@ -85,27 +76,27 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 if __name__=="__main__":
     env = BlocksWorldMatrixEnv()
     env.reset()
-    print "Target World :"
-    print env.target_world
-    print "Input World :"
-    print env.input_world
+    print "Target World Down:"
+    print np.flipud(np.transpose(env.target_world._world))
+    print "Input World Down:"
+    print np.flipud(np.transpose(env.input_world._world))
 
     action_dict = {"l":0, "r":1, "p":2, "d":3}
     while True:
         action = raw_input("Action: Choose among: l,r,p,d \n")
         if action in action_dict:
             _, _, reward, done = env.step(action_dict[action])
-            print "Target World :"
-            print env.target_world
-            print "Input World :"
-            print env.input_world
+            print "Target World Down:"
+            print np.flipud(np.transpose(env.target_world._world))
+            print "Input World Down:"
+            print np.flipud(np.transpose(env.input_world._world))
             print "Reward : {}, done : {}".format(reward,done)
 
             if done:
                 env.reset()
-                print "Target World :"
-                print env.target_world
-                print "Input World :"
-                print env.input_world
+                print "Target World Down:"
+                print np.flipud(np.transpose(env.target_world._world))
+                print "Input World Down:"
+                print np.flipud(np.transpose(env.input_world._world))
     
     import pdb; pdb.set_trace()
