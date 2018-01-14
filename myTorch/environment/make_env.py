@@ -2,7 +2,6 @@ import myTorch
 from myTorch.environment.Blocksworld import *
 from myTorch.environment import GymEnvironment, CartPoleImage, MazeBaseEnvironment, BlocksEnvironment, BlocksWorldMatrixEnv
 
-
 def make_environment(env_name):
 
 	if env_name == "CartPole-v0" or env_name == "CartPole-v1":

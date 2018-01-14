@@ -12,7 +12,7 @@ from myTorch.environment import make_environment
 from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
 from myTorch.rllib.dqn.q_networks import *
 
-from myTorch.rllib.dqn.config_mazebase import *
+from myTorch.rllib.dqn.config import *
 from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
 from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
