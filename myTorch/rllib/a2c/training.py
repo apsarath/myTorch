@@ -157,22 +157,22 @@ def train_a2c_agent():
 			logger.log_scalar_rl("Test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 			logger.log_scalar_rl("Test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
  
-	if math.fmod(tr.global_steps_done, config.save_freq) == 0:
-		experiment.save("current")
+		if math.fmod(tr.global_steps_done, config.save_freq) == 0:
+			experiment.save("current")
 		
 
 def inference(config, test_agent, test_env):
 	obs, legal_moves = test_env.reset()
 	rewards, episode_lens = [], []
 	for i in range(config.test_per_iter):
-		done, total_reward, episode_len = False, 0 ,0
+		done, total_reward, episode_len = False, 0.0 ,0.0
 		obs, legal_moves = test_env.reset()
 		test_agent.reset_agent_state(batch_size=1)
 		while not done:
 			actions, log_taken_pvals, vvals, entropies, pvals = test_agent.sample_action(obs, is_training=False)
-			#sampled_actions,_,_,_, sampled_pvals = test_agent.sample_action(obs, is_training=True, update_agent_state=False)
-			#print "Arg Max action: {}, sampled action : {}".format(actions, sampled_actions)
-			#print "Test pvals ",pvals
+			sampled_actions,_,_,_, sampled_pvals = test_agent.sample_action(obs, is_training=True, update_agent_state=False)
+			print "Arg Max action: {}, sampled action : {}".format(actions, sampled_actions)
+			print "Test pvals ",pvals
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
 			done = episode_dones[0]
 			total_reward += reward[0]

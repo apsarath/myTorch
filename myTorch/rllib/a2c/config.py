@@ -29,7 +29,7 @@ def cartpole():
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
 	config.backup_logger = False
-	config.force_restart = True
+	config.force_restart = False
 
 	# optimizer params
 	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
@@ -59,11 +59,12 @@ def cartpole_image():
 def blocksworld_matrix():
 	config = cartpole()
 	config.env_name = "blocksworld_matrix"
-	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
-	config.global_num_steps = 2000000
+	config.policy_type = "GRU" # Valid options : LSTM, GRU, FeedForward
+	config.global_num_steps = int(100e6)
 	config.discount_rate = 0.99
-	config.lr = 0.000025
+	config.lr = 0.00025
 	config.eps = 1e-6
-	config.test_freq = 1
+	config.test_freq = 1000
+	config.test_per_iter = 10
 	return config
 
