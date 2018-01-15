@@ -31,7 +31,7 @@ def cartpole():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = False
+	config.use_gpu = True
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -85,7 +85,7 @@ def cartpole_image():
 	config.save_freq = 500
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.use_gpu = False
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
@@ -115,5 +115,8 @@ def cartpole_image():
 def blocksworld():
 	config = cartpole_image()
 	config.env_name = "blocksworld_matrix"
-	config.lr = 1e-3
+	config.lr = 0.000025
+	config.eps = 1e-6
+	config.use_gpu = True
+	config.num_iterations = int(100e6)
 	return config

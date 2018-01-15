@@ -37,7 +37,7 @@ class BlocksWorld(object):
         self._blocks = blocks
         for block in self._blocks:
             while True:
-                loc = 0 #np.random.randint(self._width)
+                loc = np.random.randint(self._width)
                 if self._height_at_loc[loc] < self._height:
                     self._world[loc, self._height_at_loc[loc]] = block.id
                     self._block_lookup[(loc, self._height_at_loc[loc])] = block
@@ -113,6 +113,7 @@ class BlocksWorld(object):
         elif action == "drop":
             if self._agent.block is None: return 0, False
             block = self._agent.block
+            picked_x, picked_y = self._agent.picked_loc
             in_position_before_drop = block.in_position
 
             self._agent.drop_block(self._world, self._block_lookup)
@@ -134,6 +135,10 @@ class BlocksWorld(object):
             elif self._num_colors == 1:
                 if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
                     reward = 1
+                if (self._target_height_at_loc[picked_x] - self._height_at_loc[picked_x] == 1):
+                    reward = -1
+                if picked_x == x:
+                    reward = 0
 
             done = self._has_game_ended()
             return reward, done
