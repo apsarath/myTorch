@@ -8,7 +8,7 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=10, width=10, num_blocks=1, num_colors=1, num_steps_cutoff=50) :
+    def __init__(self, height=10, width=10, num_blocks=10, num_colors=1, num_steps_cutoff=50) :
         # initialize matrix
         self._height = height
         self._width = width
@@ -19,7 +19,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._num_steps_cutoff = num_steps_cutoff
 
     def reset(self):
-        colors = [0] #np.random.randint(self._num_colors, size=self._num_blocks)
+        colors = [ i % self._num_colors for i in range(self._num_blocks)]
         self._input_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=True)
         self._target_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=False)
         self._target_world.reset([Block(i+2, color) for i, color in enumerate(colors)])

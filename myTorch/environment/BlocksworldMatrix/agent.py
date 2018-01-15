@@ -9,6 +9,7 @@ class Agent(object):
         self._agent_id = agent_id
         self._loc = None
         self._block = None
+        self._picked_loc = None
 
     def set_loc(self, loc):
         self._loc = loc
@@ -28,10 +29,12 @@ class Agent(object):
     def pick_up_block(self, block, world, block_lookup):
         self._block = block
         self._swap_agent_block_loc(world, block_lookup)
+        self._picked_loc = self._block.loc
 
     def drop_block(self, world, block_lookup):
         self._swap_agent_block_loc(world, block_lookup)
         self._block = None
+        self._picked_loc = None
 
     def move(self, dest_loc, world, block_lookup, height_at_loc):
         curr_x, curr_y = self._loc
@@ -65,3 +68,7 @@ class Agent(object):
     @property
     def block(self):
         return self._block
+
+    @property
+    def picked_loc(self):
+        return self._picked_loc
