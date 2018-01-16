@@ -21,7 +21,7 @@ def cartpole():
 	config.test_freq = 1
 	config.test_per_iter = 1
 
-	config.save_freq = 500
+	config.save_freq = 10000
 	config.sliding_wsize = 30
 	config.seed = 1234
 	config.use_gpu = True

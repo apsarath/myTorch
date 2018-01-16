@@ -157,7 +157,7 @@ def train_a2c_agent():
 			logger.log_scalar_rl("Test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 			logger.log_scalar_rl("Test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
  
-		if math.fmod(tr.global_steps_done, config.save_freq) == 0:
+		if math.fmod(tr.iterations_done, config.save_freq) == 0:
 			experiment.save("current")
 		
 
