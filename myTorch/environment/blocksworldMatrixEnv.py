@@ -4,12 +4,11 @@ import os
 import math
 import numpy as np
 from myTorch.environment import EnivironmentBase
-from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
+from myTorch.environment.BlocksworldMatrix import BlocksWorld, WorldBuilder
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, height=10, width=10, num_blocks=10, num_colors=1, num_steps_cutoff=50) :
-        # initialize matrix
+    def __init__(self, game_base_dir, height=10, width=10, num_blocks=10, num_colors=1, num_steps_cutoff=50, mode="train", game_level=1, start_game_id=0) :
         self._height = height
         self._width = width
         self._num_blocks = num_blocks
@@ -18,15 +17,31 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._legal_moves = np.array(self._actions.keys())
         self._num_steps_cutoff = num_steps_cutoff
 
-    def reset(self):
-        colors = [ i % self._num_colors for i in range(self._num_blocks)]
+        self._mode = mode
+        self._game_level = game_level
+        self._world_builder = WorldBuilder(game_base_dir)
+        self._game_id = start_game_id
+        self.load_games()
+
+    def reset(self, game_level=1):
+
+        if game_level != self._game_level:
+            self._game_level = game_level
+            self._games = self._world_builder.load_games(self._game_level, self._mode)
+            self._game_id = 0
+            self._num_available_games = len(self._games)
+
+        game = self._games[self._game_id]
+
         self._input_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=True)
         self._target_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=False)
-        self._target_world.reset([Block(i+2, color) for i, color in enumerate(colors)])
-        self._input_world.reset([Block(i+2, color) for i, color in enumerate(colors)], 
+        self._target_world.reset(blocks_info=game["target_world_blocks"])
+        self._input_world.reset(blocks_info=game["input_world_blocks"],
+                                agent_info=game["agent"],
                                 order_look_up=self._target_world.tower.order_look_up,
                                 target_height_at_loc=self._target_world.height_at_loc)
         obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
+        self._game_id = (self._game_id + 1) % self._num_available_games
         self._num_steps_done = 0
         return obs, self._legal_moves
 
@@ -37,6 +52,15 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         if self._num_steps_done >= self._num_steps_cutoff:
             done = True
         return obs, self._legal_moves, reward, done
+
+    def create_games(self, num_levels=1, num_games=3):
+        for level in range(1,num_levels+1):
+            self._world_builder.create_games(game_level=level, num_games=num_games)
+        self.load_games()
+
+    def load_games(self):
+        self._games = self._world_builder.load_games(self._game_level, self._mode)
+        self._num_available_games = len(self._games)
 
     @property
     def action_dim(self):
@@ -73,7 +97,8 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         pass
 
 if __name__=="__main__":
-    env = BlocksWorldMatrixEnv()
+    env = BlocksWorldMatrixEnv(game_base_dir="BlocksworldMatrix/")
+    env.create_games()
     env.reset()
     print "Target World Down:"
     print np.flipud(np.transpose(env.target_world.as_numpy()))

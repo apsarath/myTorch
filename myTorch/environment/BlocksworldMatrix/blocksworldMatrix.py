@@ -4,7 +4,7 @@ import os
 import math
 import numpy as np
 import myTorch
-from myTorch.environment.BlocksworldMatrix import Agent, Tower
+from myTorch.environment.BlocksworldMatrix import Agent, Tower, Block
 
 class BlocksWorld(object):
     def __init__(self, height=50, width=50, num_blocks=1, num_colors=1, is_agent_present=False):
@@ -28,22 +28,21 @@ class BlocksWorld(object):
     def agent(self):
         return self._agent
 
-    def reset(self, blocks, order_look_up=None, target_height_at_loc=None):
+    def reset(self, blocks_info, agent_info=None, order_look_up=None, target_height_at_loc=None):
         # reset world
         self._world = np.zeros((self._width, self._height))
 
         self._height_at_loc = [0]*self._width
         self._block_lookup = {}
-        self._blocks = blocks
-        for block in self._blocks:
-            while True:
-                loc = np.random.randint(self._width)
-                if self._height_at_loc[loc] < self._height:
-                    self._world[loc, self._height_at_loc[loc]] = block.id
-                    self._block_lookup[(loc, self._height_at_loc[loc])] = block
-                    block.set_loc((loc, self._height_at_loc[loc]))
-                    self._height_at_loc[loc] += 1
-                    break
+        self._blocks = []
+        for i, block_info in enumerate(blocks_info):
+            block = Block(block_id=i+2, color=block_info['color'])
+            block.set_loc(tuple(block_info['loc']))
+            loc_x, loc_y = block.loc
+            assert(self._height_at_loc[loc_x] < self._height)
+            self._world[loc_x, loc_y] = block.id
+            self._block_lookup[block.loc] = block
+            self._height_at_loc[loc_x] += 1
 
         self._tower = Tower(self._block_lookup, self._height_at_loc, order_look_up)
 
@@ -52,13 +51,11 @@ class BlocksWorld(object):
 
         if self._is_agent_present:
             self._agent = Agent(agent_id=1)
-            while True:
-                loc = np.random.randint(self._width)
-                if self._height_at_loc[loc] < self._height:
-                    self._world[loc, self._height_at_loc[loc]] = self._agent.id
-                    self._agent.set_loc((loc, self._height_at_loc[loc]))
-                    self._height_at_loc[loc] += 1
-                    break
+            self._agent.set_loc(tuple(agent_info["loc"]))
+            loc_x, loc_y = self._agent.loc
+            assert(self._height_at_loc[loc_x] < self._height)
+            self._world[loc_x, loc_y] = self._agent.id
+            self._height_at_loc[loc_x] += 1
 
         return self._world
 
