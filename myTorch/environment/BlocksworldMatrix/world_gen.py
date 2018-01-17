@@ -26,10 +26,12 @@ class WorldBuilder(object):
 		
 
 	def load_games(self, game_level=1, mode="train"):
+		games = []
 		loc = os.path.join(self._base_dir, "tasks/level{}".format(game_level))
-		print "Loading game json files at {}".format(loc)
-		with open(os.path.join(loc, "{}.json".format(mode)), "r") as f:
-			games =  json.load(f)
+		if os.path.exists(loc):
+			print "Loading game json files at {}".format(loc)
+			with open(os.path.join(loc, "{}.json".format(mode)), "r") as f:
+				games =  json.load(f)
 		return games
 			
 

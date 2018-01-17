@@ -11,12 +11,18 @@ def worker(remote, parent_remote, env_fn_wrapper):
     while True:
         cmd, data = remote.recv()
         if cmd == 'step':
-            obs, legal_moves, reward, done = env.step(data)
+            obs, legal_moves, reward, done = env.step(data["action"])
             if done:
-                obs, legal_moves = env.reset()
+                if "game_level" in data:
+                    obs, legal_moves = env.reset(game_level=data["game_level"])
+                else:
+                    obs, legal_moves = env.reset()
             remote.send((obs, legal_moves, reward, done))
         elif cmd == 'reset':
-            obs, legal_moves = env.reset()
+            if "game_level" in data:
+                obs, legal_moves = env.reset(game_level=data["game_level"])
+            else:
+                obs, legal_moves = env.reset()
             remote.send((obs, legal_moves))
         elif cmd == 'reset_task':
             ob = env.reset_task()
@@ -66,16 +72,20 @@ class SubprocVecEnv(EnivironmentBase):
         self.env_dim["action_dim"], self.env_dim["obs_dim"] = self.remotes[0].recv()
 
 
-    def step(self, actions):
+    def step(self, actions, **kwargs):
+        data_to_worker = {"action":None}
+        for k in kwargs:
+            data_to_worker[k] = kwargs[k]
         for remote, action in zip(self.remotes, actions):
-            remote.send(('step', action))
+            data_to_worker["action"] = action
+            remote.send(('step', data_to_worker))
         results = [remote.recv() for remote in self.remotes]
         obs, legal_moves, rewards, dones = zip(*results)
         return np.stack(obs), np.stack(legal_moves), np.stack(rewards), np.stack(dones)
 
-    def reset(self):
+    def reset(self, **kwargs):
         for remote in self.remotes:
-            remote.send(('reset', None))
+            remote.send(('reset', kwargs))
         results = [remote.recv() for remote in self.remotes]
         obs, legal_moves = zip(*results)
         return np.stack(obs), np.stack(legal_moves)
@@ -125,10 +135,10 @@ class SubprocVecEnv(EnivironmentBase):
     def obs_dim(self):
         return self.env_dim["obs_dim"]
 
-def get_batched_env(env_name, batch_size=5, seed=1234):
+def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None):
     def make_env_fn_wrapper(rank, seed):
         def _thunk():
-            env = make_environment(env_name)
+            env = make_environment(env_name, game_dir)
             env.seed(seed + rank)
             return env
         return _thunk

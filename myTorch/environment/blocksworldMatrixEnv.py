@@ -23,9 +23,9 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._game_id = start_game_id
         self.load_games()
 
-    def reset(self, game_level=1):
+    def reset(self, game_level=None):
 
-        if game_level != self._game_level:
+        if game_level is not None:
             self._game_level = game_level
             self._games = self._world_builder.load_games(self._game_level, self._mode)
             self._game_id = 0
@@ -60,6 +60,8 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
     def load_games(self):
         self._games = self._world_builder.load_games(self._game_level, self._mode)
+        if not len(self._games):
+            self.create_games()
         self._num_available_games = len(self._games)
 
     @property
@@ -97,8 +99,8 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         pass
 
 if __name__=="__main__":
-    env = BlocksWorldMatrixEnv(game_base_dir="BlocksworldMatrix/")
-    env.create_games()
+    env = BlocksWorldMatrixEnv(game_base_dir="games/")
+    #env.create_games()
     env.reset()
     print "Target World Down:"
     print np.flipud(np.transpose(env.target_world.as_numpy()))

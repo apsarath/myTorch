@@ -66,5 +66,6 @@ def blocksworld_matrix():
 	config.eps = 1e-6
 	config.test_freq = 1000
 	config.test_per_iter = 10
+	config.num_env = 1
 	return config
 

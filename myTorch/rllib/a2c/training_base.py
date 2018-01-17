@@ -20,7 +20,6 @@ from myTorch.utils.logging import Logger
 parser = argparse.ArgumentParser(description="A2C Training")
 parser.add_argument('--config', type=str, default="blocksworld_matrix", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
-parser.add_argument('--game_dir', type=str, default=None, help="game json directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
 args = parser.parse_args()
@@ -28,7 +27,6 @@ args = parser.parse_args()
 
 def train_a2c_agent():
 	assert(args.base_dir)
-	assert(args.game_dir)
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
@@ -47,9 +45,9 @@ def train_a2c_agent():
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
 
-	env = get_batched_env(config.env_name, config.num_env, config.seed, game_dir=args.game_dir)
+	env = get_batched_env(config.env_name, config.num_env, config.seed)
 	experiment.register_env(env)
-	test_env = get_batched_env(config.env_name, 1, config.seed, game_dir=args.game_dir)
+	test_env = get_batched_env(config.env_name, 1, config.seed)
 
 	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
 
@@ -107,7 +105,7 @@ def train_a2c_agent():
 
 	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
 
-	obs, legal_moves = env.reset(game_level=1)
+	obs, legal_moves = env.reset()
 	logger.reset_a2c_training_metrics(config.num_env, tr, config.sliding_wsize)
 
 	for i in xrange(tr.iterations_done, num_iterations):
@@ -123,7 +121,7 @@ def train_a2c_agent():
 		for t in range(config.num_steps_per_upd):
 			# TO DO : make changes to avoid passing the "dones" as a list
 			actions, log_taken_pvals, vvals, entropies, pvals = agent.sample_action(obs, dones=update_dict["episode_dones"], is_training=True)
-			obs, legal_moves, rewards, episode_dones = env.step(actions, game_level=1)
+			obs, legal_moves, rewards, episode_dones = env.step(actions)
 			logger.track_a2c_training_metrics(episode_dones, rewards)
 
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
