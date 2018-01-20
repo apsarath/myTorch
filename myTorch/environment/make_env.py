@@ -17,7 +17,6 @@ def make_environment(env_name, game_dir=None):
 		return BlocksEnvironment()
 	elif env_name == "blocksworld_matrix":
 		env = BlocksWorldMatrixEnv(game_dir)
-		env.create_games()
 		return env
 	else:
 		assert("unsupported environment : {}".format(env_name))

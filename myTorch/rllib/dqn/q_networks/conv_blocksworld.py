@@ -9,21 +9,19 @@ class ConvBlocksWorld(nn.Module):
 	def __init__(self, obs_dim, action_dim, use_gpu=False):
 		super(self.__class__, self).__init__()
 
-		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
+		self._obs_dim = obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
 
-		self._conv1 = nn.Conv2d(self._obs_dim, 32, kernel_size=3, stride=1)
-		self._bn1 = nn.BatchNorm2d(32)
-		self._conv2 = nn.Conv2d(32, 16, kernel_size=3, stride=1)
-		self._bn2 = nn.BatchNorm2d(16)
-		#self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		#self._bn3 = nn.BatchNorm2d(32)
-		#self._conv4 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		#self._bn4 = nn.BatchNorm2d(32)
-		#self._conv5 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
-		#self._bn5 = nn.BatchNorm2d(32)
-		self._fc1 = nn.Linear(576,100)
+		self._conv1 = nn.Conv2d(self._obs_dim[0], 16, kernel_size=2, stride=1)
+		self._bn1 = nn.BatchNorm2d(16)
+		self._conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1)
+		self._bn2 = nn.BatchNorm2d(32)
+		self._conv3 = nn.Conv2d(32, 32, kernel_size=2, stride=1)
+		self._bn3 = nn.BatchNorm2d(32)
+		self._conv4 = nn.Conv2d(32, 32, kernel_size=4, stride=1)
+		self._bn4 = nn.BatchNorm2d(32)
+		self._fc1 = nn.Linear(512,100)
 		self._head = nn.Linear(100, self._action_dim)
 
 
@@ -32,6 +30,8 @@ class ConvBlocksWorld(nn.Module):
 			x = x.unsqueeze(0)
 		x = F.relu(self._bn1(self._conv1(x)))
 		x = F.relu(self._bn2(self._conv2(x)))
+		x = F.relu(self._bn3(self._conv3(x)))
+		x = F.relu(self._bn4(self._conv4(x)))
 		x = F.relu(self._fc1(x.view(x.size(0), -1)))
 		return self._head(x)
 

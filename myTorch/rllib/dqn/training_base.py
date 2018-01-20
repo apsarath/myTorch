@@ -22,12 +22,12 @@ parser.add_argument('--config', type=str, default="blocksworld", help="config na
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
-parser.add_argument('--game_dir', type=str, default=None, help="game json directory")
 args = parser.parse_args()
 
 
 def train_dqn_agent():
 	assert(args.base_dir)
+	#import pdb; pdb.set_trace()
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
@@ -48,7 +48,7 @@ def train_dqn_agent():
 
 
 
-	env = make_environment(config.env_name, game_dir=args.game_dir)
+	env = make_environment(config.env_name)
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
@@ -168,13 +168,16 @@ def train_dqn_agent():
 	experiment.save("current")
 
 
+
+
+
 def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
 
 	reward_list = []
 	first_qval = None
 	transitions = []
 
-	obs, legal_moves = env.reset(game_level=1)
+	obs, legal_moves = env.reset()
 	legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
 	episode_done = False

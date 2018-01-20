@@ -115,20 +115,21 @@ def cartpole_image():
 def blocksworld():
 	config = cartpole_image()
 	config.env_name = "blocksworld_matrix"
-	config.lr = 0.0025
+	config.lr = 1e-3
 	config.eps = 1e-6
 	config.use_gpu = True
 	config.num_iterations = int(100e6)
 
 	config.epsilon_end = 0.1
-	config.epsilon_start = 1
-	config.epsilon_end_t = int(1e6)
-	config.learn_start = 50000
+	config.epsilon_start = 1.0
+	config.epsilon_end_t = int(50000)
+	config.learn_start = 100
 	config.discount_rate = 0.999
-	config.target_net_soft_update = False
+	config.target_net_soft_update = True
 	config.target_net_update_freq = 10000
+	config.target_net_update_fraction = 0.05
 
-	config.replay_buffer_size = int(1e6)
+	config.replay_buffer_size = int(1e5)
 	config.replay_compress = True
 	config.save_freq = 10000
 	config.force_restart = False

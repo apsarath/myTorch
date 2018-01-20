@@ -16,9 +16,15 @@ class WorldBuilder(object):
 			games = []
 			for game_id in range(num_games):
 				games.append({ 
-					"agent":{"loc":(3,0)}, 
-					"input_world_blocks": [{"loc":(2,0), "color":0}],
-					"target_world_blocks": [{"loc":(5,0), "color":0}] 
+					"agent":{"loc":(2,0)}, 
+
+					"input_world_blocks": [ {"loc":(0,0), "color":1, "id":2}, {"loc":(0,1), "color":2, "id":3},
+											{"loc":(3,0), "color":3, "id":4}, {"loc":(3,1), "color":5, "id":6},
+											{"loc":(5,0), "color":4, "id":5}, {"loc":(5,1), "color":6, "id":7}],
+
+					"target_world_blocks": [ {"loc":(0,0), "color":2, "id":3}, {"loc":(0,1), "color":1, "id":2},
+											 {"loc":(3,0), "color":5, "id":6}, {"loc":(3,1), "color":3, "id":4},
+											 {"loc":(5,0), "color":6, "id":7}, {"loc":(5,1), "color":4, "id":5}]
 				})
 			with open(os.path.join(loc, "{}.json".format(mode)), "w") as f:
 				json.dump(games, f)

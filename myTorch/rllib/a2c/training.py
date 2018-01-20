@@ -28,7 +28,6 @@ args = parser.parse_args()
 
 def train_a2c_agent():
 	assert(args.base_dir)
-	assert(args.game_dir)
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)

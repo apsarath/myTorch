@@ -7,12 +7,9 @@ import myTorch
 from myTorch.environment.BlocksworldMatrix import Agent, Tower, Block
 
 class BlocksWorld(object):
-    def __init__(self, height=50, width=50, num_blocks=1, num_colors=1, is_agent_present=False):
+    def __init__(self, height=50, width=50, is_agent_present=False):
         self._height = height
         self._width = width
-        self._num_blocks = num_blocks
-        assert(self._num_blocks < self._height * self._width)
-        self._num_colors = num_colors
         self._is_agent_present = is_agent_present
         self._agent = None
 
@@ -35,14 +32,20 @@ class BlocksWorld(object):
         self._height_at_loc = [0]*self._width
         self._block_lookup = {}
         self._blocks = []
+        color_set = set([])
         for i, block_info in enumerate(blocks_info):
-            block = Block(block_id=i+2, color=block_info['color'])
+            block = Block(block_id=block_info['id'], color=block_info['color'])
+            color_set.add(block_info['color'])
             block.set_loc(tuple(block_info['loc']))
             loc_x, loc_y = block.loc
             assert(self._height_at_loc[loc_x] < self._height)
             self._world[loc_x, loc_y] = block.id
             self._block_lookup[block.loc] = block
             self._height_at_loc[loc_x] += 1
+
+        self._num_colors = len(color_set)
+        self._num_blocks = len(blocks_info)
+        assert(self._num_blocks < self._height * self._width)
 
         self._tower = Tower(self._block_lookup, self._height_at_loc, order_look_up)
 

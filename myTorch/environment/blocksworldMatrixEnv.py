@@ -8,11 +8,9 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, WorldBuilder
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, game_base_dir, height=10, width=10, num_blocks=10, num_colors=1, num_steps_cutoff=50, mode="train", game_level=1, start_game_id=0) :
+    def __init__(self, game_base_dir, height=10, width=10, num_steps_cutoff=50, mode="train", game_level=1, start_game_id=0) :
         self._height = height
         self._width = width
-        self._num_blocks = num_blocks
-        self._num_colors = num_colors 
         self._actions = {0:'left',1:'right',2:'pick',3:'drop'}
         self._legal_moves = np.array(self._actions.keys())
         self._num_steps_cutoff = num_steps_cutoff
@@ -26,15 +24,16 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
     def reset(self, game_level=None):
 
         if game_level is not None:
-            self._game_level = game_level
-            self._games = self._world_builder.load_games(self._game_level, self._mode)
-            self._game_id = 0
-            self._num_available_games = len(self._games)
+            if game_level != self._game_level:
+                self._game_level = game_level
+                self._games = self._world_builder.load_games(self._game_level, self._mode)
+                self._game_id = 0
+                self._num_available_games = len(self._games)
 
         game = self._games[self._game_id]
 
-        self._input_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=True)
-        self._target_world = BlocksWorld(self._height, self._width, self._num_blocks, self._num_colors, is_agent_present=False)
+        self._input_world = BlocksWorld(self._height, self._width, is_agent_present=True)
+        self._target_world = BlocksWorld(self._height, self._width, is_agent_present=False)
         self._target_world.reset(blocks_info=game["target_world_blocks"])
         self._input_world.reset(blocks_info=game["input_world_blocks"],
                                 agent_info=game["agent"],
