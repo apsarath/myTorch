@@ -32,6 +32,9 @@ def worker(remote, parent_remote, env_fn_wrapper):
             break
         elif cmd == 'get_spaces':
             remote.send((env.action_dim, env.obs_dim))
+        elif cmd == 'get_max_episode_len':
+            max_episode_len = env.max_episode_len if hasattr(env, 'max_episode_len') else None
+            remote.send(max_episode_len)
         else:
             raise NotImplementedError
 
@@ -71,6 +74,9 @@ class SubprocVecEnv(EnivironmentBase):
         self.remotes[0].send(('get_spaces', None))
         self.env_dim["action_dim"], self.env_dim["obs_dim"] = self.remotes[0].recv()
 
+        self.remotes[0].send(('get_max_episode_len', None))
+        self._max_episode_len = self.remotes[0].recv()
+
 
     def step(self, actions, **kwargs):
         data_to_worker = {"action":None}
@@ -108,6 +114,10 @@ class SubprocVecEnv(EnivironmentBase):
     @property
     def num_envs(self):
         return len(self.remotes)
+
+    @property
+    def max_episode_len(self):
+        return self._max_episode_len
 
     def render(self, mode='rgb_array'):
         return

@@ -90,6 +90,7 @@ def train_a2c_agent():
 	tr.first_val = [[],[]]
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
+	tr.test_num_games_finished = [[],[]]
 	tr.iterations_done = 0
 	tr.global_steps_done = 0
 	tr.episodes_done = 0
@@ -152,11 +153,13 @@ def train_a2c_agent():
 		if tr.iterations_done % config.test_freq == 0:
 			print "Testing..."
 			test_agent.a2cnet.set_params(agent.a2cnet.get_params())
-			reward, episode_len = inference(config, test_agent, test_env)
+			reward, episode_len, num_games_finished = inference(config, test_agent, test_env)
 			append_to(tr.test_reward, tr, reward)
 			append_to(tr.test_episode_len, tr, episode_len)
+			append_to(tr.test_num_games_finished, tr, num_games_finished)
 			logger.log_scalar_rl("Test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 			logger.log_scalar_rl("Test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
+			logger.log_scalar_rl("Test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
  
 		if math.fmod(tr.iterations_done, config.save_freq) == 0:
 			experiment.save("current")
@@ -181,7 +184,8 @@ def inference(config, test_agent, test_env):
 				
 		rewards.append(float(total_reward))
 		episode_lens.append(episode_len)
-	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens)
+		num_games_finished = len([epi_len for epi_len in episode_lens if epi_len < test_env.max_episode_len])
+	return sum(rewards)/len(rewards), sum(episode_lens)/len(episode_lens), num_games_finished/len(episode_lens)
 
 def append_to(tlist, tr, val):
 		tlist[0].append(val)

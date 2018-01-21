@@ -78,6 +78,10 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
     @property
     def target_world(self):
         return self._target_world
+
+    @property
+    def max_episode_len(self):
+        return self._num_steps_cutoff
     
     def render(self, mode='rgb_array'):
         pass

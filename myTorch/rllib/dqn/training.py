@@ -89,6 +89,7 @@ def train_dqn_agent():
 	tr.first_qval = [[],[]]
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
+	tr.test_num_games_finished = [[],[]]
 	tr.iterations_done = 0
 	tr.steps_done = 0
 	tr.updates_done = 0
@@ -149,17 +150,21 @@ def train_dqn_agent():
 			if tr.iterations_done % config.test_freq == 0:
 				epi_reward = 0.0
 				epi_len = 0.0
+				num_games_finished = 0.0
 				for _ in xrange(config.test_per_iter):
 					rewards, first_qval = collect_episode(env, agent, epsilon=0.0, is_training=False)
 					epi_reward += sum(rewards)
 					epi_len += len(rewards)
+					num_games_finished += 1.0 if epi_len < env.max_episode_len else 0.0
 				epi_reward = epi_reward / config.test_per_iter
 				epi_len = epi_len / config.test_per_iter
+				num_games_finished = num_games_finished / config.test_per_iter
 				append_to(tr.test_reward, tr, epi_reward)
 				append_to(tr.test_episode_len, tr, epi_len)
+				append_to(tr.test_num_games_finished, tr, num_games_finished)
 				logger.log_scalar_rl("test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
 				logger.log_scalar_rl("test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-
+				logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
 
 		if math.fmod(i+1, config.save_freq) == 0:
 			experiment.save("current")
