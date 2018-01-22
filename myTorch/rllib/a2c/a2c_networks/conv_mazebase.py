@@ -13,6 +13,7 @@ class ConvMazeBase(nn.Module):
 		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
+		self._is_rnn_policy = False
 
 		self._conv1 = nn.Conv2d(4, 8, kernel_size=3, stride=1)
 		self._bn1 = nn.BatchNorm2d(8)
@@ -38,6 +39,10 @@ class ConvMazeBase(nn.Module):
 	@property
 	def use_gpu(self):
 		return self._use_gpu
+
+	@property
+	def is_rnn_policy(self):
+		return self._is_rnn_policy
 
 	def get_attributes(self):
 		return (self._obs_dim, self._action_dim, self._use_gpu)
