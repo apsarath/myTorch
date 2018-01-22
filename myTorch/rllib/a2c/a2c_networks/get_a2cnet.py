@@ -16,6 +16,12 @@ def get_a2cnet(env_name, obs_dim, action_dim, use_gpu, policy_type):
 		elif policy_type == "LSTM" or policy_type == "GRU":
 			return RecurrentCartPole(obs_dim, action_dim, use_gpu, policy_type)
 
+	elif env_name == "SingleMazeInstr-v0":
+		if policy_type == "FeedForward":
+			return ConvMazeBase(obs_dim, action_dim, use_gpu)
+		elif policy_type == "LSTM" or policy_type == "GRU":
+			raise NotImplementedError("No LSTM network yet")
+
 	elif env_name == "blocksworld_matrix":
 		if policy_type == "FeedForward":
 			return FeedForwardBlocksWorldMatrix(obs_dim, action_dim, use_gpu)
