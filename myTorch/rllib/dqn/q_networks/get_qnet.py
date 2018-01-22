@@ -10,5 +10,7 @@ def get_qnet(env_name, obs_dim, action_dim, use_gpu):
 		return ConvCartPole(obs_dim, action_dim, use_gpu)
 	elif env_name == "blocksworld_matrix":
 		return ConvBlocksWorld(obs_dim, action_dim, use_gpu)
+	elif env_name == "SingleMazeInstr-v0":
+		return ConvMazeBase(obs_dim, action_dim, use_gpu)
 	else:
 		assert("unsupported environment : {}".format(env_name))

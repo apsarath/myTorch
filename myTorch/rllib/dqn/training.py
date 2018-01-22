@@ -12,13 +12,13 @@ from myTorch.environment import make_environment
 from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
 from myTorch.rllib.dqn.q_networks import *
 
-from myTorch.rllib.dqn.config import *
+from myTorch.rllib.dqn.config_mazebase import *
 from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
 from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
-parser = argparse.ArgumentParser(description="DQN Training")
-parser.add_argument('--config', type=str, default="blocksworld", help="config name")
+parser = argparse.ArgumentParser(description="DQN Training: Mazebase")
+parser.add_argument('--config', type=str, default="mazebase_array", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -45,7 +45,6 @@ def train_dqn_agent():
 
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
-
 
 
 	env = make_environment(config.env_name)
