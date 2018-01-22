@@ -68,3 +68,8 @@ def blocksworld_matrix():
 	config.test_per_iter = 10
 	return config
 
+def mazebase_array():
+	config = cartpole()
+	config.env_name = "SingleMazeInstr-v0"
+	return config
+

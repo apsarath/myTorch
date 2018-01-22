@@ -20,6 +20,6 @@ def make_environment(env_name):
 		assert("unsupported environment : {}".format(env_name))
 
 if __name__=="__main__":
-	env = make_environment("blocksworld_none")
+	env = make_environment("SingleMazeInstr-v0")
 	obs, legal_moves = env.reset()
 	import pdb; pdb.set_trace()
