@@ -48,11 +48,12 @@ class ConvMazeBase(nn.Module):
 	def set_params(self, state_dict):
 		self.load_state_dict(state_dict)
 
-	def make_target_net(self, qnet):
-		target_net = self.__class__(*qnet.get_attributes())
+	def make_inference_net(self):
+		inference_net = self.__class__(*self.get_attributes())
 		if self._use_gpu == True:
-			target_net.cuda()
-		return target_net
+			inference_net.cuda()
+		inference_net.set_params(self.get_params())
+		return inference_net
 
 if __name__=="__main__":
 	x = FeedForward(50,10)
