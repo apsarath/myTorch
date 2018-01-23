@@ -21,7 +21,7 @@ def cartpole():
 	config.test_freq = 1
 	config.test_per_iter = 1
 
-	config.save_freq = 500
+	config.save_freq = 10000
 	config.sliding_wsize = 30
 	config.seed = 1234
 	config.use_gpu = True
@@ -64,7 +64,9 @@ def blocksworld_matrix():
 	config.discount_rate = 0.99
 	config.lr = 0.00025
 	config.eps = 1e-6
-	config.test_freq = 1000
+	config.test_freq = 500
 	config.test_per_iter = 10
+	config.num_env = 10
+	config.game_level_threshold = 0.8
 	return config
 

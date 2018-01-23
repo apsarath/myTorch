@@ -22,12 +22,12 @@ parser.add_argument('--config', type=str, default="blocksworld", help="config na
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
-parser.add_argument('--game_dir', type=str, default=None, help="game json directory")
 args = parser.parse_args()
 
 
 def train_dqn_agent():
 	assert(args.base_dir)
+	#import pdb; pdb.set_trace()
 	config = eval(args.config)()
 	if args.config_params != "default":
 		modify_config_params(config, args.config_params)
@@ -48,7 +48,7 @@ def train_dqn_agent():
 
 
 
-	env = make_environment(config.env_name, game_dir=args.game_dir)
+	env = make_environment(config.env_name)
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
@@ -89,7 +89,6 @@ def train_dqn_agent():
 	tr.first_qval = [[],[]]
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
-	tr.test_num_games_finished = [[],[]]
 	tr.iterations_done = 0
 	tr.steps_done = 0
 	tr.updates_done = 0
@@ -150,21 +149,17 @@ def train_dqn_agent():
 			if tr.iterations_done % config.test_freq == 0:
 				epi_reward = 0.0
 				epi_len = 0.0
-				num_games_finished = 0.0
 				for _ in xrange(config.test_per_iter):
 					rewards, first_qval = collect_episode(env, agent, epsilon=0.0, is_training=False)
 					epi_reward += sum(rewards)
 					epi_len += len(rewards)
-					num_games_finished += 1.0 if epi_len < env.max_episode_len else 0.0
 				epi_reward = epi_reward / config.test_per_iter
 				epi_len = epi_len / config.test_per_iter
-				num_games_finished = num_games_finished / config.test_per_iter
 				append_to(tr.test_reward, tr, epi_reward)
 				append_to(tr.test_episode_len, tr, epi_len)
-				append_to(tr.test_num_games_finished, tr, num_games_finished)
 				logger.log_scalar_rl("test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
 				logger.log_scalar_rl("test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-				logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
+
 
 		if math.fmod(i+1, config.save_freq) == 0:
 			experiment.save("current")
@@ -173,13 +168,16 @@ def train_dqn_agent():
 	experiment.save("current")
 
 
+
+
+
 def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
 
 	reward_list = []
 	first_qval = None
 	transitions = []
 
-	obs, legal_moves = env.reset(game_level=1)
+	obs, legal_moves = env.reset()
 	legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
 	episode_done = False

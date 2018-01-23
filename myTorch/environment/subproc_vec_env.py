@@ -11,12 +11,18 @@ def worker(remote, parent_remote, env_fn_wrapper):
     while True:
         cmd, data = remote.recv()
         if cmd == 'step':
-            obs, legal_moves, reward, done = env.step(data)
+            obs, legal_moves, reward, done = env.step(data["action"])
             if done:
-                obs, legal_moves = env.reset()
+                if "game_level" in data:
+                    obs, legal_moves = env.reset(game_level=data["game_level"])
+                else:
+                    obs, legal_moves = env.reset()
             remote.send((obs, legal_moves, reward, done))
         elif cmd == 'reset':
-            obs, legal_moves = env.reset()
+            if "game_level" in data:
+                obs, legal_moves = env.reset(game_level=data["game_level"])
+            else:
+                obs, legal_moves = env.reset()
             remote.send((obs, legal_moves))
         elif cmd == 'reset_task':
             ob = env.reset_task()
@@ -26,6 +32,12 @@ def worker(remote, parent_remote, env_fn_wrapper):
             break
         elif cmd == 'get_spaces':
             remote.send((env.action_dim, env.obs_dim))
+        elif cmd == 'get_max_episode_len':
+            max_episode_len = env.max_episode_len if hasattr(env, 'max_episode_len') else None
+            remote.send(max_episode_len)
+        elif cmd == 'have_games_exhausted':
+            have_games_exhausted = env.have_games_exhausted if hasattr(env, 'have_games_exhausted') else None
+            remote.send(have_games_exhausted)
         else:
             raise NotImplementedError
 
@@ -65,17 +77,24 @@ class SubprocVecEnv(EnivironmentBase):
         self.remotes[0].send(('get_spaces', None))
         self.env_dim["action_dim"], self.env_dim["obs_dim"] = self.remotes[0].recv()
 
+        self.remotes[0].send(('get_max_episode_len', None))
+        self._max_episode_len = self.remotes[0].recv()
 
-    def step(self, actions):
+
+    def step(self, actions, **kwargs):
+        data_to_worker = {"action":None}
+        for k in kwargs:
+            data_to_worker[k] = kwargs[k]
         for remote, action in zip(self.remotes, actions):
-            remote.send(('step', action))
+            data_to_worker["action"] = action
+            remote.send(('step', data_to_worker))
         results = [remote.recv() for remote in self.remotes]
         obs, legal_moves, rewards, dones = zip(*results)
         return np.stack(obs), np.stack(legal_moves), np.stack(rewards), np.stack(dones)
 
-    def reset(self):
+    def reset(self, **kwargs):
         for remote in self.remotes:
-            remote.send(('reset', None))
+            remote.send(('reset', kwargs))
         results = [remote.recv() for remote in self.remotes]
         obs, legal_moves = zip(*results)
         return np.stack(obs), np.stack(legal_moves)
@@ -95,9 +114,17 @@ class SubprocVecEnv(EnivironmentBase):
             p.join()
         self.closed = True
 
+    def have_games_exhausted(self):
+        self.remotes[0].send(('have_games_exhausted', None))
+        return self.remotes[0].recv()
+
     @property
     def num_envs(self):
         return len(self.remotes)
+
+    @property
+    def max_episode_len(self):
+        return self._max_episode_len
 
     def render(self, mode='rgb_array'):
         return
@@ -125,10 +152,10 @@ class SubprocVecEnv(EnivironmentBase):
     def obs_dim(self):
         return self.env_dim["obs_dim"]
 
-def get_batched_env(env_name, batch_size=5, seed=1234):
+def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None, mode=None):
     def make_env_fn_wrapper(rank, seed):
         def _thunk():
-            env = make_environment(env_name)
+            env = make_environment(env_name, game_dir, mode)
             env.seed(seed + rank)
             return env
         return _thunk
