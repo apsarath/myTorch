@@ -35,6 +35,9 @@ def worker(remote, parent_remote, env_fn_wrapper):
         elif cmd == 'get_max_episode_len':
             max_episode_len = env.max_episode_len if hasattr(env, 'max_episode_len') else None
             remote.send(max_episode_len)
+        elif cmd == 'have_games_exhausted':
+            have_games_exhausted = env.have_games_exhausted if hasattr(env, 'have_games_exhausted') else None
+            remote.send(have_games_exhausted)
         else:
             raise NotImplementedError
 
@@ -111,6 +114,10 @@ class SubprocVecEnv(EnivironmentBase):
             p.join()
         self.closed = True
 
+    def have_games_exhausted(self):
+        self.remotes[0].send(('have_games_exhausted', None))
+        return self.remotes[0].recv()
+
     @property
     def num_envs(self):
         return len(self.remotes)
@@ -145,10 +152,10 @@ class SubprocVecEnv(EnivironmentBase):
     def obs_dim(self):
         return self.env_dim["obs_dim"]
 
-def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None):
+def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None, mode=None):
     def make_env_fn_wrapper(rank, seed):
         def _thunk():
-            env = make_environment(env_name, game_dir)
+            env = make_environment(env_name, game_dir, mode)
             env.seed(seed + rank)
             return env
         return _thunk

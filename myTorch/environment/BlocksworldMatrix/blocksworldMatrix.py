@@ -4,7 +4,7 @@ import os
 import math
 import numpy as np
 import myTorch
-from myTorch.environment.BlocksworldMatrix import Agent, Tower, Block
+from myTorch.environment.BlocksworldMatrix import Agent, Order, Block
 
 class BlocksWorld(object):
     def __init__(self, height=50, width=50, is_agent_present=False):
@@ -14,8 +14,8 @@ class BlocksWorld(object):
         self._agent = None
 
     @property
-    def tower(self):
-        return self._tower
+    def order(self):
+        return self._order
 
     @property
     def height_at_loc(self):
@@ -25,38 +25,42 @@ class BlocksWorld(object):
     def agent(self):
         return self._agent
 
-    def reset(self, blocks_info, agent_info=None, order_look_up=None, target_height_at_loc=None):
+    def reset(self, blocks_info, order_look_up=None, target_height_at_loc=None):
         # reset world
         self._world = np.zeros((self._width, self._height))
 
         self._height_at_loc = [0]*self._width
         self._block_lookup = {}
         self._blocks = []
-        color_set = set([])
-        for i, block_info in enumerate(blocks_info):
-            block = Block(block_id=block_info['id'], color=block_info['color'])
-            color_set.add(block_info['color'])
-            block.set_loc(tuple(block_info['loc']))
-            loc_x, loc_y = block.loc
-            assert(self._height_at_loc[loc_x] < self._height)
-            self._world[loc_x, loc_y] = block.id
-            self._block_lookup[block.loc] = block
-            self._height_at_loc[loc_x] += 1
+        self._num_blocks = sum([len(tower_info) for tower_info in blocks_info])
+        self._num_colors = self._num_blocks
 
-        self._num_colors = len(color_set)
-        self._num_blocks = len(blocks_info)
-        assert(self._num_blocks < self._height * self._width)
-
-        self._tower = Tower(self._block_lookup, self._height_at_loc, order_look_up)
+        tower_locations = np.random.choice(range(self._width), size=len(blocks_info), replace=False)
+        for t_id, tower_info in enumerate(blocks_info):
+            for block_id in tower_info:
+                block_id = float(block_id) / (self._num_blocks+1)
+                block = Block(block_id=block_id, color=block_id)
+                loc_x = tower_locations[t_id]
+                assert(self._height_at_loc[loc_x] < self._height-1)
+                block.set_loc((loc_x, self._height_at_loc[loc_x]))
+                loc_x, loc_y = block.loc
+                self._world[loc_x, loc_y] = block.id
+                self._block_lookup[block.loc] = block
+                self._height_at_loc[loc_x] += 1
+                self._blocks.append(block)
+                
+        self._order = Order(self._block_lookup, self._height_at_loc, order_look_up)
 
         if target_height_at_loc is not None:
             self._target_height_at_loc = target_height_at_loc
 
         if self._is_agent_present:
-            self._agent = Agent(agent_id=1)
-            self._agent.set_loc(tuple(agent_info["loc"]))
+            agent_loc_x = np.random.choice(range(self._width))
+            assert(self._height_at_loc[agent_loc_x] < self._height)
+
+            self._agent = Agent(agent_id=1.0/(self._num_blocks+1))
+            self._agent.set_loc((agent_loc_x, self._height_at_loc[agent_loc_x]))
             loc_x, loc_y = self._agent.loc
-            assert(self._height_at_loc[loc_x] < self._height)
             self._world[loc_x, loc_y] = self._agent.id
             self._height_at_loc[loc_x] += 1
 
@@ -74,7 +78,7 @@ class BlocksWorld(object):
 
     def _has_game_ended(self):
         if self._num_colors > 1:
-            return (self._tower.num_blocks_in_position == self._num_blocks)
+            return (self._order.num_blocks_in_position == self._num_blocks)
         else:
             for loc in range(self._width):
                 effective_height = (self._height_at_loc[loc])
@@ -118,19 +122,19 @@ class BlocksWorld(object):
 
             self._agent.drop_block(self._world, self._block_lookup)
             if y > 0:
-                block.set_in_position_flag(self._tower.order_look_up, self._block_lookup[(x,y-1)])
+                block.set_in_position_flag(self._order.order_look_up, self._block_lookup[(x,y-1)])
             else:
-                block.set_in_position_flag(self._tower.order_look_up)
+                block.set_in_position_flag(self._order.order_look_up)
 
             in_position_after_drop = block.in_position
             reward = 0
             if self._num_colors > 1:
                 if in_position_before_drop == True and in_position_after_drop == False:
                     reward = -1
-                    self._tower.add_to_num_blocks_in_position(-1)
+                    self._order.add_to_num_blocks_in_position(-1)
                 elif in_position_before_drop == False and in_position_after_drop == True:
                     reward = 1
-                    self._tower.add_to_num_blocks_in_position(1)
+                    self._order.add_to_num_blocks_in_position(1)
 
             elif self._num_colors == 1:
                 if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
