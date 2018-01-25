@@ -72,10 +72,20 @@ class DQNAgent(object):
 		predicted_action_values = self._qnet.forward(minibatch["observations"])
 		predicted_action_values *= minibatch["actions"]
 		predicted_action_values = torch.sum(predicted_action_values, dim=1)
+		
+		next_step_target_net_action_values = self._target_qnet.forward(minibatch["observations_tp1"])
+		next_step_target_net_action_values += minibatch["legal_moves_tp1"]
 
-		next_step_action_values = self._target_qnet.forward(minibatch["observations_tp1"])
-		next_step_action_values += minibatch["legal_moves_tp1"]
-		next_step_best_actions_values = torch.max(next_step_action_values, dim=1)[0].detach()
+		# Double dqn changes
+		# get Q values of the "next_state" from the curr_net
+		next_step_curr_net_action_values = self._qnet.forward(minibatch["observations_tp1"])
+		next_step_curr_net_action_values += minibatch["legal_moves_tp1"]
+
+		# argmax over the Curr-net's Q values to select greedy action.
+		next_step_best_actions = torch.max(next_step_curr_net_action_values, dim=1)[1].detach().unsqueeze(1)
+
+		# choose the Q-values of the target-net for the greedy action chosen from the prev line.
+		next_step_best_actions_values = torch.gather(next_step_target_net_action_values, 1, next_step_best_actions).squeeze(1)
 
 		action_value_targets = minibatch["rewards"] + self._discount_rate * next_step_best_actions_values * minibatch["pcontinues"]
 
