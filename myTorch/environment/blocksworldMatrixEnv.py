@@ -9,9 +9,10 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, WorldBuilder
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, game_base_dir, height=10, width=10, num_steps_cutoff=50, mode="train", game_level=2, start_game_id=0, max_games_per_level=10000, seed=1234):
+    def __init__(self, game_base_dir, height=10, width=10, num_steps_cutoff=80, mode="train", game_level=2, start_game_id=0, max_games_per_level=10000, seed=1234, is_one_hot_world=False, max_num_blocks=20, id_normalizing_factor=20):
         self._height = height
         self._width = width
+        self._is_one_hot_world = is_one_hot_world
         self._actions = {0:'left',1:'right',2:'pick',3:'drop'}
         self._legal_moves = np.array(self._actions.keys())
         self._num_steps_cutoff = num_steps_cutoff
@@ -23,6 +24,11 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._game_id = start_game_id
         self._game_id_sequence = np.arange(max_games_per_level)
         self._numpy_rng.shuffle(self._game_id_sequence)
+
+        self._id_normalizing_factor = id_normalizing_factor
+        self._max_num_blocks = max_num_blocks
+        self._object_ids = np.array([float(i)/self._id_normalizing_factor for i in range(1, self._id_normalizing_factor)])
+
         self.load_games()
 
     def reset(self, game_level=None):
@@ -36,13 +42,15 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
         game = self._games[self._game_id_sequence[self._game_id]]
 
-        self._input_world = BlocksWorld(self._height, self._width, is_agent_present=True)
-        self._target_world = BlocksWorld(self._height, self._width, is_agent_present=False)
-        self._target_world.reset(blocks_info=game["target_towers"])
-        self._input_world.reset(blocks_info=game["input_towers"],
+        self._input_world = BlocksWorld(self._height, self._width, self._max_num_blocks, is_agent_present=True)
+        self._target_world = BlocksWorld(self._height, self._width, self._max_num_blocks, is_agent_present=False)
+        self._numpy_rng.shuffle(self._object_ids[1:])
+        self._target_world.reset(blocks_info=game["target_towers"], object_ids=self._object_ids)
+        self._input_world.reset(blocks_info=game["input_towers"], object_ids=self._object_ids,
                                 order_look_up=self._target_world.order.order_look_up,
                                 target_height_at_loc=self._target_world.height_at_loc)
-        obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
+        combine_op = np.concatenate if self._is_one_hot_world else np.stack
+        obs = combine_op((self._input_world.as_numpy(self._is_one_hot_world), self._target_world.as_numpy(self._is_one_hot_world)), axis=0)
         self._game_id = (self._game_id + 1) % self._num_available_games
         self._num_steps_done = 0
         return obs, self._legal_moves
@@ -54,7 +62,8 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
     def step(self, action):
         self._num_steps_done += 1
         reward, done = self._input_world.update(self._actions[action])
-        obs = np.stack((self._input_world.as_numpy(), self._target_world.as_numpy()), axis=0)
+        combine_op = np.concatenate if self._is_one_hot_world else np.stack
+        obs = combine_op((self._input_world.as_numpy(self._is_one_hot_world), self._target_world.as_numpy(self._is_one_hot_world)), axis=0)
         if self._num_steps_done >= self._num_steps_cutoff:
             done = True
         return obs, self._legal_moves, reward, done
@@ -75,7 +84,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
     @property
     def obs_dim(self):
-        return (2, self._width, self._height)
+        return (2 if not self._is_one_hot_world else self._max_num_blocks + 1, self._width, self._height)
 
     @property
     def input_world(self):
@@ -113,7 +122,7 @@ if __name__=="__main__":
     parser.add_argument('--num_games', type=int, default=0, help="config name")
     args = parser.parse_args()
 
-    env = BlocksWorldMatrixEnv(game_base_dir="games/", game_level=2)
+    env = BlocksWorldMatrixEnv(game_base_dir="games/", game_level=5)
     if args.num_games > 0:
         env.create_games(args.num_games)
         import pdb; pdb.set_trace()

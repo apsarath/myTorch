@@ -6,7 +6,7 @@ from myTorch.utils import my_variable
 from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
 
 
-class RecurrentBlocksWorldMatrix(nn.Module):
+class RecurrentOneHotBlocksWorldMatrix(nn.Module):
 
 	def __init__(self, obs_dim, action_dim, use_gpu=False, rnn_type="LSTM"):
 		super(self.__class__, self).__init__()
@@ -14,8 +14,8 @@ class RecurrentBlocksWorldMatrix(nn.Module):
 		self._obs_dim = obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
-		self._rnn_input_size = 128
-		self._rnn_hidden_size = 256
+		self._rnn_input_size = 32
+		self._rnn_hidden_size = 30
 		self._rnn_type = rnn_type
 		self._is_rnn_policy = True
 		if self._rnn_type == "LSTM": 
@@ -32,9 +32,7 @@ class RecurrentBlocksWorldMatrix(nn.Module):
 		self._bn3 = nn.BatchNorm2d(32)
 		self._conv4 = nn.Conv2d(32, 32, kernel_size=4, stride=1)
 		self._bn4 = nn.BatchNorm2d(32)
-		self._fc1 = nn.Linear(512, 256)
-		self._fc2 = nn.Linear(256, 256)
-		self._fc3 = nn.Linear(256, self._rnn_input_size)
+		self._fc1 = nn.Linear(512, self._rnn_input_size)
 
 		self._fcv = nn.Linear(self._rnn_hidden_size, 1)
 		self._fcp = nn.Linear(self._rnn_hidden_size, self._action_dim)
@@ -46,10 +44,7 @@ class RecurrentBlocksWorldMatrix(nn.Module):
 		x = F.relu(self._bn2(self._conv2(x)))
 		x = F.relu(self._bn3(self._conv3(x)))
 		x = F.relu(self._bn4(self._conv4(x)))
-		x = F.relu(self._fc1(x.view(x.size(0), -1)))
-		x = F.relu(self._fc2(x))
-		x = F.relu(self._fc3(x))
-		return x
+		return self._fc1(x.view(x.size(0), -1))
 
 	def reset_hidden(self, batch_size):
 		self._hidden = {}
