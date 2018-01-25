@@ -7,10 +7,11 @@ import myTorch
 from myTorch.environment.BlocksworldMatrix import Agent, Order, Block
 
 class BlocksWorld(object):
-    def __init__(self, height=50, width=50, is_agent_present=False):
+    def __init__(self, height=50, width=50, max_num_blocks=20, is_agent_present=False):
         self._height = height
         self._width = width
         self._is_agent_present = is_agent_present
+        self._max_num_blocks = max_num_blocks
         self._agent = None
 
     @property
@@ -25,9 +26,7 @@ class BlocksWorld(object):
     def agent(self):
         return self._agent
 
-    def reset(self, blocks_info, order_look_up=None, target_height_at_loc=None):
-        # reset world
-        self._world = np.zeros((self._width, self._height))
+    def reset(self, blocks_info, object_ids=None, order_look_up=None, target_height_at_loc=None):
 
         self._height_at_loc = [0]*self._width
         self._block_lookup = {}
@@ -35,10 +34,14 @@ class BlocksWorld(object):
         self._num_blocks = sum([len(tower_info) for tower_info in blocks_info])
         self._num_colors = self._num_blocks
 
+        # reset world
+        self._one_hot_world = np.zeros((self._max_num_blocks, self._width, self._height))
+        self._world = np.zeros((self._width, self._height))
+
         tower_locations = np.random.choice(range(self._width), size=len(blocks_info), replace=False)
         for t_id, tower_info in enumerate(blocks_info):
             for block_id in tower_info:
-                block_id = float(block_id) / (self._num_blocks+1)
+                block_id = float(block_id) if object_ids is None else object_ids[block_id]
                 block = Block(block_id=block_id, color=block_id)
                 loc_x = tower_locations[t_id]
                 assert(self._height_at_loc[loc_x] < self._height-1)
@@ -48,17 +51,18 @@ class BlocksWorld(object):
                 self._block_lookup[block.loc] = block
                 self._height_at_loc[loc_x] += 1
                 self._blocks.append(block)
-                
+
         self._order = Order(self._block_lookup, self._height_at_loc, order_look_up)
 
         if target_height_at_loc is not None:
             self._target_height_at_loc = target_height_at_loc
 
         if self._is_agent_present:
+            self._one_hot_world = np.zeros((self._max_num_blocks+1, self._width, self._height))
             agent_loc_x = np.random.choice(range(self._width))
             assert(self._height_at_loc[agent_loc_x] < self._height)
 
-            self._agent = Agent(agent_id=1.0/(self._num_blocks+1))
+            self._agent = Agent(agent_id=1.0 if object_ids is None else object_ids[0])
             self._agent.set_loc((agent_loc_x, self._height_at_loc[agent_loc_x]))
             loc_x, loc_y = self._agent.loc
             self._world[loc_x, loc_y] = self._agent.id
@@ -66,8 +70,15 @@ class BlocksWorld(object):
 
         return self._world
 
-    def as_numpy(self):
-        return self._world
+    def as_numpy(self, one_hot=False):
+        if not one_hot:
+            return self._world
+        else:
+            for i, block in enumerate(self._blocks):
+                self._one_hot_world[i, block.loc[0], block.loc[1]] = 1.0
+            if self._is_agent_present:
+                self._one_hot_world[-1, self._agent.loc[0], self._agent.loc[1]] = 1.0
+            return self._one_hot_world
 
     def is_matching(self, target):
         x,y = self._agent.loc

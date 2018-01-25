@@ -68,5 +68,6 @@ def blocksworld_matrix():
 	config.test_per_iter = 10
 	config.num_env = 10
 	config.game_level_threshold = 0.8
+	config.is_one_hot_world=False
 	return config
 

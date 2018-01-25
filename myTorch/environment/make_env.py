@@ -3,7 +3,7 @@ from myTorch.environment.Blocksworld import *
 from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv
 
 
-def make_environment(env_name, game_dir=None, mode="train"):
+def make_environment(env_name, game_dir=None, mode="train", is_one_hot_world=False):
 
 	if env_name == "CartPole-v0" or env_name == "CartPole-v1":
 		return GymEnvironment(env_name)
@@ -16,7 +16,7 @@ def make_environment(env_name, game_dir=None, mode="train"):
 	elif env_name == "blocksworld_none":
 		return BlocksEnvironment()
 	elif env_name == "blocksworld_matrix":
-		env = BlocksWorldMatrixEnv(game_dir, mode=mode)
+		env = BlocksWorldMatrixEnv(game_dir, mode=mode, is_one_hot_world=is_one_hot_world)
 		return env
 	else:
 		assert("unsupported environment : {}".format(env_name))

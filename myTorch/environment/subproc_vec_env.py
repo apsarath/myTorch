@@ -152,10 +152,10 @@ class SubprocVecEnv(EnivironmentBase):
     def obs_dim(self):
         return self.env_dim["obs_dim"]
 
-def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None, mode=None):
+def get_batched_env(env_name, batch_size=5, seed=1234, game_dir=None, mode=None, is_one_hot_world=False):
     def make_env_fn_wrapper(rank, seed):
         def _thunk():
-            env = make_environment(env_name, game_dir, mode)
+            env = make_environment(env_name, game_dir, mode, is_one_hot_world)
             env.seed(seed + rank)
             return env
         return _thunk

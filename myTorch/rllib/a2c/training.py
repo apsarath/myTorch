@@ -46,11 +46,14 @@ def train_a2c_agent():
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
 
-	env = get_batched_env(config.env_name, config.num_env, config.seed, game_dir=args.game_dir, mode="train")
+	env = get_batched_env(config.env_name, config.num_env, config.seed, 
+												game_dir=args.game_dir, mode="train", is_one_hot_world=config.is_one_hot_world)
 	experiment.register_env(env)
-	test_env = get_batched_env(config.env_name, 1, config.seed, game_dir=args.game_dir, mode="valid")
+	test_env = get_batched_env(config.env_name, 1, config.seed, 
+							game_dir=args.game_dir, mode="valid", is_one_hot_world=config.is_one_hot_world)
 
-	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
+	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type,
+						one_hot=config.is_one_hot_world)
 
 	if config.use_gpu == True:
 		a2cnet.cuda()

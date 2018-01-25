@@ -2,7 +2,7 @@ import myTorch
 from myTorch.environment import GymEnvironment
 from myTorch.rllib.a2c.a2c_networks import *
 
-def get_a2cnet(env_name, obs_dim, action_dim, use_gpu, policy_type):
+def get_a2cnet(env_name, obs_dim, action_dim, use_gpu, policy_type, one_hot=False):
 
 	if env_name == "CartPole-v0" or env_name == "CartPole-v1":
 		if policy_type == "FeedForward":
@@ -20,7 +20,10 @@ def get_a2cnet(env_name, obs_dim, action_dim, use_gpu, policy_type):
 		if policy_type == "FeedForward":
 			return FeedForwardBlocksWorldMatrix(obs_dim, action_dim, use_gpu)
 		elif policy_type == "LSTM" or policy_type == "GRU":
-			return RecurrentBlocksWorldMatrix(obs_dim, action_dim, use_gpu, policy_type)
+			if one_hot:
+				return RecurrentOneHotBlocksWorldMatrix(obs_dim, action_dim, use_gpu, policy_type)
+			else:
+				return RecurrentBlocksWorldMatrix(obs_dim, action_dim, use_gpu, policy_type)
 
 	else:
 		assert("unsupported environment : {}".format(env_name))
