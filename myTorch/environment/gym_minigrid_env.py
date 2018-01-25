@@ -3,10 +3,10 @@ import myTorch
 from myTorch.environment import EnivironmentBase
 import numpy as np
 
-class MazeBaseEnvironment(EnivironmentBase):
+class GymMiniGrid(EnivironmentBase):
 
 	def __init__(self, env_name):
-		import mazebaseinstr
+		import gym_minigrid
 		self._env = gym.make(env_name)
 		self._action_dim = self._env.action_space.n
 		self._legal_moves = np.arange(self._action_dim)
@@ -49,5 +49,5 @@ class MazeBaseEnvironment(EnivironmentBase):
 
 
 if __name__=="__main__":
-	env = MazeBaseEnvironment("CartPole-v0")
+	env = GymMiniGrid("MiniGrid-Fetch-8x8-v0")
 	import pdb; pdb.set_trace()

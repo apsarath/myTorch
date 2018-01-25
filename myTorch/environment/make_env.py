@@ -1,6 +1,7 @@
 import myTorch
 from myTorch.environment.Blocksworld import *
-from myTorch.environment import GymEnvironment, CartPoleImage, MazeBaseEnvironment, BlocksEnvironment, BlocksWorldMatrixEnv
+from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv
+from myTorch.environment import MazeBaseEnvironment, GymMiniGrid
 
 def make_environment(env_name):
 
@@ -8,18 +9,16 @@ def make_environment(env_name):
 		return GymEnvironment(env_name)
 	elif env_name == "CartPole-v0-image" or env_name == "CartPole-v1-image":
 		return CartPoleImage(env_name.replace("-image",""))
-	elif env_name == "MazeBaseInstr-v0":
-		return MazeBaseEnvironment("MazeBaseInstr-v0")
-	elif env_name == "SingleMazeInstr-v0":
-		return MazeBaseEnvironment("SingleMazeInstr-v0")
 	elif env_name == "blocksworld_none":
 		return BlocksEnvironment()
 	elif env_name == "blocksworld_matrix":
 		return BlocksWorldMatrixEnv()
+	elif "MiniGrid" in env_name:
+		return GymMiniGrid(env_name)
 	else:
 		assert("unsupported environment : {}".format(env_name))
 
 if __name__=="__main__":
-	env = make_environment("SingleMazeInstr-v0")
+	env = make_environment("CartPole-v0")
 	obs, legal_moves = env.reset()
 	import pdb; pdb.set_trace()
