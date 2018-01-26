@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 class ConvCartPole(nn.Module):
 
-	def __init__(self, obs_dim, action_dim, use_gpu=False):
+	def __init__(self, obs_dim, action_dim, use_gpu=False, is_dueling_arch=False):
 		super(self.__class__, self).__init__()
 
 		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
