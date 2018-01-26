@@ -12,17 +12,27 @@ class FeedForwardCartPole(nn.Module):
 		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
+		self._is_dueling_arch = is_dueling_arch
 
 		self._fc1 = nn.Linear(self._obs_dim, 100)
-		self._fc2 = nn.Linear(100, self._action_dim)
+		if self._is_dueling_arch:
+			self._fcv = nn.Linear(100, 1)
+			self._fca = nn.Linear(100, self._action_dim)
+		else:
+			self._fc2 = nn.Linear(100, self._action_dim)
 
 
 	def forward(self, input):
 		if len(input.shape) < 2:
 			input = input.unsqueeze(0)
 		x = F.relu(self._fc1(input))
-		x = self._fc2(x)
-		return x
+		if self._is_dueling_arch:
+			state_val = self._fcv(x)
+			adv_vals = self._fca(x)
+			return adv_vals.sub_(torch.mean(adv_vals, dim=1, keepdim=True)) + state_val
+		else:
+			return self._fc2(x)
+
 
 	@property
 	def action_dim(self):

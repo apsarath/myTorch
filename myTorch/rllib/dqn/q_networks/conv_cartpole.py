@@ -12,6 +12,7 @@ class ConvCartPole(nn.Module):
 		self._obs_dim = obs_dim[0] if isinstance(obs_dim, tuple) else obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
+		self._is_dueling_arch = is_dueling_arch
 
 		self._conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
 		self._bn1 = nn.BatchNorm2d(16)
@@ -19,7 +20,12 @@ class ConvCartPole(nn.Module):
 		self._bn2 = nn.BatchNorm2d(32)
 		self._conv3 = nn.Conv2d(32, 32, kernel_size=5, stride=2)
 		self._bn3 = nn.BatchNorm2d(32)
-		self._head = nn.Linear(448, 2)
+
+		if self._is_dueling_arch:
+			self._fcv = nn.Linear(448, 1)
+			self._fca = nn.Linear(448, self._action_dim)
+		else:
+			self._head = nn.Linear(448, self._action_dim)
 
 
 	def forward(self, x):
@@ -28,7 +34,12 @@ class ConvCartPole(nn.Module):
 		x = F.relu(self._bn1(self._conv1(x)))
 		x = F.relu(self._bn2(self._conv2(x)))
 		x = F.relu(self._bn3(self._conv3(x)))
-		return self._head(x.view(x.size(0), -1))
+		if self._is_dueling_arch:
+			state_val = self._fcv(x.view(x.size(0), -1))
+			adv_vals = self._fca(x.view(x.size(0), -1))
+			return adv_vals.sub_(torch.mean(adv_vals, dim=1, keepdim=True)) + state_val
+		else:
+			return self._head(x.view(x.size(0), -1))
 
 
 	@property
