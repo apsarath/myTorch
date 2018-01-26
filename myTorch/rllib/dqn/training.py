@@ -64,6 +64,7 @@ def train_dqn_agent():
 			 		numpy_rng,
 			 		discount_rate=config.discount_rate, 
 			 		grad_clip = [config.grad_clip_min, config.grad_clip_max], 
+					is_double_dqn = config.is_double_dqn,
 			 		target_net_soft_update=config.target_net_soft_update,
 			 		target_net_update_freq=config.target_net_update_freq,
 			 		target_net_update_fraction=config.target_net_update_fraction,
