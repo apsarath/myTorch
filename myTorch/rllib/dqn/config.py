@@ -121,13 +121,13 @@ def blocksworld():
 	return config
 
 
-def mazebase_array():
+def gym_minigrid_image():
 
 	config = MyContainer()
 
 	config.exp_name = "dqn"
 
-	config.env_name = "SingleMazeInstr-v0"
+	config.env_name = "MiniGrid-DoorKey-5x5-v0" # Check for others in the README.md file in the repo
 
 	config.epsilon_end = 0.05
 	config.epsilon_start = 1

@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class ConvMazeBase(nn.Module):
+class ConvGymMiniGrid(nn.Module):
 
 	def __init__(self, obs_dim, action_dim, use_gpu=False):
 		super(self.__class__, self).__init__()
