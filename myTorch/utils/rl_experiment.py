@@ -1,6 +1,6 @@
 import os
 from os.path import isfile
-import cPickle as pickle
+import pickle
 from shutil import rmtree
 
 import myTorch

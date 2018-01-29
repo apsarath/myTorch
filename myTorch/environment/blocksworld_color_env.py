@@ -1,12 +1,12 @@
 import myTorch
-from myTorch.environment import EnivironmentBase
+from environment import EnvironmentBase
 import numpy as np
 import os
 
 os.sys.path.append('\Users\prasanna\Documents\Blocksworld')
 from blocksworldEnv import *
 
-class BlocksEnvironment_colors(EnivironmentBase):
+class BlocksEnvironment_colors(EnvironmentBase):
     def __init__(self):
         self._env = blocksworldEnv.Environment('colors')
         self._action_dim = len(self._env.actions)

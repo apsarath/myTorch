@@ -1,1 +1,1 @@
-from blocksworldEnv import *
+from environment.Blocksworld.blocksworldEnv import *

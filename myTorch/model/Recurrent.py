@@ -24,8 +24,8 @@ class Recurrent(nn.Module):
             cell = GRUCell
         elif mname=="RNN":
             cell = RNNCell
-	elif mname=="TARDIS":
-	    cell = TARDISCell
+        elif mname=="TARDIS":
+            cell = TARDISCell
 
         self.num_layers = num_layers
         self.Cells.append(cell(input_size, layer_size[0], activation=activation, use_gpu=use_gpu))

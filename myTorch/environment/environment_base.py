@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-class EnivironmentBase():
+class EnvironmentBase():
     __metaclass__ = ABCMeta
 
     @abstractmethod

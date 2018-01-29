@@ -1,5 +1,5 @@
 from collections import OrderedDict
-import cPickle as pickle
+import pickle
 import inspect
 import os
 import torch

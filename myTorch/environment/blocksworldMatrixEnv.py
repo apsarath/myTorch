@@ -3,11 +3,11 @@
 import os
 import math
 import numpy as np
-from myTorch.environment import EnivironmentBase
-from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
+from environment import EnvironmentBase
+from environment.BlocksworldMatrix import BlocksWorld, Block
 
 
-class BlocksWorldMatrixEnv(EnivironmentBase):
+class BlocksWorldMatrixEnv(EnvironmentBase):
     def __init__(self, height=10, width=10, num_blocks=10, num_colors=1, num_steps_cutoff=50) :
         # initialize matrix
         self._height = height
@@ -75,31 +75,31 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 if __name__=="__main__":
     env = BlocksWorldMatrixEnv()
     env.reset()
-    print "Target World Down:"
-    print np.flipud(np.transpose(env.target_world.as_numpy()))
-    print "Input World Down:"
-    print np.flipud(np.transpose(env.input_world.as_numpy()))
-    print "Agent loc : {}".format(env.input_world.agent.loc)
+    print("Target World Down:")
+    print(np.flipud(np.transpose(env.target_world.as_numpy())))
+    print("Input World Down:")
+    print(np.flipud(np.transpose(env.input_world.as_numpy())))
+    print("Agent loc : {}".format(env.input_world.agent.loc))
 
     action_dict = {"l":0, "r":1, "p":2, "d":3}
     while True:
         action = raw_input("Action: Choose among: l,r,p,d \n")
         if action in action_dict:
             obs, _, reward, done = env.step(action_dict[action])
-            print "Target World Down:"
-            print np.flipud(np.transpose(obs[1]))
-            print "Input World Down:"
-            print np.flipud(np.transpose(obs[0]))
-            print "Reward : {}, done : {}".format(reward,done)
-            print "Agent loc : {}".format(env.input_world.agent.loc)
+            print("Target World Down:")
+            print(np.flipud(np.transpose(obs[1])))
+            print("Input World Down:")
+            print(np.flipud(np.transpose(obs[0])))
+            print("Reward : {}, done : {}".format(reward,done))
+            print("Agent loc : {}".format(env.input_world.agent.loc))
 
             if done:
-                print "GAME OVER !!"
+                print("GAME OVER !!")
                 obs, _ = env.reset()
-                print "Target World Down:"
-                print np.flipud(np.transpose(obs[1]))
-                print "Input World Down:"
-                print np.flipud(np.transpose(obs[0]))
-                print "Agent loc : {}".format(env.input_world.agent.loc)
+                print("Target World Down:")
+                print(np.flipud(np.transpose(obs[1])))
+                print("Input World Down:")
+                print(np.flipud(np.transpose(obs[0])))
+                print("Agent loc : {}".format(env.input_world.agent.loc))
     
     import pdb; pdb.set_trace()

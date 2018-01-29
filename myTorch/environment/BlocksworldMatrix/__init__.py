@@ -1,5 +1,5 @@
-from block import *
-from agent import *
-from tower import *
-from blocksworldMatrix import *
+from environment.BlocksworldMatrix.block import *
+from environment.BlocksworldMatrix.agent import *
+from environment.BlocksworldMatrix.tower import *
+from environment.BlocksworldMatrix.blocksworldMatrix import *
 

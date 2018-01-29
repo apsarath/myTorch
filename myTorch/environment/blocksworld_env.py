@@ -1,10 +1,10 @@
 import myTorch
-from myTorch.environment import EnivironmentBase
+from environment import EnvironmentBase
 import numpy as np
 import os
-from myTorch.environment.Blocksworld import *
+from environment.Blocksworld import *
 
-class BlocksEnvironment(EnivironmentBase):
+class BlocksEnvironment(EnvironmentBase):
     def __init__(self):
         self._env = blocksworldEnv.Environment('None', "../../environment/Blocksworld/images/")
         self._action_dim = len(self._env.actions)

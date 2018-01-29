@@ -2,8 +2,8 @@
 
 import numpy as np
 from multiprocessing import Process, Pipe
-from myTorch.environment import EnivironmentBase
-from myTorch.environment import make_environment
+from environment import EnvironmentBase
+from environment import make_environment
 
 def worker(remote, parent_remote, env_fn_wrapper):
     parent_remote.close()
@@ -44,7 +44,7 @@ class CloudpickleWrapper(object):
         self.x = pickle.loads(ob)
 
 
-class SubprocVecEnv(EnivironmentBase):
+class SubprocVecEnv(EnvironmentBase):
     def __init__(self, env_fns):
         """
         envs: list of gym environments to run in subprocesses
@@ -52,7 +52,7 @@ class SubprocVecEnv(EnivironmentBase):
         self.closed = False
         self.env_dim = {}
         nenvs = len(env_fns)
-        print "Preparing {} environments".format(nenvs)
+        print("Preparing {} environments".format(nenvs))
         self.remotes, self.work_remotes = zip(*[Pipe() for _ in range(nenvs)])
         self.ps = [Process(target=worker, args=(work_remote, remote, CloudpickleWrapper(env_fn)))
             for (work_remote, remote, env_fn) in zip(self.work_remotes, self.remotes, env_fns)]
@@ -148,5 +148,5 @@ if __name__=="__main__":
     obs, legal_moves, rewards, dones = env.step([0]*batch_size)
     assert(obs.shape[0] == legal_moves.shape[0] == rewards.shape[0] == dones.shape[0])
     assert(obs[0,:].shape == env.obs_dim)
-    print "Basic tests passed for batched enviroment!"
+    print("Basic tests passed for batched enviroment!")
     env.close()

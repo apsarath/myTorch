@@ -1,9 +1,9 @@
 import gym
 import myTorch
-from myTorch.environment import EnivironmentBase
+from environment import EnvironmentBase
 import numpy as np
 
-class GymEnvironment(EnivironmentBase):
+class GymEnvironment(EnvironmentBase):
 
 	def __init__(self, env_name):
 		self._env_name = env_name

@@ -1,12 +1,12 @@
 import gym
 import myTorch
-from myTorch.environment import EnivironmentBase
+from environment import EnvironmentBase
 import numpy as np
 import torch
 import torchvision.transforms as T
 from PIL import Image
 
-class CartPoleImage(EnivironmentBase):
+class CartPoleImage(EnvironmentBase):
 
 	def __init__(self, env_name):
 		assert( env_name == "CartPole-v0" or env_name == "CartPole-v1")

@@ -1,9 +1,9 @@
 import gym
 import myTorch
-from myTorch.environment import EnivironmentBase
+from environment import EnvironmentBase
 import numpy as np
 
-class GymMiniGrid(EnivironmentBase):
+class GymMiniGrid(EnvironmentBase):
 
 	def __init__(self, env_name):
 		import gym_minigrid

@@ -1,7 +1,6 @@
 import myTorch
-from myTorch.environment.Blocksworld import *
-from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv
-from myTorch.environment import MazeBaseEnvironment, GymMiniGrid
+from environment.Blocksworld import *
+from environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv, GymMiniGrid
 
 def make_environment(env_name):
 
@@ -14,6 +13,7 @@ def make_environment(env_name):
 	elif env_name == "blocksworld_matrix":
 		return BlocksWorldMatrixEnv()
 	elif "MiniGrid" in env_name:
+		import gym_minigrid
 		return GymMiniGrid(env_name)
 	else:
 		assert("unsupported environment : {}".format(env_name))

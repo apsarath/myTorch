@@ -1,1 +1,1 @@
-from copy_task import *
+from task.copy_task import *
