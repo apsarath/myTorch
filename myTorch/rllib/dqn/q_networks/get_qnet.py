@@ -1,5 +1,4 @@
-import myTorch
-from rllib.dqn.q_networks import *
+from myTorch.rllib.dqn.q_networks import *
 
 def get_qnet(env_name, obs_dim, action_dim, use_gpu):
 

@@ -66,7 +66,10 @@ class ReplayBuffer(object):
         for key in self._data:
             full_name = os.path.join(fname, "{}.npy".format(key))
             with open(full_name,"w") as f:
-                np.save(f, self._data[key])
+                try:
+                    np.save(f, self._data[key])
+                except:
+                    import pdb; pdb.set_trace()
 
     def load(self, fname):
 

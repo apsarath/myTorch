@@ -1,1 +1,1 @@
-from task.copy_task import *
+from myTorch.task.copy_task import *
