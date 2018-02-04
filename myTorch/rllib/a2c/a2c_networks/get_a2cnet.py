@@ -1,4 +1,3 @@
-import myTorch
 from myTorch.environment import GymEnvironment
 from myTorch.rllib.a2c.a2c_networks import *
 
@@ -16,9 +15,9 @@ def get_a2cnet(env_name, obs_dim, action_dim, use_gpu, policy_type):
 		elif policy_type == "LSTM" or policy_type == "GRU":
 			return RecurrentCartPole(obs_dim, action_dim, use_gpu, policy_type)
 
-	elif env_name == "SingleMazeInstr-v0":
+	elif "MiniGrid" in env_name:
 		if policy_type == "FeedForward":
-			return ConvMazeBase(obs_dim, action_dim, use_gpu)
+			return ConvGymMiniGrid(obs_dim, action_dim, use_gpu)
 		elif policy_type == "LSTM" or policy_type == "GRU":
 			raise NotImplementedError("No LSTM network yet")
 

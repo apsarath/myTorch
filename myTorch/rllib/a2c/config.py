@@ -68,8 +68,8 @@ def blocksworld_matrix():
 	config.test_per_iter = 10
 	return config
 
-def mazebase_array():
+def gym_minigrid_image():
 	config = cartpole()
-	config.env_name = "SingleMazeInstr-v0"
+	config.env_name = "MiniGrid-DoorKey-5x5-v0"
 	return config
 

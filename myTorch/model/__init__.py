@@ -1,1 +1,1 @@
-from model.Recurrent import *
+from myTorch.model.Recurrent import *

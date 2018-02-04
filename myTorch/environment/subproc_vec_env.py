@@ -2,8 +2,8 @@
 
 import numpy as np
 from multiprocessing import Process, Pipe
-from environment import EnvironmentBase
-from environment import make_environment
+from myTorch.environment import EnvironmentBase
+from myTorch.environment import make_environment
 
 def worker(remote, parent_remote, env_fn_wrapper):
     parent_remote.close()

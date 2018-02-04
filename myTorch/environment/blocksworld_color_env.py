@@ -1,5 +1,4 @@
-import myTorch
-from environment import EnvironmentBase
+from myTorch.environment import EnvironmentBase
 import numpy as np
 import os
 

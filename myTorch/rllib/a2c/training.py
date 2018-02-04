@@ -17,8 +17,8 @@ from myTorch.rllib.a2c import A2CAgent
 from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
-parser = argparse.ArgumentParser(description="A2C Training")
-parser.add_argument('--config', type=str, default="mazebase_array", help="config name")
+parser = argparse.ArgumentParser(description="A2C Training: Gym-GridWorld")
+parser.add_argument('--config', type=str, default="gym_minigrid_image", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -146,10 +146,10 @@ def train_a2c_agent():
 		logger.log_scalar_rl("train_pg_loss", tr.pg_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 		logger.log_scalar_rl("train_val_loss", tr.val_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 		logger.log_scalar_rl("train_entropy_loss", tr.entropy_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
-		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss)
+		print("pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss))
 
 		if tr.iterations_done % config.test_freq == 0:
-			print "Testing..."
+			print("Testing...")
 			test_agent.a2cnet.set_params(agent.a2cnet.get_params())
 			reward, episode_len = inference(config, test_agent, test_env)
 			append_to(tr.test_reward, tr, reward)
@@ -171,8 +171,8 @@ def inference(config, test_agent, test_env):
 		while not done:
 			actions, log_taken_pvals, vvals, entropies, pvals = test_agent.sample_action(obs, is_training=False)
 			sampled_actions,_,_,_, sampled_pvals = test_agent.sample_action(obs, is_training=True, update_agent_state=False)
-			print "Arg Max action: {}, sampled action : {}".format(actions, sampled_actions)
-			print "Test pvals ",pvals
+			print("Arg Max action: {}, sampled action : {}".format(actions, sampled_actions))
+			print("Test pvals ",pvals)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
 			done = episode_dones[0]
 			total_reward += reward[0]

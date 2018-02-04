@@ -3,8 +3,8 @@
 import os
 import math
 import numpy as np
-from environment import EnvironmentBase
-from environment.BlocksworldMatrix import BlocksWorld, Block
+from myTorch.environment import EnvironmentBase
+from myTorch.environment.BlocksworldMatrix import BlocksWorld, Block
 
 
 class BlocksWorldMatrixEnv(EnvironmentBase):
