@@ -1,6 +1,6 @@
-from myTorch.environment import EnvironmentBase
-import numpy as np
 import os
+import numpy as np
+from myTorch.environment import EnvironmentBase
 
 os.sys.path.append('\Users\prasanna\Documents\Blocksworld')
 from blocksworldEnv import *

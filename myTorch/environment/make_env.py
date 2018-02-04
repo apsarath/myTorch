@@ -1,3 +1,4 @@
+import myTorch
 from myTorch.environment.Blocksworld import *
 from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv, GymMiniGrid
 

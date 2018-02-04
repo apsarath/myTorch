@@ -1,8 +1,8 @@
 import gym
-from myTorch.environment import EnvironmentBase
 import numpy as np
 import torch
 import torchvision.transforms as T
+from myTorch.environment import EnvironmentBase
 from PIL import Image
 
 class CartPoleImage(EnvironmentBase):

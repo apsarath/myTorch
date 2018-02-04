@@ -1,1 +1,1 @@
-from .a2c_agent import *
+from myTorch.rllib.a2c.a2c_agent import *

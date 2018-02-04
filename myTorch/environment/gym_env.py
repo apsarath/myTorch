@@ -1,6 +1,6 @@
 import gym
-from myTorch.environment import EnvironmentBase
 import numpy as np
+from myTorch.environment import EnvironmentBase
 
 class GymEnvironment(EnvironmentBase):
 
