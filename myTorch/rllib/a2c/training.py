@@ -103,12 +103,12 @@ def train_a2c_agent():
 	else:
 		experiment.force_restart("current")
 
-	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
+	num_iterations = int(config.global_num_steps / (config.num_env * config.num_steps_per_upd))
 
 	obs, legal_moves = env.reset()
 	logger.reset_a2c_training_metrics(config.num_env, tr, config.sliding_wsize)
 
-	for i in xrange(tr.iterations_done, num_iterations):
+	for i in range(tr.iterations_done, num_iterations):
 		
 		print("iterations done: {}".format(tr.iterations_done))
 

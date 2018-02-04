@@ -15,18 +15,15 @@ class ConvGymMiniGrid(nn.Module):
 		self._use_gpu = use_gpu
 		self._is_rnn_policy = False
 
-		self._conv1 = nn.Conv2d(4, 8, kernel_size=3, stride=1)
-		self._bn1 = nn.BatchNorm2d(8)
-		self._conv2 = nn.Conv2d(8, 16, kernel_size=2, stride=1)
-		self._bn2 = nn.BatchNorm2d(16)
-		self._headp = nn.Linear(560, action_dim)
-		self._headv = nn.Linear(560, 1)
+		self._conv1 = nn.Conv2d(7, 16, kernel_size=2, stride=1)
+		self._bn1 = nn.BatchNorm2d(16)
+		self._headp = nn.Linear(192, action_dim)
+		self._headv = nn.Linear(192, 1)
 
 	def forward(self, x):
 		if len(x.shape) < 4:
 			x = x.unsqueeze(0)
 		x = F.relu(self._bn1(self._conv1(x)))
-		x = F.relu(self._bn2(self._conv2(x)))
 		p = self._headp(x.view(x.size(0), -1))
 		v = self._headv(x.view(x.size(0), -1))
 		return p, v

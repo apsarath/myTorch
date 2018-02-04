@@ -51,8 +51,7 @@ class A2CAgent(object):
 	def train_step(self, minibatch):
 
 		self._optimizer.zero_grad()
-
-		num_steps = len(minibatch.values()[0])
+		num_steps = len(list(minibatch.values())[0])
 		batch_size = minibatch["episode_dones"][0].shape[0]
 		
 		R = [minibatch["vvals_step_plus_one"]]
