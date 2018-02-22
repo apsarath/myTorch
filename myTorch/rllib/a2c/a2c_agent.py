@@ -10,7 +10,7 @@ from myTorch.utils import my_variable
 
 class A2CAgent(object):
 
-	def __init__(self, a2cnet, optimizer, numpy_rng, ent_coef = 1.0, vf_coef = 1.0,  discount_rate=0.99, grad_clip=None):
+	def __init__(self, a2cnet, optimizer, numpy_rng, ent_coef = 1.0, vf_coef = 1.0,  discount_rate=0.99, grad_clip=None, softmax_temp=10.):
 		self._a2cnet = a2cnet
 		self._optimizer = optimizer
 		self._numpy_rng = numpy_rng
@@ -18,6 +18,7 @@ class A2CAgent(object):
 		self._ent_coef = ent_coef
 		self._vf_coef = vf_coef
 		self._grad_clip = grad_clip
+		self._softmax_temp = softmax_temp
 
 
 	def sample_action(self, obs, dones=[], legal_moves=None, is_training=True, update_agent_state=True):
@@ -37,7 +38,7 @@ class A2CAgent(object):
 		pvals = torch.nn.functional.softmax(pvals*legal_moves, dim=1)
 		entropies = -torch.sum(pvals * torch.log(pvals), dim=1)
 		if is_training:
-			actions = torch.multinomial(pvals, 1).detach()
+			actions = torch.multinomial(pvals/self._softmax_temp, 1).detach()
 		else:
 			actions = torch.max(pvals, dim=1)[1].unsqueeze(1)
 

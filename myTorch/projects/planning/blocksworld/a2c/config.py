@@ -47,6 +47,7 @@ def cartpole():
 	config.nesterov = False 
 	config.grad_clip_min = -1
 	config.grad_clip_max = 1
+	config.softmax_temp = 1.0
 
 	return config
 
@@ -69,5 +70,6 @@ def blocksworld_matrix():
 	config.num_env = 10
 	config.game_level_threshold = 0.8
 	config.is_one_hot_world=False
+	config.softmax_temp = 1.0
 	return config
 

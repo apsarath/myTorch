@@ -66,7 +66,8 @@ def train_a2c_agent():
 					ent_coef = config.ent_coef,
 					vf_coef = config.vf_coef,
 			 		discount_rate=config.discount_rate, 
-			 		grad_clip = [config.grad_clip_min, config.grad_clip_max])
+			 		grad_clip = [config.grad_clip_min, config.grad_clip_max],
+					softmax_temp = config.softmax_temp)
 	experiment.register_agent(agent)
 
 	test_agent = A2CAgent(a2cnet.make_inference_net(),
