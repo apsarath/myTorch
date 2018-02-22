@@ -14,8 +14,8 @@ class RecurrentBlocksWorldMatrix(nn.Module):
 		self._obs_dim = obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
-		self._rnn_input_size = 128
-		self._rnn_hidden_size = 256
+		self._rnn_input_size = 512
+		self._rnn_hidden_size = 1024
 		self._rnn_type = rnn_type
 		self._is_rnn_policy = True
 		if self._rnn_type == "LSTM": 
