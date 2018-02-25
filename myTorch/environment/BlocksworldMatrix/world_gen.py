@@ -40,7 +40,7 @@ class WorldBuilder(object):
 		create_folder(loc)
 
 		file_name = os.path.join(loc, "grounding_prob_{}.pkl".format(max_num_blocks))
-		with open(file_name, "w") as f:
+		with open(file_name, "wb") as f:
 			pickle.dump(self._grounding_prob, f)
 			print("Saved grounding_prob at {}".format(file_name))
 
@@ -49,7 +49,7 @@ class WorldBuilder(object):
 		if os.path.exists(loc):
 			file_name = os.path.join(loc, "grounding_prob_{}.pkl".format(self._max_num_blocks))
 			print("Loading grounding_prob from {}".format(file_name))
-			with open(file_name, "r") as f:
+			with open(file_name, "rb") as f:
 				self._grounding_prob = pickle.load(f)
 		else:
 			self._save_grounding_prob(self._max_num_blocks)

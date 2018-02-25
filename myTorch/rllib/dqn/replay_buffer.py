@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import pickle as pickle
+import _pickle as pickle
 
 import myTorch
 from myTorch.utils import create_folder
