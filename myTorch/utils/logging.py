@@ -1,5 +1,5 @@
 import tensorflow as tf
-from StringIO import StringIO
+from io import StringIO
 import matplotlib.pyplot as plt
 import numpy as np
 from os import listdir

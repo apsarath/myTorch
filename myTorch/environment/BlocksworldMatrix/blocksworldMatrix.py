@@ -38,7 +38,7 @@ class BlocksWorld(object):
         self._one_hot_world = np.zeros((self._max_num_blocks, self._width, self._height))
         self._world = np.zeros((self._width, self._height))
 
-        tower_locations = np.random.choice(range(self._width), size=len(blocks_info), replace=False)
+        tower_locations = np.random.choice(list(range(self._width)), size=len(blocks_info), replace=False)
         for t_id, tower_info in enumerate(blocks_info):
             for block_id in tower_info:
                 block_id = float(block_id) if object_ids is None else object_ids[block_id]
@@ -59,7 +59,7 @@ class BlocksWorld(object):
 
         if self._is_agent_present:
             self._one_hot_world = np.zeros((self._max_num_blocks+1, self._width, self._height))
-            agent_loc_x = np.random.choice(range(self._width))
+            agent_loc_x = np.random.choice(list(range(self._width)))
             assert(self._height_at_loc[agent_loc_x] < self._height)
 
             self._agent = Agent(agent_id=1.0 if object_ids is None else object_ids[0])

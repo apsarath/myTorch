@@ -1,6 +1,6 @@
 import os
 import json
-import cPickle as pickle
+import _pickle as pickle
 import myTorch
 import time
 import numpy as np
@@ -17,7 +17,7 @@ class WorldBuilder(object):
 
 	def _compute_grounding_prob(self, max_num_blocks):
 		start = time.time()
-		print "Computing Grounding prob..."
+		print("Computing Grounding prob...")
 
 		self._grounding_prob = {}
 		for j in range(max_num_blocks):
@@ -32,7 +32,7 @@ class WorldBuilder(object):
 				except:
 					continue
 
-		print "Done Computing grounding prob. Took {} secs".format(time.time() - start)
+		print("Done Computing grounding prob. Took {} secs".format(time.time() - start))
 
 	def _save_grounding_prob(self, max_num_blocks):
 		self._compute_grounding_prob(max_num_blocks)
@@ -42,13 +42,13 @@ class WorldBuilder(object):
 		file_name = os.path.join(loc, "grounding_prob_{}.pkl".format(max_num_blocks))
 		with open(file_name, "w") as f:
 			pickle.dump(self._grounding_prob, f)
-			print "Saved grounding_prob at {}".format(file_name)
+			print("Saved grounding_prob at {}".format(file_name))
 
 	def _load_grounding_prob(self):
 		loc = os.path.join(self._base_dir, "misc")
 		if os.path.exists(loc):
 			file_name = os.path.join(loc, "grounding_prob_{}.pkl".format(self._max_num_blocks))
-			print "Loading grounding_prob from {}".format(file_name)
+			print("Loading grounding_prob from {}".format(file_name))
 			with open(file_name, "r") as f:
 				self._grounding_prob = pickle.load(f)
 		else:
@@ -95,7 +95,7 @@ class WorldBuilder(object):
 				games.append(self._create_game(game_level))
 			with open(os.path.join(loc, "{}.json".format(mode)), "w") as f:
 				json.dump(games, f)
-		print "Created {} Games at level : {} at {}".format(self._max_games_per_level, game_level, loc)
+		print("Created {} Games at level : {} at {}".format(self._max_games_per_level, game_level, loc))
 
 
 	def load_games(self, game_level=1, mode="train"):
@@ -103,7 +103,7 @@ class WorldBuilder(object):
 		loc = os.path.join(self._base_dir, "tasks/level{}".format(game_level))
 		if not os.path.exists(loc):
 			self.create_games(game_level)
-		print "Loading game json files at {}".format(loc)
+		print("Loading game json files at {}".format(loc))
 		with open(os.path.join(loc, "{}.json".format(mode)), "r") as f:
 			games =  json.load(f)
 		return games

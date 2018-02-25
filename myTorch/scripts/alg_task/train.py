@@ -14,7 +14,7 @@ from myTorch.utils.logging import Logger
 from myTorch.utils.experiment import Experiment
 from myTorch.utils import MyContainer
 
-from config import *
+from .config import *
 
 parser = argparse.ArgumentParser(description='Algorithm Learning Task')
 parser.add_argument('--config', type=str, default="copy_task_RNN", help='config name')
@@ -59,7 +59,7 @@ if args.rdir != None:
 
 for step in range(e.trainer.ex_seen, e.config.max_steps):
 
-	data = e.data_iter.next()
+	data = next(e.data_iter)
 	seqloss = 0
 
 	for i in range(0, data["datalen"]):
@@ -82,7 +82,7 @@ for step in range(e.trainer.ex_seen, e.config.max_steps):
 	#print seqloss.data[0]
 	e.trainer.average_bce.append(seqloss.data[0])
 	running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
-	print running_average
+	print(running_average)
 	if e.config.use_tflogger == True:
 		logger.log_scalar("loss", running_average, step+1)
 	

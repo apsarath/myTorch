@@ -101,7 +101,7 @@ class DQNAgent(object):
 
 			target_params = self._target_qnet.get_params()
 			current_params = self._qnet.get_params()
-			for key in target_params.keys():
+			for key in list(target_params.keys()):
 				target_params[key] = (1-self._target_net_update_fraction)*target_params[key] + self._target_net_update_fraction*current_params[key]
 			self._target_qnet.set_params(target_params)
 

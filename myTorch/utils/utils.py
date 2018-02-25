@@ -1,5 +1,5 @@
 from collections import OrderedDict
-import cPickle as pickle
+import _pickle as pickle
 import inspect
 import os
 import torch
@@ -38,7 +38,7 @@ class MyContainer():
 
     def values(self):
         tparams = self.__dict__['tparams']
-        return tparams.values()
+        return list(tparams.values())
 
     def save(self, filename):
         tparams = self.__dict__['tparams']
@@ -57,13 +57,13 @@ class MyContainer():
 
     def __enter__(self):
         _, _, _, env_locals = inspect.getargvalues(inspect.currentframe().f_back)
-        self.__dict__['_env_locals'] = env_locals.keys()
+        self.__dict__['_env_locals'] = list(env_locals.keys())
 
     def __exit__(self, type, value, traceback):
         _, _, _, env_locals = inspect.getargvalues(inspect.currentframe().f_back)
         prev_env_locals = self.__dict__['_env_locals']
         del self.__dict__['_env_locals']
-        for k in env_locals.keys():
+        for k in list(env_locals.keys()):
             if k not in prev_env_locals:
                 self.__setattr__(k, env_locals[k])
                 env_locals[k] = self.__getattr__(k)
@@ -99,7 +99,7 @@ def modify_config_params(config, config_flag):
     config_flag_values = [(flag, value) for flag, value in zip(config_flag[::2], config_flag[1::2])]
     for flag, value in config_flag_values:
         if flag in config.get():
-            print("Setting {} with value {}".format(flag, value))
+            print(("Setting {} with value {}".format(flag, value)))
             if isinstance(config.get()[flag], str):
                 config.get()[flag] = value
             else:
