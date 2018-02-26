@@ -6,12 +6,13 @@ import torch.nn.functional as F
 
 class ConvBlocksWorld(nn.Module):
 
-	def __init__(self, obs_dim, action_dim, use_gpu=False):
+	def __init__(self, obs_dim, action_dim, use_gpu=False, is_dueling_arch=False):
 		super(self.__class__, self).__init__()
 
 		self._obs_dim = obs_dim
 		self._action_dim = action_dim
 		self._use_gpu = use_gpu
+		self._is_dueling_arch = is_dueling_arch
 
 		self._conv1 = nn.Conv2d(self._obs_dim[0], 16, kernel_size=2, stride=1)
 		self._bn1 = nn.BatchNorm2d(16)
@@ -21,8 +22,14 @@ class ConvBlocksWorld(nn.Module):
 		self._bn3 = nn.BatchNorm2d(32)
 		self._conv4 = nn.Conv2d(32, 32, kernel_size=4, stride=1)
 		self._bn4 = nn.BatchNorm2d(32)
-		self._fc1 = nn.Linear(512,100)
-		self._head = nn.Linear(100, self._action_dim)
+		self._fc1 = nn.Linear(512,256)
+		self._fc2 = nn.Linear(256, 100)
+
+		if self._is_dueling_arch:
+			self._fcv = nn.Linear(100, 1)
+			self._fca = nn.Linear(100, self._action_dim)
+		else:
+			self._head = nn.Linear(100, self._action_dim)
 
 
 	def forward(self, x):
@@ -33,7 +40,13 @@ class ConvBlocksWorld(nn.Module):
 		x = F.relu(self._bn3(self._conv3(x)))
 		x = F.relu(self._bn4(self._conv4(x)))
 		x = F.relu(self._fc1(x.view(x.size(0), -1)))
-		return self._head(x)
+		x = F.relu(self._fc2(x))
+		if self._is_dueling_arch:
+			state_val = self._fcv(x)
+			adv_vals = self._fca(x)
+			return adv_vals.sub_(torch.mean(adv_vals, dim=1, keepdim=True)) + state_val
+		else:
+			return self._head(x)
 
 
 	@property
@@ -49,7 +62,7 @@ class ConvBlocksWorld(nn.Module):
 		return self._use_gpu
 
 	def get_attributes(self):
-		return (self._obs_dim, self._action_dim, self._use_gpu)
+		return (self._obs_dim, self._action_dim, self._use_gpu, self._is_dueling_arch)
 
 	def get_params(self):
 		return self.state_dict()

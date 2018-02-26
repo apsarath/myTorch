@@ -7,7 +7,7 @@ def cartpole():
 
 
 	config.exp_name = "dqn"
-
+	config.is_dueling_arch = False
 	config.env_name = "CartPole-v0"
 
 	config.epsilon_end = 0.1
@@ -61,7 +61,7 @@ def cartpole_image():
 	config = MyContainer()
 
 	config.exp_name = "dqn"
-
+	config.is_dueling_arch = False
 	config.env_name = "CartPole-v0-image"
 
 	config.epsilon_end = 0.05
@@ -119,6 +119,7 @@ def blocksworld():
 	config.eps = 1e-6
 	config.use_gpu = True
 	config.num_iterations = int(100e6)
+	config.is_dueling_arch = True
 
 	config.epsilon_end = 0.1
 	config.epsilon_start = 1.0
