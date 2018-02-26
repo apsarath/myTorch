@@ -7,11 +7,12 @@ import myTorch
 from myTorch.environment.BlocksworldMatrix import Agent, Order, Block
 
 class BlocksWorld(object):
-    def __init__(self, height=50, width=50, max_num_blocks=20, is_agent_present=False):
+    def __init__(self, height=50, width=50, max_num_blocks=20, is_agent_present=False, is_colorless=False):
         self._height = height
         self._width = width
         self._is_agent_present = is_agent_present
         self._max_num_blocks = max_num_blocks
+        self._is_colorless = is_colorless
         self._agent = None
 
     @property
@@ -32,7 +33,7 @@ class BlocksWorld(object):
         self._block_lookup = {}
         self._blocks = []
         self._num_blocks = sum([len(tower_info) for tower_info in blocks_info])
-        self._num_colors = self._num_blocks
+        self._num_colors = self._num_blocks if not self._is_colorless else 1
 
         # reset world
         self._one_hot_world = np.zeros((self._max_num_blocks, self._width, self._height))
@@ -156,4 +157,6 @@ class BlocksWorld(object):
                     reward = 0
 
             done = self._has_game_ended()
+            if done and self._num_colors == 1:
+                reward = 10
             return reward, done

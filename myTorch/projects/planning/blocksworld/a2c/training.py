@@ -94,7 +94,7 @@ def train_a2c_agent():
 	tr.test_reward = [[],[]]
 	tr.test_episode_len = [[],[]]
 	tr.test_num_games_finished = [[],[]]
-	tr.game_level = 4
+	tr.game_level = 2
 	tr.iterations_done = 0
 	tr.global_steps_done = 0
 	tr.episodes_done = 0
