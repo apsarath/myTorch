@@ -282,7 +282,7 @@ class Environment:
             self.T_Blocks = update_table(self.T_Blocks,self.Target,1)
         else:
             comp_ind = []
-            for k,v in self.target_dict.items():
+            for k,v in list(self.target_dict.items()):
                 v_c = deepcopy(v)
                 v_c_dict = {}
                 c = 0

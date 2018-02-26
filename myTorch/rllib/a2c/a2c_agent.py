@@ -52,11 +52,11 @@ class A2CAgent(object):
 
 		self._optimizer.zero_grad()
 
-		num_steps = len(minibatch.values()[0])
+		num_steps = len(list(minibatch.values())[0])
 		batch_size = minibatch["episode_dones"][0].shape[0]
 		
 		R = [minibatch["vvals_step_plus_one"]]
-		for t in reversed(range(num_steps)):
+		for t in reversed(list(range(num_steps))):
 			R.append(minibatch["rewards"][t] + self._discount_rate* R[-1]*(1  - minibatch["episode_dones"][t]))
 
 		R = R[::-1]

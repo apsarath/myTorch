@@ -1,8 +1,6 @@
 from abc import ABCMeta, abstractmethod, abstractproperty
 
-class EnivironmentBase():
-    __metaclass__ = ABCMeta
-
+class EnivironmentBase(metaclass=ABCMeta):
     @abstractmethod
     def reset(self):
     	pass

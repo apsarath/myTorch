@@ -33,7 +33,7 @@ class GymEnvironment(EnivironmentBase):
 		pass
 
 	def seed(self, seed):
-		self._env._seed(seed=seed)
+		self._env.seed(seed=seed)
 
 	def get_random_state(self):
 		pass

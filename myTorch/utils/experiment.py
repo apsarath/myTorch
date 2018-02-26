@@ -1,4 +1,4 @@
-import cPickle as pickle
+import _pickle as pickle
 import torch
 import os.path
 from os import listdir
@@ -85,7 +85,7 @@ class Experiment(object):
 
 		tfpath = self.config.tflogdir
 		onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
-		print onlyfiles
+		print(onlyfiles)
 
 		for file in onlyfiles:
 			copyfile(tfpath+file,self.dname+"logger/"+tag+"/"+file)

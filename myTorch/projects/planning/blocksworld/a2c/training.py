@@ -109,14 +109,14 @@ def train_a2c_agent():
 	else:
 		experiment.force_restart("current")
 
-	num_iterations = config.global_num_steps / (config.num_env * config.num_steps_per_upd)
+	num_iterations = config.global_num_steps // (config.num_env * config.num_steps_per_upd)
 
 	obs, legal_moves = env.reset(game_level=tr.game_level)
 	logger.reset_a2c_training_metrics(config.num_env, tr, config.sliding_wsize)
 
-	for i in xrange(tr.iterations_done, num_iterations):
+	for i in range(tr.iterations_done, num_iterations):
 		
-		print("iterations done: {}".format(tr.iterations_done))
+		print(("iterations done: {}".format(tr.iterations_done)))
 
 		update_dict = {"log_taken_pvals":[],
 					   "vvals":[],
@@ -152,10 +152,10 @@ def train_a2c_agent():
 		logger.log_scalar_rl("train_pg_loss", tr.pg_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 		logger.log_scalar_rl("train_val_loss", tr.val_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 		logger.log_scalar_rl("train_entropy_loss", tr.entropy_loss[0], config.sliding_wsize, [tr.episodes_done, tr.global_steps_done, tr.iterations_done])
-		print "pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss)
+		print("pg_loss : {}, val_loss : {}, entropy_loss : {}".format(pg_loss, val_loss, entropy_loss))
 
 		if tr.iterations_done % config.test_freq == 0:
-			print "Testing..."
+			print("Testing...")
 			test_agent.a2cnet.set_params(agent.a2cnet.get_params())
 			reward, episode_len, num_games_finished = inference(config, test_agent, test_env, tr.game_level)
 			append_to(tr.test_reward, tr, reward)

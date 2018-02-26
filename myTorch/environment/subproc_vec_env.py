@@ -64,8 +64,8 @@ class SubprocVecEnv(EnivironmentBase):
         self.closed = False
         self.env_dim = {}
         nenvs = len(env_fns)
-        print "Preparing {} environments".format(nenvs)
-        self.remotes, self.work_remotes = zip(*[Pipe() for _ in range(nenvs)])
+        print("Preparing {} environments".format(nenvs))
+        self.remotes, self.work_remotes = list(zip(*[Pipe() for _ in range(nenvs)]))
         self.ps = [Process(target=worker, args=(work_remote, remote, CloudpickleWrapper(env_fn)))
             for (work_remote, remote, env_fn) in zip(self.work_remotes, self.remotes, env_fns)]
         for p in self.ps:
@@ -89,14 +89,14 @@ class SubprocVecEnv(EnivironmentBase):
             data_to_worker["action"] = action
             remote.send(('step', data_to_worker))
         results = [remote.recv() for remote in self.remotes]
-        obs, legal_moves, rewards, dones = zip(*results)
+        obs, legal_moves, rewards, dones = list(zip(*results))
         return np.stack(obs), np.stack(legal_moves), np.stack(rewards), np.stack(dones)
 
     def reset(self, **kwargs):
         for remote in self.remotes:
             remote.send(('reset', kwargs))
         results = [remote.recv() for remote in self.remotes]
-        obs, legal_moves = zip(*results)
+        obs, legal_moves = list(zip(*results))
         return np.stack(obs), np.stack(legal_moves)
 
     def reset_task(self):
@@ -175,5 +175,5 @@ if __name__=="__main__":
     obs, legal_moves, rewards, dones = env.step([0]*batch_size)
     assert(obs.shape[0] == legal_moves.shape[0] == rewards.shape[0] == dones.shape[0])
     assert(obs[0,:].shape == env.obs_dim)
-    print "Basic tests passed for batched enviroment!"
+    print("Basic tests passed for batched enviroment!")
     env.close()

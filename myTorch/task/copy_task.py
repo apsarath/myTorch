@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import cPickle as pickle
+import _pickle as pickle
 
 class CopyDataGen(object):
 
@@ -61,9 +61,9 @@ if __name__=="__main__":
 
     gen = CopyDataGen()
     data = gen.next(seqlen=2)
-    print data['seqlen']
-    print data['x']
-    print data['y']
-    print data['mask']
+    print(data['seqlen'])
+    print(data['x'])
+    print(data['y'])
+    print(data['mask'])
 
 

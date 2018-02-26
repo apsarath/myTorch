@@ -1,1 +1,1 @@
-from Recurrent import *
+from .Recurrent import *
