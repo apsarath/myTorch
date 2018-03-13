@@ -122,7 +122,7 @@ if __name__=="__main__":
     parser.add_argument('--num_games', type=int, default=0, help="config name")
     args = parser.parse_args()
 
-    env = BlocksWorldMatrixEnv(game_base_dir="games/", game_level=5)
+    env = BlocksWorldMatrixEnv(game_base_dir="games/colorless_True/", game_level=4)
     if args.num_games > 0:
         env.create_games(args.num_games)
         import pdb; pdb.set_trace()

@@ -33,6 +33,7 @@ class BlocksWorld(object):
         self._blocks = []
         self._num_blocks = sum([len(tower_info) for tower_info in blocks_info])
         self._num_colors = self._num_blocks
+        self._num_steps = 0
 
         # reset world
         self._one_hot_world = np.zeros((self._max_num_blocks, self._width, self._height))
@@ -102,20 +103,21 @@ class BlocksWorld(object):
 
     def update(self, action):
         (x, y) = self._agent.loc
+        self._num_steps += 1
 
         if action == "left":
             if x == 0: return 0, False
             if self._height - self._height_at_loc[x-1] > 1:
                 dest_loc = (x-1, self._height_at_loc[x-1])
                 self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
-                return 0, False
+                return -0.01*self._num_steps, False
                     
         elif action == "right":
             if x == (self._width - 1): return 0, False
             if self._height - self._height_at_loc[x+1] > 1:
                 dest_loc = (x+1, self._height_at_loc[x+1])
                 self._agent.move(dest_loc, self._world, self._block_lookup, self._height_at_loc)
-                return 0, False
+                return -0.01*self._num_steps, False
 
         elif action == "pick":
             if self._agent.block is not None: return 0, False
@@ -123,7 +125,7 @@ class BlocksWorld(object):
             if (x,y-1) in self._block_lookup:
                 block = self._block_lookup[(x,y-1)]
                 self._agent.pick_up_block(block, self._world, self._block_lookup)
-            return 0, False
+            return -0.01*self._num_steps, False
 
         elif action == "drop":
             if self._agent.block is None: return 0, False
@@ -138,22 +140,23 @@ class BlocksWorld(object):
                 block.set_in_position_flag(self._order.order_look_up)
 
             in_position_after_drop = block.in_position
-            reward = 0
+            reward = -0.01*self._num_steps
             if self._num_colors > 1:
                 if in_position_before_drop == True and in_position_after_drop == False:
-                    reward = -1
+                    reward += -1
                     self._order.add_to_num_blocks_in_position(-1)
                 elif in_position_before_drop == False and in_position_after_drop == True:
-                    reward = 1
+                    reward += 1
                     self._order.add_to_num_blocks_in_position(1)
 
             elif self._num_colors == 1:
-                if (self._height_at_loc[x] - 1) == self._target_height_at_loc[x]:
-                    reward = 1
-                if (self._target_height_at_loc[picked_x] - self._height_at_loc[picked_x] == 1):
-                    reward = -1
                 if picked_x == x:
-                    reward = 0
+                    reward += 0
+                else:
+                    if (self._height_at_loc[x] - 1) <= self._target_height_at_loc[x]:
+                        reward += 1
+                    if (self._target_height_at_loc[picked_x] - self._height_at_loc[picked_x] >= 1):
+                        reward += -2
 
             done = self._has_game_ended()
             return reward, done
