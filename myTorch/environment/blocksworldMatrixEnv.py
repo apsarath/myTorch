@@ -9,7 +9,7 @@ from myTorch.environment.BlocksworldMatrix import BlocksWorld, WorldBuilder
 
 
 class BlocksWorldMatrixEnv(EnivironmentBase):
-    def __init__(self, game_base_dir, height=10, width=10, num_steps_cutoff=80, mode="train", game_level=2, start_game_id=0, max_games_per_level=10000, seed=1234, is_one_hot_world=False, max_num_blocks=20, id_normalizing_factor=20):
+    def __init__(self, game_base_dir, height=10, width=10, num_steps_cutoff=80, mode="train", game_level=2, start_game_id=0, max_games_per_level=10000, seed=1234, is_one_hot_world=False, max_num_blocks=20, id_normalizing_factor=20, is_colorless=False):
         self._height = height
         self._width = width
         self._is_one_hot_world = is_one_hot_world
@@ -19,6 +19,7 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
         self._numpy_rng = np.random.RandomState(seed=seed)
 
         self._mode = mode
+        self._is_colorless = is_colorless
         self._game_level = game_level
         self._world_builder = WorldBuilder(game_base_dir, max_games_per_level=max_games_per_level)
         self._game_id = start_game_id
@@ -27,7 +28,11 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
         self._id_normalizing_factor = id_normalizing_factor
         self._max_num_blocks = max_num_blocks
-        self._object_ids = np.array([float(i)/self._id_normalizing_factor for i in range(1, self._id_normalizing_factor)])
+        if self._is_colorless:
+            self._object_ids = np.array([1]+[2]*self._max_num_blocks)
+        else:
+            self._object_ids = np.array([float(i)/self._id_normalizing_factor \
+                for i in range(1, self._id_normalizing_factor)])
 
         self.load_games()
 
@@ -42,8 +47,10 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 
         game = self._games[self._game_id_sequence[self._game_id]]
 
-        self._input_world = BlocksWorld(self._height, self._width, self._max_num_blocks, is_agent_present=True)
-        self._target_world = BlocksWorld(self._height, self._width, self._max_num_blocks, is_agent_present=False)
+        self._input_world = BlocksWorld(self._height, self._width, self._max_num_blocks, 
+                                        is_agent_present=True, is_colorless=self._is_colorless)
+        self._target_world = BlocksWorld(self._height, self._width, self._max_num_blocks, 
+                                         is_agent_present=False, is_colorless=self._is_colorless)
         self._numpy_rng.shuffle(self._object_ids[1:])
         self._target_world.reset(blocks_info=game["target_towers"], object_ids=self._object_ids)
         self._input_world.reset(blocks_info=game["input_towers"], object_ids=self._object_ids,
@@ -120,9 +127,10 @@ class BlocksWorldMatrixEnv(EnivironmentBase):
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Environment")
     parser.add_argument('--num_games', type=int, default=0, help="config name")
+    parser.add_argument('--colorless', type=bool, default=False, help="is colorless world")
     args = parser.parse_args()
 
-    env = BlocksWorldMatrixEnv(game_base_dir="games/", game_level=5)
+    env = BlocksWorldMatrixEnv(game_base_dir="games/colorless_{}/".format(args.colorless), game_level=4, is_colorless=args.colorless)
     if args.num_games > 0:
         env.create_games(args.num_games)
         import pdb; pdb.set_trace()
