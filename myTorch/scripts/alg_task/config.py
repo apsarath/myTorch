@@ -8,7 +8,7 @@ def copy_task_RNN():
 	config = MyContainer()
 
 	# model specific details
-	config.model = "TARDIS"
+	config.model = "FlatMemory"
 	config.input_size = 9
 	config.output_size = 9
 	config.num_layers = 1
@@ -31,9 +31,9 @@ def copy_task_RNN():
 
 	# saving details
 	config.use_tflogger = True
-	config.tflogdir = "/mnt/data/sarath/output/copyRNN/{}/tflog/p2/".format(config.model)
-	config.out_folder = "/mnt/data/sarath/output/copyRNN/{}/p2/".format(config.model)
+	config.tflogdir = "copyRNN/{}/tflog/p2/".format(config.model)
+	config.out_folder = "copyRNN/{}/p2/".format(config.model)
 	create_folder(config.tflogdir)
-        create_folder(config.out_folder)
+	create_folder(config.out_folder)
 
 	return config

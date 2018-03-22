@@ -14,7 +14,7 @@ from myTorch.utils.logging import Logger
 from myTorch.utils.experiment import Experiment
 from myTorch.utils import MyContainer
 
-from .config import *
+from myTorch.scripts.alg_task.config import *
 
 parser = argparse.ArgumentParser(description='Algorithm Learning Task')
 parser.add_argument('--config', type=str, default="copy_task_RNN", help='config name')
@@ -59,7 +59,7 @@ if args.rdir != None:
 
 for step in range(e.trainer.ex_seen, e.config.max_steps):
 
-	data = next(e.data_iter)
+	data = e.data_iter.next()
 	seqloss = 0
 
 	for i in range(0, data["datalen"]):
