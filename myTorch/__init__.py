@@ -5,4 +5,3 @@ from .scripts import *
 from .task import *
 from .utils import *
 from .environment import *
-from .projects import *
