@@ -1,112 +1,170 @@
-import _pickle as pickle
-import torch
+"""Implementation of a simple experiment class."""
+import logging
 import os.path
-from os import listdir
 from os.path import isfile, join
-from shutil import copyfile, rmtree
+from shutil import rmtree
 
-
-import myTorch
 from myTorch.utils import create_folder
 
 
-# model
-# config
-# optimizer
-# trainer
-# logger - optional
-# data_iter - optional
-# RL agent - optional
-
 class Experiment(object):
+    """Implementation of a simple experiment class."""
 
-	def __init__(self, model, config, optimizer, trainer, data_iter=None, logger=False, RL_agent=None):
+    def __init__(self, name, dir_name):
+        """Initializes an experiment object.
 
-		self.model = model
-		self.config = config
-		self.optimizer = optimizer
-		self.trainer = trainer
-		self.data_iter = data_iter
-		self.logger = logger
-		self.RL_agent = RL_agent
+        Args:
+            name: str, name of the experiment.
+            dir_name: str, absolute path to the directory to save/load the experiment.
+        """
 
-		self.dname = self.config.out_folder
-		create_folder(self.dname)
-		if self.logger == True:
-			create_folder(self.dname+"logger/")
+        self._name = name
+        self._dir_name = dir_name
+        create_folder(self._dir_name)
 
+        self._model = None
+        self._config = None
+        self._logger = None
+        self._train_statistics = None
+        self._data_iterator = None
 
-	def save(self, tag):
+    def register_model(self, model):
+        """Registers a model object.
 
-		torch.save(self.model.state_dict(), self.dname+tag+"_model.p")
-		self.config.save(self.dname+tag+"_config.p")
-		torch.save(self.optimizer.state_dict(), self.dname+tag+"_optim.p")
-		self.trainer.save(self.dname+tag+"_trainer.p")
+        Args:
+            model: a model object.
+        """
 
-		if self.data_iter!=None:
-			self.data_iter.save(self.dname+tag+"_data_iter.p")
-		
-		if self.logger==True:
-			self.save_logger(tag)
+        self._model = model
 
-		if self.RL_agent!=None:
-			self.RL_agent.save(self.dname+tag+"_rl_agent.p")
+    def register_config(self, config):
+        """Registers a config dictionary.
 
-		torch.save(torch.get_rng_state(), self.dname+tag+"_torch_rng.p")
+        Args:
+            config: a config dictionary.
+        """
 
-	def resume(self, tag, dname=None):
+        self._config = config
 
-		if dname != None:
-			self.dname = dname
+    def register_logger(self, logger):
+        """Registers a logger object.
 
-		self.model.load_state_dict(torch.load(self.dname+tag+"_model.p"))
-		self.config.load(self.dname+tag+"_config.p")
-		self.optimizer.load_state_dict(torch.load(self.dname+tag+"_optim.p"))
-		self.trainer.load(self.dname+tag+"_trainer.p")
-		
-		if os.path.exists(self.dname+tag+"_data_iter.p"):
-			self.data_iter.load(self.dname+tag+"_data_iter.p")
+        Args:
+            logger: a logger object.
+        """
 
-		if os.path.exists(self.dname+"logger/"+tag+"/"):
-			self.load_logger(tag)
+        self._logger = logger
 
-		if os.path.exists(self.dname+tag+"_rl_agent.p"):
-			self.RL_agent.load(self.dname+tag+"_rl_agent.p")
-		
-		torch.set_rng_state(torch.load(self.dname+tag+"_torch_rng.p"))
+    def register_train_statistics(self, train_statistics):
+        """Registers a training statistics dictionary.
 
+        Args:
+            train_statistics: a train_statistics dictionary.
+        """
 
-	def save_logger(self, tag):
+        self._train_statistics = train_statistics
 
+    def register_data_iterator(self, data_iterator):
+        """Registers a data iterator object.
 
-		create_folder(self.dname+"logger/"+tag+"/")
-		rmtree(self.dname+"logger/"+tag+"/")
-		create_folder(self.dname+"logger/"+tag+"/")
+        Args:
+            data_iterator: a data iterator object.
+        """
 
-		tfpath = self.config.tflogdir
-		onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
-		print(onlyfiles)
+        self._data_iterator = data_iterator
 
-		for file in onlyfiles:
-			copyfile(tfpath+file,self.dname+"logger/"+tag+"/"+file)
+    def save(self, tag="current"):
+        """Saves the experiment.
+        Args:
+            tag: str, tag to prefix the folder.
+        """
 
-	def load_logger(self, tag):
+        logging.info("Saving the experiment at {}".format(self._dir_name))
 
-		rmtree(self.config.tflogdir)
-		create_folder(self.config.tflogdir)
+        save_dir = os.path.join(self._dir_name, tag)
+        create_folder(save_dir)
 
-		curpath = self.dname+"logger/"+tag+"/"
-		onlyfiles = [f for f in listdir(curpath) if isfile(join(curpath, f))]
+        flag_file = os.path.join(save_dir, "flag.p")
+        if isfile(flag_file):
+            os.remove(flag_file)
 
-		for file in onlyfiles:
-			copyfile(curpath+file, self.config.tflogdir+file)
+        if self._model is not None:
+            self._model.save(save_dir)
 
+        if self._config is not None:
+            file_name = os.path.join(self._dir_name, tag, "config.p")
+            self._config.save(file_name)
 
+        if self._logger is not None:
+            file_name = os.path.join(self._dir_name, tag, "logger")
+            self._logger.save(file_name)
 
+        if self._train_statistics is not None:
+            file_name = os.path.join(self._dir_name, tag, "train_statistics.p")
+            self._train_statistics.save(file_name)
 
+        if self._data_iterator is not None:
+            file_name = os.path.join(self._dir_name, tag, "data_iterator.p")
+            self._data_iterator.save(file_name)
 
+        file = open(flag_file, "w")
+        file.close()
 
+    def is_resumable(self, tag):
+        """ Returns true if the experiment is resumable.
 
+        Args:
+            tag: str, tag for the saved experiment.
+        """
 
+        flag_file = os.path.join(self._dir_name, tag, "flag.p")
+        if isfile(flag_file):
+            return True
+        else:
+            return False
 
+    def resume(self, tag):
+        """Resumes the experiment from a checkpoint.
 
+        Args:
+            tag: str, tag for the saved experiment.
+        """
+
+        if not self.is_resumable(tag):
+            logging.warning("This exeriment is not resumable!")
+            self.force_restart(tag)
+
+        else:
+            logging.info("Loading the experiment from {}".format(self._dir_name))
+
+            save_dir = os.path.join(self._dir_name, tag)
+
+            if self._model is not None:
+                self._model.load(save_dir)
+
+            if self._config is not None:
+                file_name = os.path.join(self._dir_name, tag, "config.p")
+                self._config.load(file_name)
+
+            if self._logger is not None:
+                file_name = os.path.join(self._dir_name, tag, "logger")
+                self._logger.load(file_name)
+
+            if self._train_statistics is not None:
+                file_name = os.path.join(self._dir_name, tag, "train_statistics.p")
+                self._train_statistics.load(file_name)
+
+            if self._data_iterator is not None:
+                file_name = os.path.join(self._dir_name, tag, "data_iterator.p")
+                self._data_iterator.load(file_name)
+
+    def force_restart(self, tag):
+
+        logging.info("Force restarting the experiment...")
+
+        save_dir = os.path.join(self._dir_name, tag)
+        create_folder(save_dir)
+        rmtree(save_dir)
+
+        if self._logger is not None:
+            self._logger.force_restart()

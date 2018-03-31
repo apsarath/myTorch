@@ -2,12 +2,9 @@ import numpy
 import argparse
 
 import torch
-import torch.optim as optim
 from torch.autograd import Variable
 import torch.nn as nn
-import torch.autograd as autograd
 
-import myTorch
 from myTorch.model import Recurrent
 from myTorch.task.copy_task import *
 from myTorch.utils.logging import Logger
@@ -24,19 +21,17 @@ args = parser.parse_args()
 
 config = eval(args.config)()
 
-
-
 logger = None
-if config.use_tflogger==True:
-	logger = Logger(config.tflogdir)
+if config.use_tflogger:
+    logger = Logger(config.tflogdir)
 
 torch.manual_seed(config.rseed)
 
 
 model = Recurrent(config.input_size, config.output_size, num_layers = config.num_layers, layer_size=config.layer_size, mname=config.model, output_activation = None, use_gpu=config.use_gpu)
 
-if config.use_gpu==True:
-	model.cuda()
+if config.use_gpu:
+    model.cuda()
 
 
 data_gen = CopyDataGen(num_bits = config.num_bits, min_len = config.min_len, max_len = config.max_len)
@@ -54,48 +49,49 @@ trainer.average_bce = []
 e = Experiment(model, config, optimizer, trainer, data_gen, logger)
 
 if args.rdir != None:
-	e.resume("current", args.rdir)
+    e.resume("current", args.rdir)
 
 
 for step in range(e.trainer.ex_seen, e.config.max_steps):
 
-	data = e.data_iter.next()
-	seqloss = 0
+    data = e.data_iter.next()
+    seqloss = 0
 
-	for i in range(0, data["datalen"]):
-		
-		x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
-		y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
-		if config.use_gpu == True:
-			x = x.cuda()
-			y = y.cuda()
-		mask = float(data["mask"][i])
+    for i in range(0, data["datalen"]):
 
-		e.optimizer.zero_grad()
+        x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
+        y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
+        if config.use_gpu == True:
+            x = x.cuda()
+            y = y.cuda()
+        mask = float(data["mask"][i])
 
-		output = e.model(x)
-		loss = criteria(output, y)
-		seqloss += (loss*mask)
-	
+        e.optimizer.zero_grad()
 
-	seqloss /= sum(data["mask"])
-	#print seqloss.data[0]
-	e.trainer.average_bce.append(seqloss.data[0])
-	running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
-	print(running_average)
-	if e.config.use_tflogger == True:
-		logger.log_scalar("loss", running_average, step+1)
-	
-	seqloss.backward(retain_graph=False)
+        output = e.model(x)
+        loss = criteria(output, y)
+        seqloss += (loss*mask)
 
-	for param in e.model.parameters():
-		param.grad.data.clamp_(e.config.grad_clip[0], e.config.grad_clip[1])
 
-	e.optimizer.step()
+    seqloss /= sum(data["mask"])
+    #print seqloss.data[0]
+    e.trainer.average_bce.append(seqloss.data[0])
+    running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
+    print(running_average)
+    print(running_average)
+    if e.config.use_tflogger == True:
+        logger.log_scalar("loss", running_average, step+1)
 
-	e.model.reset_hidden()
-	e.trainer.ex_seen += 1
+    seqloss.backward(retain_graph=False)
 
-	if e.trainer.ex_seen%10000 == 0:
-		e.save("current")
-		
+    for param in e.model.parameters():
+        param.grad.data.clamp_(e.config.grad_clip[0], e.config.grad_clip[1])
+
+    e.optimizer.step()
+
+    e.model.reset_hidden()
+    e.trainer.ex_seen += 1
+
+    if e.trainer.ex_seen%10000 == 0:
+        e.save("current")
+
