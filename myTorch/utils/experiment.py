@@ -158,11 +158,12 @@ class Experiment(object):
                 file_name = os.path.join(self._dir_name, tag, "data_iterator.p")
                 self._data_iterator.load(file_name)
 
-    def force_restart(self, tag):
+    def force_restart(self):
+        """Force restarting an experiment from beginning."""
 
         logging.info("Force restarting the experiment...")
 
-        save_dir = os.path.join(self._dir_name, tag)
+        save_dir = os.path.join(self._dir_name)
         create_folder(save_dir)
         rmtree(save_dir)
 
