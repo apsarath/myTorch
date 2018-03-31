@@ -110,7 +110,7 @@ class Experiment(object):
         file = open(flag_file, "w")
         file.close()
 
-    def is_resumable(self, tag):
+    def is_resumable(self, tag="current"):
         """ Returns true if the experiment is resumable.
 
         Args:
@@ -123,7 +123,7 @@ class Experiment(object):
         else:
             return False
 
-    def resume(self, tag):
+    def resume(self, tag="current"):
         """Resumes the experiment from a checkpoint.
 
         Args:

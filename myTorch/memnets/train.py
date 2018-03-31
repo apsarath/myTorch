@@ -1,96 +1,113 @@
 import numpy
 import argparse
+import logging
 
 import torch
 from torch.autograd import Variable
-import torch.nn as nn
 
+from myTorch import Experiment
 from myTorch.model import Recurrent
 from myTorch.task.copy_task import *
 from myTorch.utils.logging import Logger
-from myTorch.utils.experiment import Experiment
-from myTorch.utils import MyContainer
+from myTorch.utils import MyContainer, get_optimizer
+import torch.nn.functional as F
 
-from myTorch.scripts.alg_task.config import *
+
+from myTorch.memnets.config import *
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="copy_task_RNN", help="config name")
-parser.add_argument("--resume_dir", type=str, default=None, help="directory to resume")
 args = parser.parse_args()
 
-config = eval(args.config)
-
-logger = None
-if config.use_tflogger:
-    logger = Logger(config.tflogdir)
-
-torch.manual_seed(config.rseed)
+logging.basicConfig(level=logging.INFO)
 
 
-model = Recurrent(config.input_size, config.output_size, num_layers = config.num_layers, layer_size=config.layer_size, mname=config.model, output_activation = None, use_gpu=config.use_gpu)
+def train(experiment, model, config, data_iterator, tr, logger):
 
-if config.use_gpu:
-    model.cuda()
+    for step in range(tr.examples_seen, config.max_steps):
 
+        data = data_iterator.next()
+        seqloss = 0
 
-data_gen = CopyDataGen(num_bits = config.num_bits, min_len = config.min_len, max_len = config.max_len)
+        for i in range(0, data["datalen"]):
 
-optimizer = config.optim_algo(model.parameters(), lr=config.l_rate, momentum=config.momentum)
+            x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
+            y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
+            if config.use_gpu:
+                x = x.cuda()
+                y = y.cuda()
+            mask = float(data["mask"][i])
 
-criteria = nn.BCEWithLogitsLoss()
+            model.optimizer.zero_grad()
 
+            output = model(x)
+            loss = F.binary_cross_entropy_with_logits(output, y)
+            seqloss += (loss * mask)
 
-trainer = MyContainer()
-trainer.ex_seen = 0
-trainer.average_bce = []
+        seqloss /= sum(data["mask"])
+        tr.average_bce.append(seqloss.data[0])
+        running_average = sum(tr.average_bce) / len(tr.average_bce)
+        logging.info("running average of BCE: {}".format(running_average))
+        if config.use_tflogger:
+            logger.log_scalar("loss", running_average, step + 1)
 
+        seqloss.backward(retain_graph=False)
 
-e = Experiment(model, config, optimizer, trainer, data_gen, logger)
+        for param in model.parameters():
+            param.grad.data.clamp_(config.grad_clip[0], config.grad_clip[1])
 
-if args.rdir != None:
-    e.resume("current", args.rdir)
+        model.optimizer.step()
 
+        model.reset_hidden()
+        tr.examples_seen += 1
 
-for step in range(e.trainer.ex_seen, e.config.max_steps):
-
-    data = e.data_iter.next()
-    seqloss = 0
-
-    for i in range(0, data["datalen"]):
-
-        x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
-        y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
-        if config.use_gpu == True:
-            x = x.cuda()
-            y = y.cuda()
-        mask = float(data["mask"][i])
-
-        e.optimizer.zero_grad()
-
-        output = e.model(x)
-        loss = criteria(output, y)
-        seqloss += (loss*mask)
+        if tr.examples_seen % 10000 == 0:
+            experiment.save()
 
 
-    seqloss /= sum(data["mask"])
-    #print seqloss.data[0]
-    e.trainer.average_bce.append(seqloss.data[0])
-    running_average = sum(e.trainer.average_bce)/len(e.trainer.average_bce)
-    print(running_average)
-    print(running_average)
-    if e.config.use_tflogger == True:
-        logger.log_scalar("loss", running_average, step+1)
+def run_experiment():
+    """Runs the experiment."""
 
-    seqloss.backward(retain_graph=False)
+    config = eval(args.config)()
 
-    for param in e.model.parameters():
-        param.grad.data.clamp_(e.config.grad_clip[0], e.config.grad_clip[1])
+    experiment = Experiment(config.name, config.save_dir)
+    experiment.register_config(config)
 
-    e.optimizer.step()
+    logger = None
+    if config.use_tflogger:
+        logger = Logger(config.tflog_dir)
+        experiment.register_logger(logger)
 
-    e.model.reset_hidden()
-    e.trainer.ex_seen += 1
+    torch.manual_seed(config.rseed)
 
-    if e.trainer.ex_seen%10000 == 0:
-        e.save("current")
+    model = Recurrent(config.input_size, config.output_size,
+                      num_layers=config.num_layers, layer_size=config.layer_size,
+                      cell_name=config.model, activation=config.activation,
+                      output_activation="linear", use_gpu=config.use_gpu)
+    experiment.register_model(model)
+    if config.use_gpu:
+        model.cuda()
 
+    data_iterator = CopyDataGen(num_bits=config.num_bits, min_len=config.min_len,
+                                max_len=config.max_len)
+    experiment.register_data_iterator(data_iterator)
+
+    optimizer = get_optimizer(model.parameters(), config)
+    model.register_optimizer(optimizer)
+
+    tr = MyContainer()
+    tr.examples_seen = 0
+    tr.average_bce = []
+    experiment.register_train_statistics(tr)
+
+    if not config.force_restart:
+        if experiment.is_resumable():
+            experiment.resume()
+    else:
+        experiment.force_restart()
+
+    train(experiment, model, config, data_iterator, tr, logger)
+
+
+if __name__ == '__main__':
+    run_experiment()

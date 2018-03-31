@@ -12,10 +12,11 @@ from myTorch.utils import create_folder
 class Logger(object):
     """Logging in tensorboard without tensorflow ops."""
 
-    def __init__(self, log_dir):
+    def __init__(self, log_dir, backup=False):
         """Creates a summary writer logging to log_dir."""
         self.writer = tf.summary.FileWriter(log_dir)
         self._log_dir = log_dir
+        self._backup = backup
 
     def log_scalar(self, tag, value, step):
         """Log a scalar variable.
@@ -153,24 +154,26 @@ class Logger(object):
         self.log_scalar_rl("train_episode_len", self._tr.train_episode_len[0], self._avglen, [self._tr.episodes_done, self._tr.global_steps_done, self._tr.iterations_done])
 
     def save(self, dir_name):
-        create_folder(dir_name)
-        rmtree(dir_name)
-        create_folder(dir_name)
+        if self._backup:
+            create_folder(dir_name)
+            rmtree(dir_name)
+            create_folder(dir_name)
 
-        tfpath = self._log_dir
-        onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
+            tfpath = self._log_dir
+            onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
 
-        for file in onlyfiles:
-            copyfile(join(tfpath,file),join(dir_name, file))
+            for file in onlyfiles:
+                copyfile(join(tfpath,file),join(dir_name, file))
 
     def load(self, dir_name):
-        rmtree(self._log_dir)
-        create_folder(self._log_dir)
+        if self._backup:
+            rmtree(self._log_dir)
+            create_folder(self._log_dir)
 
-        onlyfiles = [f for f in listdir(dir_name) if isfile(join(dir_name, f))]
+            onlyfiles = [f for f in listdir(dir_name) if isfile(join(dir_name, f))]
 
-        for file in onlyfiles:
-            copyfile(join(dir_name, file), join(self._log_dir, file))
+            for file in onlyfiles:
+                copyfile(join(dir_name, file), join(self._log_dir, file))
 
     def force_restart(self):
         create_folder(self._log_dir)

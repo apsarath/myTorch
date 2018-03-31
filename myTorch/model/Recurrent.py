@@ -10,7 +10,7 @@ class Recurrent(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
     def __init__(self, input_size, output_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation=None, use_gpu=False):
+                 cell_name="LSTM", activation="tanh", output_activation="linear", use_gpu=False):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
@@ -44,7 +44,7 @@ class Recurrent(nn.Module):
 
         self._list_of_modules = nn.ModuleList(self._Cells)
 
-        if self._output_activation is None:
+        if self._output_activation == "linear":
             self._output_activation_fn = None
         elif self._output_activation == "sigmoid":
             self._output_activation_fn = F.sigmoid
@@ -54,8 +54,8 @@ class Recurrent(nn.Module):
         self._W_h2o = nn.Parameter(torch.Tensor(layer_size[-1], output_size))
         self._b_o = nn.Parameter(torch.Tensor(output_size))
 
-        self.reset_parameters()
-        self._reset_hidden()
+        self._reset_parameters()
+        self.reset_hidden()
         
     def forward(self, input):
         """Implements forward computation of the model.
@@ -90,5 +90,14 @@ class Recurrent(nn.Module):
 
         nn.init.xavier_normal(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
         nn.init.constant(self._b_o, 0)
+
+    def register_optimizer(self, optimizer):
+        """Registers an optimizer for the model.
+
+        Args:
+            optimizer: optimizer object.
+        """
+
+        self.optimizer = optimizer
 
 
