@@ -8,7 +8,7 @@ def copy_task_RNN():
 	config = MyContainer()
 
 	# model specific details
-	config.model = "FlatMemory"
+	config.model = "RNN"
 	config.input_size = 9
 	config.output_size = 9
 	config.num_layers = 1
