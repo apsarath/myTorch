@@ -1,55 +1,76 @@
+"""Implementation of an RNN Cell."""
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
-
 from torch.autograd import Variable
-
-import myTorch
-from myTorch.utils import act_name
+import torch.nn.functional as F
 
 
 class RNNCell(nn.Module):
+    """Implementation of an RNN Cell."""
 
     def __init__(self, input_size, hidden_size, activation="tanh", use_gpu=False):
+        """Initializes an RNN Cell.
+
+        Args:
+            input_size: int, size of the input vector.
+            hidden_size: int, RNN hidden layer dimension.
+            activation: str, hidden layer activation function.
+            use_gpu: bool, true if using GPU.
+        """
         
         super(RNNCell, self).__init__()
 
-        self.use_gpu = use_gpu
+        self._input_size = input_size
+        self._hidden_size = hidden_size
+        self._activation = activation
+        self._use_gpu = use_gpu
 
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        if activation == "tanh":
-            self.activation = torch.tanh
-        elif activation == "sigmoid":
-            self.activation = torch.sigmoid 
+        if self._activation == "tanh":
+            self._activation_fn = F.tanh
+        elif self._activation == "sigmoid":
+            self._activation_fn = F.sigmoid
+        elif self._activation == "relu":
+            self._activation_fn = F.relu
         
-        self.W_i2h = nn.Parameter(torch.Tensor(input_size, hidden_size))
-        self.W_h2h = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
-        self.b_h = nn.Parameter(torch.Tensor(hidden_size))
+        self._W_i2h = nn.Parameter(torch.Tensor(input_size, hidden_size))
+        self._W_h2h = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
+        self._b_h = nn.Parameter(torch.Tensor(hidden_size))
 
-        self.reset_parameters()
+        self._reset_parameters()
 
-        
     def forward(self, input, last_hidden):
+        """Implements forward computation of an RNN Cell.
+
+        Args:
+            input: current input vector.
+            last_hidden: previous hidden state dictionary.
+
+        Returns:
+            current hidden state as a dictionary.
+        """
         
         c_input = torch.cat((input, last_hidden["h"]), 1)
-        W_h = torch.cat((self.W_i2h, self.W_h2h), 0)
-        pre_hidden = torch.add(torch.mm(c_input, W_h), self.b_h)
-        h = self.activation(pre_hidden)
+        W_h = torch.cat((self._W_i2h, self._W_h2h), 0)
+        pre_hidden = torch.add(torch.mm(c_input, W_h), self._b_h)
+        h = self._activation_fn(pre_hidden)
 
         hidden = {}
         hidden["h"] = h
         return hidden
 
     def reset_hidden(self):
+        """Resets the hidden state for truncating the dependency."""
+
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((1,self.hidden_size))))
-        if self.use_gpu==True:
+        hidden["h"] = Variable(torch.Tensor(np.zeros((1, self._hidden_size))))
+        if self._use_gpu:
             hidden["h"] = hidden["h"].cuda()
         return hidden
 
-    def reset_parameters(self):
+    def _reset_parameters(self):
+        """Initializes the RNN Cell parameters."""
 
-        nn.init.xavier_normal(self.W_i2h, gain=nn.init.calculate_gain(act_name(self.activation)))
-        nn.init.orthogonal(self.W_h2h)
-        nn.init.constant(self.b_h, 0)
+        nn.init.xavier_normal(self._W_i2h, gain=nn.init.calculate_gain(self._activation))
+        nn.init.orthogonal(self._W_h2h)
+        nn.init.constant(self._b_h, 0)
