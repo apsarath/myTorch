@@ -90,7 +90,7 @@ def train_mdp():
 	
 	# format data for classifier
 	data_len = len(obs_list)
-	print "Replay buffer num samples available : {}".format(data_len)
+	print(("Replay buffer num samples available : {}".format(data_len)))
 	shuffled_indices = np.arange(data_len)
 	np.random.shuffle(shuffled_indices)
 
@@ -122,7 +122,7 @@ def train_mdp():
 	new_replay_buffer = {}
 	for num_clusters in [4,12,16,24,32,8]:
 		# cluster them
-		print "Clustering ... {}".format(num_clusters)
+		print(("Clustering ... {}".format(num_clusters)))
 		model = KMeans(n_clusters=num_clusters, random_state=1)
 		model.fit(obs_vectors)
 		cluster_ids = model.labels_
@@ -134,7 +134,7 @@ def train_mdp():
 
 		#prepare data for the classifier
 		train_minibatches = []
-		for s,e in zip(range(0, train_data_len, config.batch_size), range(config.batch_size, train_data_len, config.batch_size)):
+		for s,e in zip(list(range(0, train_data_len, config.batch_size)), list(range(config.batch_size, train_data_len, config.batch_size))):
 			minibatch = {
 				"obs" : train_obs[s:e],
 				"actions" : train_actions[s:e],
@@ -144,7 +144,7 @@ def train_mdp():
 			train_minibatches.append(minibatch)
 		
 		valid_minibatches = []
-		for s,e in zip(range(0, valid_data_len, config.batch_size), range(config.batch_size, valid_data_len, config.batch_size)):
+		for s,e in zip(list(range(0, valid_data_len, config.batch_size)), list(range(config.batch_size, valid_data_len, config.batch_size))):
 			minibatch = {  
 				"obs" : valid_obs[s:e],
 				"actions" : valid_actions[s:e],
@@ -175,7 +175,7 @@ def train_mdp():
 				reward_loss += local_reward_loss
 			valid_acc /= len(valid_minibatches)
 			reward_loss /= len(valid_minibatches)
-			print "valid acc : {}, reward_loss :{}, patience : {}".format(valid_acc, reward_loss, patience)
+			print(("valid acc : {}, reward_loss :{}, patience : {}".format(valid_acc, reward_loss, patience)))
 			if best_valid_reward_loss > reward_loss:
 				best_valid_reward_loss = reward_loss
 				patience = config.patience
@@ -202,7 +202,7 @@ def train_mdp():
 		transition["pcontinues"] = 1.0
 		
 		start_time = time.time()
-		print "Collecting {} samples".format(config.num_new_samples) 
+		print(("Collecting {} samples".format(config.num_new_samples))) 
 		for sample_id in range(config.num_new_samples):
 			# And predict the action from the agent.
 			action, _ = agent.sample_action(obs, legal_moves=None,
@@ -225,7 +225,7 @@ def train_mdp():
 			transition["observations_tp1"] = next_obs
 			new_replay_buffer[num_clusters].add(transition)
 			obs = next_obs
-		print "Done in {} secs".format(time.time()-start_time)
+		print(("Done in {} secs".format(time.time()-start_time)))
 
 		mdp_experiment.save("best_model")
 
@@ -258,7 +258,7 @@ def _analyze_clusters(cluster_ids, num_clusters):
 	hist = {}
 	for idx in range(num_clusters):
 		hist[idx] = len([i for i in cluster_ids if i == idx])
-	print "Cluster hist : \n{}\n".format(hist)
+	print(("Cluster hist : \n{}\n".format(hist)))
 		
 
 if __name__=="__main__":

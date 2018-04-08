@@ -102,10 +102,10 @@ def train_dqn_agent():
 	else:
 		experiment.force_restart("current")
 
-	for i in xrange(tr.iterations_done, config.num_iterations):
-		print("iterations done: {}".format(tr.iterations_done))
+	for i in range(tr.iterations_done, config.num_iterations):
+		print(("iterations done: {}".format(tr.iterations_done)))
 
-		for _ in xrange(config.episodes_per_iter):
+		for _ in range(config.episodes_per_iter):
 			rewards, first_qval = collect_episode(env, agent, replay_buffer, is_training=True, step=tr.steps_done)
 			tr.episodes_done += 1
 			tr.steps_done += len(rewards)
@@ -125,7 +125,7 @@ def train_dqn_agent():
 		try:
 			if tr.steps_done > config.learn_start:
 				total_loss = 0
-				for _ in xrange(config.updates_per_iter):
+				for _ in range(config.updates_per_iter):
 					minibatch = replay_buffer.sample_minibatch(batch_size = config.batch_size)
 					loss = agent.train_step(minibatch)
 					total_loss += loss
@@ -146,11 +146,11 @@ def train_dqn_agent():
 
 		if tr.steps_done > config.learn_start:
 			if tr.iterations_done % config.test_freq == 0:
-				print "Testing..."
+				print("Testing...")
 				epi_reward = 0.0
 				epi_len = 0.0
 				num_games_finished = 0.0
-				for _ in xrange(config.test_per_iter):
+				for _ in range(config.test_per_iter):
 					rewards, first_qval = collect_episode(env, agent, epsilon=0.05, is_training=False)
 					epi_reward += sum(rewards)
 					epi_len += len(rewards)
@@ -165,7 +165,7 @@ def train_dqn_agent():
 				logger.log_scalar_rl("test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
 				logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
 				if num_games_finished > 0.4:
-					print "num_games_finished reached {}".format(num_games_finished)
+					print("num_games_finished reached {}".format(num_games_finished))
 					experiment.save("current")
 					sys.exit()
 

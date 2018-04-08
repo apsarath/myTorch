@@ -106,14 +106,14 @@ def train_with_mdp():
 		logger.force_restart()
 
 
-	for i in xrange(tr.iterations_done, config.num_iterations):
-		print("iterations done: {}".format(tr.iterations_done))
+	for i in range(tr.iterations_done, config.num_iterations):
+		print(("iterations done: {}".format(tr.iterations_done)))
 
 		avg_loss = 0
 		try:
 			if 1:
 				total_loss = 0
-				for _ in xrange(config.updates_per_iter):
+				for _ in range(config.updates_per_iter):
 					minibatch = replay_buffer.sample_minibatch(batch_size = config.batch_size)
 					loss = agent.train_step(minibatch)
 					total_loss += loss
@@ -133,11 +133,11 @@ def train_with_mdp():
 
 		if 1:
 			if tr.iterations_done % config.test_freq == 0:
-				print "Testing..."
+				print("Testing...")
 				epi_reward = 0.0
 				epi_len = 0.0
 				num_games_finished = 0.0
-				for _ in xrange(config.test_per_iter):
+				for _ in range(config.test_per_iter):
 					rewards, first_qval = collect_episode(env, agent, epsilon=0.05, is_training=False)
 					epi_reward += sum(rewards)
 					epi_len += len(rewards)
