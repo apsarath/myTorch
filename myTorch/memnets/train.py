@@ -61,7 +61,7 @@ def train(experiment, model, config, data_iterator, tr, logger):
         model.reset_hidden()
         tr.examples_seen += 1
 
-        if tr.examples_seen % 10000 == 0:
+        if tr.examples_seen % 100 == 0:
             experiment.save()
 
 

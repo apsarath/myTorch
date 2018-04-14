@@ -1,4 +1,5 @@
 """Implementation of a generic Recurrent Network."""
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -37,10 +38,10 @@ class Recurrent(nn.Module):
             cell = FlatMemoryCell
 
         self._Cells.append(cell(self._input_size, self._layer_size[0],
-                               activation=self._activation, use_gpu=self._use_gpu))
+                                activation=self._activation, use_gpu=self._use_gpu))
         for i in range(1, num_layers):
             self._Cells.append(cell(self._layer_size[i-1], self._layer_size[i],
-                                   activation=self._activation, use_gpu=self._use_gpu))
+                                    activation=self._activation, use_gpu=self._use_gpu))
 
         self._list_of_modules = nn.ModuleList(self._Cells)
 
@@ -99,5 +100,32 @@ class Recurrent(nn.Module):
         """
 
         self.optimizer = optimizer
+
+    def save(self, save_dir):
+        """Saves the model and the optimizer.
+
+        Args:
+            save_dir: absolute path to saving dir.
+        """
+
+        file_name = os.path.join(save_dir, "model.p")
+        torch.save(self.state_dict(), file_name)
+
+        file_name = os.path.join(save_dir, "optim.p")
+        torch.save(self.optimizer.state_dict(), file_name)
+
+    def load(self, save_dir):
+        """Loads the model and the optimizer.
+
+        Args:
+            save_dir: absolute path to loading dir.
+        """
+
+        file_name = os.path.join(save_dir, "model.p")
+        self.load_state_dict(torch.load(file_name))
+
+        file_name = os.path.join(save_dir, "optim.p")
+        self.optimizer.load_state_dict(torch.load(file_name))
+
 
 

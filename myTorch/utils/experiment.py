@@ -1,7 +1,6 @@
 """Implementation of a simple experiment class."""
 import logging
-import os.path
-from os.path import isfile, join
+import os
 from shutil import rmtree
 
 from myTorch.utils import create_folder
@@ -85,26 +84,26 @@ class Experiment(object):
         create_folder(save_dir)
 
         flag_file = os.path.join(save_dir, "flag.p")
-        if isfile(flag_file):
+        if os.path.isfile(flag_file):
             os.remove(flag_file)
 
         if self._model is not None:
             self._model.save(save_dir)
 
         if self._config is not None:
-            file_name = os.path.join(self._dir_name, tag, "config.p")
+            file_name = os.path.join(save_dir, "config.p")
             self._config.save(file_name)
 
         if self._logger is not None:
-            file_name = os.path.join(self._dir_name, tag, "logger")
+            file_name = os.path.join(save_dir, "logger")
             self._logger.save(file_name)
 
         if self._train_statistics is not None:
-            file_name = os.path.join(self._dir_name, tag, "train_statistics.p")
+            file_name = os.path.join(save_dir, "train_statistics.p")
             self._train_statistics.save(file_name)
 
         if self._data_iterator is not None:
-            file_name = os.path.join(self._dir_name, tag, "data_iterator.p")
+            file_name = os.path.join(save_dir, "data_iterator.p")
             self._data_iterator.save(file_name)
 
         file = open(flag_file, "w")
@@ -118,7 +117,7 @@ class Experiment(object):
         """
 
         flag_file = os.path.join(self._dir_name, tag, "flag.p")
-        if isfile(flag_file):
+        if os.path.isfile(flag_file):
             return True
         else:
             return False
@@ -143,19 +142,19 @@ class Experiment(object):
                 self._model.load(save_dir)
 
             if self._config is not None:
-                file_name = os.path.join(self._dir_name, tag, "config.p")
+                file_name = os.path.join(save_dir, "config.p")
                 self._config.load(file_name)
 
             if self._logger is not None:
-                file_name = os.path.join(self._dir_name, tag, "logger")
+                file_name = os.path.join(save_dir, "logger")
                 self._logger.load(file_name)
 
             if self._train_statistics is not None:
-                file_name = os.path.join(self._dir_name, tag, "train_statistics.p")
+                file_name = os.path.join(save_dir, "train_statistics.p")
                 self._train_statistics.load(file_name)
 
             if self._data_iterator is not None:
-                file_name = os.path.join(self._dir_name, tag, "data_iterator.p")
+                file_name = os.path.join(save_dir, "data_iterator.p")
                 self._data_iterator.load(file_name)
 
     def force_restart(self):
