@@ -1,6 +1,5 @@
-import myTorch
+import os
 from myTorch.utils import *
-import torch.optim as optim
 
 
 def copy_task_RNN():
@@ -45,8 +44,8 @@ def copy_task_RNN():
 
     # saving details
     config.use_tflogger = True
-    config.tflog_dir = "copyRNN/{}/tflog/p2/".format(config.model)
-    config.save_dir = "copyRNN/{}/p2/".format(config.model)
+    config.tflog_dir = os.environ["LOGDIR"]+"/copyRNN/{}/tflog/p2/".format(config.model)
+    config.save_dir = os.environ["SAVEDIR"]+"/copyRNN/{}/p2/".format(config.model)
     create_folder(config.tflog_dir)
     create_folder(config.save_dir)
 
