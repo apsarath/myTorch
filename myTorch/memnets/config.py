@@ -10,7 +10,7 @@ def copy_task_RNN():
     config.name = "copy_task"
 
     # model specific details
-    config.model = "RNN"
+    config.model = "LSTM"
     config.input_size = 9
     config.output_size = 9
     config.num_layers = 1

@@ -6,7 +6,7 @@ import torch
 from torch.autograd import Variable
 
 from myTorch import Experiment
-from myTorch.model import Recurrent
+from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.copy_task import *
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer
@@ -69,6 +69,8 @@ def run_experiment():
     """Runs the experiment."""
 
     config = eval(args.config)()
+
+    print(config.get())
 
     experiment = Experiment(config.name, config.save_dir)
     experiment.register_config(config)

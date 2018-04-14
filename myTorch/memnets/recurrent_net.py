@@ -26,22 +26,10 @@ class Recurrent(nn.Module):
         self._use_gpu = use_gpu
 
         self._Cells = []
-        if self._cell_name == "LSTM":
-            cell = LSTMCell
-        elif self._cell_name == "GRU":
-            cell = GRUCell
-        elif self._cell_name == "RNN":
-            cell = RNNCell
-        elif self._cell_name == "TARDIS":
-            cell = TARDISCell
-        elif self._cell_name == "FlatMemory":
-            cell = FlatMemoryCell
 
-        self._Cells.append(cell(self._input_size, self._layer_size[0],
-                                activation=self._activation, use_gpu=self._use_gpu))
+        self._add_cell(self._input_size, self._layer_size[0])
         for i in range(1, num_layers):
-            self._Cells.append(cell(self._layer_size[i-1], self._layer_size[i],
-                                    activation=self._activation, use_gpu=self._use_gpu))
+            self._add_cell(self._layer_size[i-1], self._layer_size[i])
 
         self._list_of_modules = nn.ModuleList(self._Cells)
 
@@ -100,6 +88,22 @@ class Recurrent(nn.Module):
         """
 
         self.optimizer = optimizer
+
+    def _add_cell(self, input_size, hidden_size):
+        """Adds a cell to the stack of cells.
+
+        Args:
+            input_size: int, size of the input vector.
+            hidden_size: int, hidden layer dimension.
+        """
+
+        if self._cell_name == "RNN":
+            self._Cells.append(RNNCell(input_size, hidden_size,
+                                       activation=self._activation, use_gpu=self._use_gpu))
+        elif self._cell_name == "LSTM":
+            self._Cells.append(RNNCell(input_size, hidden_size,
+                                       use_gpu=self._use_gpu))
+
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
