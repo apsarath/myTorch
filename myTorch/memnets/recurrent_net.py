@@ -102,8 +102,10 @@ class Recurrent(nn.Module):
                                        activation=self._activation, use_gpu=self._use_gpu))
         elif self._cell_name == "LSTM":
             self._Cells.append(LSTMCell(input_size, hidden_size,
+                                        use_gpu=self._use_gpu))
+        elif self._cell_name == "GRU":
+            self._Cells.append(GRUCell(input_size, hidden_size,
                                        use_gpu=self._use_gpu))
-
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
