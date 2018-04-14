@@ -101,7 +101,7 @@ class Recurrent(nn.Module):
             self._Cells.append(RNNCell(input_size, hidden_size,
                                        activation=self._activation, use_gpu=self._use_gpu))
         elif self._cell_name == "LSTM":
-            self._Cells.append(RNNCell(input_size, hidden_size,
+            self._Cells.append(LSTMCell(input_size, hidden_size,
                                        use_gpu=self._use_gpu))
 
 

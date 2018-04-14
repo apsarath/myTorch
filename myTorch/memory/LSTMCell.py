@@ -89,7 +89,7 @@ class LSTMCell(nn.Module):
             hidden["c"] = hidden["c"].cuda()
         return hidden
 
-    def reset_parameters(self):
+    def _reset_parameters(self):
         """Initializes the RNN Cell parameters."""
 
         nn.init.xavier_normal(self._W_x2i)
