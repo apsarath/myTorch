@@ -9,6 +9,7 @@ from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.copy_task import CopyData
 from myTorch.task.repeat_copy_task import RepeatCopyData
+from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer
 import torch.nn.functional as F
@@ -109,6 +110,10 @@ def run_experiment():
         data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
                                        max_len=config.max_len, min_repeat=config.min_repeat,
                                        max_repeat=config.max_repeat, batch_size=config.batch_size)
+    elif config.task == "associative_recall":
+        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
+                                              max_len=config.max_len, block_len=config.block_len,
+                                              batch_size=config.batch_size)
 
     experiment.register_data_iterator(data_iterator)
 
