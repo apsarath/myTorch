@@ -3,7 +3,7 @@ import numpy as np
 import _pickle as pickle
 
 class CopyData(object):
-    """Copt task data generator."""
+    """Copy task data generator."""
 
     def __init__(self, num_bits=8, min_len=1, max_len=20, batch_size=5):
         
