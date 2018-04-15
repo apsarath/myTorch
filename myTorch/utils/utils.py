@@ -204,7 +204,7 @@ def load_w2v_vectors(loc, verbose=True):
     for line in f:
         text = line.strip().split()
         vector[text[0]] = np.array([float(i) for i in text[1:]])
-    embd_size = vector[vector.keys()[0]].size
+    embd_size = vector[[*vector][0]].size
     if verbose:
         print("vocab size:%d, embd_size :%d" % (len(vector), embd_size))
     return Word2VecModel(vector, embd_size)

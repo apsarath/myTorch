@@ -95,8 +95,8 @@ def train_mdp():
 	np.random.shuffle(shuffled_indices)
 
 	
-	actions = np.array([action for action in replay_buffer.data["actions"][:len(obs_list)]])
-	rewards = np.array([reward for reward in replay_buffer.data["rewards"][:len(obs_list)]])
+	actions = np.array([action for action in replay_buffer.data["actions"][:len(obs_list)]], dtype=np.uint8)
+	rewards = np.array([reward for reward in replay_buffer.data["rewards"][:len(obs_list)]], dtype=np.uint8)
 
 	# train data
 	train_indices = shuffled_indices[:int(0.85*data_len)]
@@ -204,9 +204,10 @@ def train_mdp():
 		start_time = time.time()
 		print(("Collecting {} samples".format(config.num_new_samples))) 
 		for sample_id in range(config.num_new_samples):
+			print("Sample id : {}".format(sample_id))
 			# And predict the action from the agent.
 			action, _ = agent.sample_action(obs, legal_moves=None,
-							epsilon=None, step=None, is_training=False)
+							epsilon=0, step=None, is_training=False)
 			transition["actions"] =  one_hot([action], env.action_dim)[0]
 
 			# get the cluster_id and reward

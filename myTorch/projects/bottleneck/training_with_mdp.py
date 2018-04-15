@@ -45,7 +45,7 @@ def train_with_mdp():
 	torch.manual_seed(config.seed)
 	numpy_rng = np.random.RandomState(seed=config.seed)
 
-	env = make_environment(config.env_name, user_id=args.run_num)
+	env = make_environment(config.env_name)
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
