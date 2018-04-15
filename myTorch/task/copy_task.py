@@ -1,66 +1,71 @@
-import math
+"""Copy Task."""
 import numpy as np
 import _pickle as pickle
 
-class CopyDataGen(object):
+class CopyData(object):
+    """Copt task data generator."""
 
-    def __init__(self, num_bits = 8, min_len = 1, max_len = 20):
+    def __init__(self, num_bits=8, min_len=1, max_len=20, batch_size=5):
         
-        self.num_bits = num_bits
-        self.tot_bits = num_bits + 1
-        self.min_len = min_len
-        self.max_len = max_len
-        self.ex_seen = 0
-        self.rng = np.random.RandomState(5)
+        self._num_bits = num_bits
+        self._min_len = min_len
+        self._max_len = max_len
+        self._batch_size = batch_size
+        self._examples_seen = 0
+        self._rng = np.random.RandomState(5)
 
-    def next(self, seqlen=None):
+    def next(self, seq_len=None, batch_size=None):
         
-        if seqlen == None:
-            seqlen = self.rng.random_integers(self.min_len, self.max_len)
-        x = np.zeros((2*seqlen+1,self.tot_bits), dtype="float32")
-        y = np.zeros((2*seqlen+1,self.tot_bits), dtype ="float32")
-        mask = np.zeros(2*seqlen+1, dtype="float32")
-        data = self.rng.binomial(1,0.5,size=(seqlen,self.num_bits))
-        x[0:seqlen,0:-1] = data
-        x[seqlen,-1] = 1
-        y[seqlen+1:,0:-1] = data
-        mask[seqlen+1:] = 1
+        if seq_len is None:
+            seq_len = self._rng.random_integers(self._min_len, self._max_len)
+        if batch_size is None:
+            batch_size = self._batch_size
+
+        x = np.zeros((2*seq_len+1, batch_size, self._num_bits), dtype="float32")
+        y = np.zeros((2*seq_len+1, batch_size, self._num_bits), dtype="float32")
+        mask = np.zeros(2*seq_len+1, dtype="float32")
+        data = self._rng.binomial(1, 0.5, size=(seq_len, batch_size, self._num_bits))
+        data[:, :, -1] = 0
+        x[0:seq_len] = data
+        x[seq_len, :, -1] = 1
+        y[seq_len+1:] = data
+        mask[seq_len+1:] = 1
         output = {}
         output['x'] = x
         output['y'] = y
         output['mask'] = mask
-        output['seqlen'] = seqlen
-        output['datalen'] = 2*seqlen+1
-        self.ex_seen += 1
+        output['seqlen'] = seq_len
+        output['datalen'] = 2*seq_len+1
+        self._examples_seen += batch_size
         return output
 
-    def save(self, fname):
+    def save(self, file_name):
 
         state = {}
-        state["num_bits"] = self.num_bits
-        state["tot_bits"] = self.tot_bits
-        state["min_len"] = self.min_len
-        state["max_len"] = self.max_len
-        state["rng_state"] = self.rng.get_state()
-        state["ex_seen"] = self.ex_seen
-        pickle.dump(state, open(fname,"wb"))
+        state["num_bits"] = self._num_bits
+        state["min_len"] = self._min_len
+        state["max_len"] = self._max_len
+        state["batch_size"] = self._batch_size
+        state["rng_state"] = self._rng.get_state()
+        state["examples_seen"] = self._examples_seen
+        pickle.dump(state, open(file_name, "wb"))
 
-    def load(self, fname):
+    def load(self, file_name):
 
-        state = pickle.load(open(fname,"rb"))
-        self.num_bits = state["num_bits"]
-        self.tot_bits = state["tot_bits"]
-        self.min_len = state["min_len"]
-        self.max_len = state["max_len"]
-        self.rng.set_state(state["rng_state"])
-        self.ex_seen = state["ex_seen"]
-
+        state = pickle.load(open(file_name, "rb"))
+        self._num_bits = state["num_bits"]
+        self._min_len = state["min_len"]
+        self._max_len = state["max_len"]
+        self._batch_size = state["batch_size"]
+        self._batch_size = state["batch_size"]
+        self._rng.set_state(state["rng_state"])
+        self._examples_seen = state["examples_seen"]
 
 
 if __name__=="__main__":
 
-    gen = CopyDataGen()
-    data = gen.next(seqlen=2)
+    gen = CopyData()
+    data = gen.next(seq_len=2)
     print(data['seqlen'])
     print(data['x'])
     print(data['y'])
