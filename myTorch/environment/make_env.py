@@ -1,6 +1,6 @@
 import myTorch
 from myTorch.environment.Blocksworld import *
-from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv
+from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv, HomeWorldEnv
 
 
 def make_environment(env_name, game_dir=None, mode="train", is_one_hot_world=False):
@@ -20,6 +20,8 @@ def make_environment(env_name, game_dir=None, mode="train", is_one_hot_world=Fal
 		return env
 	elif env_name == "memory":
 		env = MemoryEnvironment()
+	elif env_name == "home_world":
+		env = HomeWorldEnv()
 		return env
 	else:
 		assert("unsupported environment : {}".format(env_name))
