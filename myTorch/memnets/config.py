@@ -9,9 +9,9 @@ def copy_task_RNN():
     config.name = "ex1"
 
     # model specific details
-    config.model = "GRU"
-    config.input_size = 9
-    config.output_size = 9
+    config.model = "LSTM"
+    config.input_size = 8
+    config.output_size = 8
     config.num_layers = 1
     config.layer_size = [256]
     config.activation = "tanh"
@@ -32,7 +32,7 @@ def copy_task_RNN():
     config.nesterov = False
     config.grad_clip = [-10, 10]
 
-    config.max_steps = 1000000
+    config.max_steps = 100000000
     config.rseed = 5
     config.use_gpu = True
 
@@ -41,12 +41,13 @@ def copy_task_RNN():
     config.num_bits = 8
     config.min_len = 1
     config.max_len = 20
+    config.batch_size = 10
 
     # saving details
     config.use_tflogger = True
     config.tflog_dir = os.environ["LOGDIR"]+"/copyRNN/{}/{}/".format(config.model, config.name)
     config.save_dir = os.environ["SAVEDIR"]+"/copyRNN/{}/{}/".format(config.model, config.name)
-    config.save_every_n = 100
+    config.save_every_n = 10000
     config.force_restart = True
     create_folder(config.tflog_dir)
     create_folder(config.save_dir)

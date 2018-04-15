@@ -78,12 +78,12 @@ class LSTMCell(nn.Module):
         hidden["c"] = c 
         return hidden
 
-    def reset_hidden(self):
+    def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
 
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((1, self._hidden_size))))
-        hidden["c"] = Variable(torch.Tensor(np.zeros((1, self._hidden_size))))
+        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
+        hidden["c"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
         if self._use_gpu:
             hidden["h"] = hidden["h"].cuda()
             hidden["c"] = hidden["c"].cuda()

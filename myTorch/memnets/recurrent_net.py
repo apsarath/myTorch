@@ -44,8 +44,7 @@ class Recurrent(nn.Module):
         self._b_o = nn.Parameter(torch.Tensor(output_size))
 
         self._reset_parameters()
-        self.reset_hidden()
-        
+
     def forward(self, input):
         """Implements forward computation of the model.
 
@@ -67,12 +66,12 @@ class Recurrent(nn.Module):
         self._h_prev = h
         return output
 
-    def reset_hidden(self):
+    def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
 
         self._h_prev = []
         for cell in self._Cells:
-            self._h_prev.append(cell.reset_hidden())
+            self._h_prev.append(cell.reset_hidden(batch_size))
 
     def _reset_parameters(self):
         """Initializes the parameters."""

@@ -7,7 +7,7 @@ from torch.autograd import Variable
 
 from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
-from myTorch.task.copy_task import CopyDataGen
+from myTorch.task.copy_task import CopyData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer
 import torch.nn.functional as F
@@ -32,15 +32,17 @@ def train(experiment, model, config, data_iterator, tr, logger):
         logger: logger object.
     """
 
-    for step in range(tr.examples_seen, config.max_steps):
+    for step in range(tr.updates_done, config.max_steps):
 
         data = data_iterator.next()
         seqloss = 0
 
+        model.reset_hidden(batch_size=config.batch_size)
+
         for i in range(0, data["datalen"]):
 
-            x = Variable(torch.from_numpy(numpy.asarray([data['x'][i]])))
-            y = Variable(torch.from_numpy(numpy.asarray([data['y'][i]])))
+            x = Variable(torch.from_numpy(numpy.asarray(data['x'][i])))
+            y = Variable(torch.from_numpy(numpy.asarray(data['y'][i])))
             if config.use_gpu:
                 x = x.cuda()
                 y = y.cuda()
@@ -66,11 +68,11 @@ def train(experiment, model, config, data_iterator, tr, logger):
 
         model.optimizer.step()
 
-        model.reset_hidden()
-        tr.examples_seen += 1
-        if tr.examples_seen % 100 == 0:
-            logging.info("examples seen: {}, running average of BCE: {}".format(tr.examples_seen, running_average))
-        if tr.examples_seen % config.save_every_n == 0:
+        tr.updates_done +=1
+        if tr.updates_done % 1000 == 0:
+            logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
+                                                                                running_average))
+        if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
 
@@ -99,15 +101,15 @@ def run_experiment():
     if config.use_gpu:
         model.cuda()
 
-    data_iterator = CopyDataGen(num_bits=config.num_bits, min_len=config.min_len,
-                                max_len=config.max_len)
+    data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
+                             max_len=config.max_len, batch_size=config.batch_size)
     experiment.register_data_iterator(data_iterator)
 
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
 
     tr = MyContainer()
-    tr.examples_seen = 0
+    tr.updates_done = 0
     tr.average_bce = []
     experiment.register_train_statistics(tr)
 

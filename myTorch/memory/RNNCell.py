@@ -49,7 +49,7 @@ class RNNCell(nn.Module):
         Returns:
             current hidden state as a dictionary.
         """
-        
+
         c_input = torch.cat((input, last_hidden["h"]), 1)
         W_h = torch.cat((self._W_i2h, self._W_h2h), 0)
         pre_hidden = torch.add(torch.mm(c_input, W_h), self._b_h)
@@ -59,11 +59,11 @@ class RNNCell(nn.Module):
         hidden["h"] = h
         return hidden
 
-    def reset_hidden(self):
+    def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
 
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((1, self._hidden_size))))
+        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
         if self._use_gpu:
             hidden["h"] = hidden["h"].cuda()
         return hidden
