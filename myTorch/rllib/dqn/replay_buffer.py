@@ -29,6 +29,9 @@ class ReplayBuffer(object):
         self._write_index = -1
         self._n = 0
 
+    @property
+    def data(self):
+        return self._data
 
     def add(self, data):
 
