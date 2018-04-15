@@ -22,6 +22,22 @@ args = parser.parse_args()
 logging.basicConfig(level=logging.INFO)
 
 
+def get_data_iterator(config):
+
+    if config.task == "copy":
+        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                 max_len=config.max_len, batch_size=config.batch_size)
+    elif config.task == "repeat_copy":
+        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                       max_len=config.max_len, min_repeat=config.min_repeat,
+                                       max_repeat=config.max_repeat, batch_size=config.batch_size)
+    elif config.task == "associative_recall":
+        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
+                                              max_len=config.max_len, block_len=config.block_len,
+                                              batch_size=config.batch_size)
+    return data_iterator
+
+
 def train(experiment, model, config, data_iterator, tr, logger):
     """Training loop.
 
@@ -103,18 +119,7 @@ def run_experiment():
     if config.use_gpu:
         model.cuda()
 
-    if config.task == "copy":
-        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
-                                 max_len=config.max_len, batch_size=config.batch_size)
-    elif config.task == "repeat_copy":
-        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
-                                       max_len=config.max_len, min_repeat=config.min_repeat,
-                                       max_repeat=config.max_repeat, batch_size=config.batch_size)
-    elif config.task == "associative_recall":
-        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
-                                              max_len=config.max_len, block_len=config.block_len,
-                                              batch_size=config.batch_size)
-
+    data_iterator = get_data_iterator(config)
     experiment.register_data_iterator(data_iterator)
 
     optimizer = get_optimizer(model.parameters(), config)
