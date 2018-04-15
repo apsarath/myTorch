@@ -65,7 +65,7 @@ class ReplayBuffer(object):
 
         for key in self._data:
             full_name = os.path.join(fname, "{}.npy".format(key))
-            with open(full_name,"w") as f:
+            with open(full_name,"wb") as f:
                 np.save(f, self._data[key])
 
     def load(self, fname):
@@ -80,5 +80,5 @@ class ReplayBuffer(object):
 
         for key in self._data:
             full_name = os.path.join(fname, "{}.npy".format(key))
-            with open(full_name,"r") as f:
+            with open(full_name,"rb") as f:
                 self._data[key] = np.load(f) 

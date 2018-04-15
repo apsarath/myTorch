@@ -19,11 +19,11 @@ def home_world():
 	config.target_net_update_freq = 1
 	config.target_net_update_fraction = 1.0
 
-	config.num_iterations = 12#int(1e5)
+	config.num_iterations = int(1e5)
 	config.episodes_per_iter = 5
 	config.test_freq = 1
 	config.test_per_iter = 50
-	config.updates_per_iter = int(1)#50.0/4)
+	config.updates_per_iter = int(50.0/4)
 	config.batch_size = 64
 	config.replay_buffer_size = int(5e3)
 	config.replay_compress = False
