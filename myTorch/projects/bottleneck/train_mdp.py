@@ -45,7 +45,7 @@ def train_mdp():
 	replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
 	experiment.register_replay_buffer(replay_buffer)
 
-	env = make_environment(config.env_name, user_id=args.run_num)
+	env = make_environment(config.env_name)
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
