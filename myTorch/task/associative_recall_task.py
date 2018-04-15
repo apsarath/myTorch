@@ -74,7 +74,7 @@ class AssociativeRecallData(object):
         output['y'] = y
         output['mask'] = mask
         output['seqlen'] = seq_len
-        output['datalen'] = 2*(seq_len+1)
+        output['datalen'] = (stride*(seq_len+2))+1
         self._state.examples_seen += batch_size
         return output
 
