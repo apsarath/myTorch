@@ -180,3 +180,31 @@ def get_optimizer(params, config):
         return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
     else:
         assert("Unsupported optimizer : {}. Valid optimizers : Adadelta, Adagrad, Adam, RMSprop, SGD".format(config.optim_name))
+
+def load_w2v_vectors(loc, verbose=True):
+    class Word2VecModel(object):
+
+        def __init__(self, w2v, size):
+            self.w2v = w2v
+            self.layer1_size = size
+
+        def __getitem__(self, word):
+            return self.w2v[word]
+
+        def __contains__(self, word):
+            return word in self.w2v
+
+    vector = {}
+    word2vecloc = loc
+    if verbose:
+        print("Loading vector_file ", word2vecloc)
+    f = open(word2vecloc, 'r')
+    #line = f.readline().rstrip().split()
+    #vocab_size, embd_size = int(line[0]),int(line[1])
+    for line in f:
+        text = line.strip().split()
+        vector[text[0]] = np.array([float(i) for i in text[1:]])
+    embd_size = vector[vector.keys()[0]].size
+    if verbose:
+        print("vocab size:%d, embd_size :%d" % (len(vector), embd_size))
+    return Word2VecModel(vector, embd_size)
