@@ -59,7 +59,7 @@ def home_world():
 	config.embedding_loc = "/mnt/data/chinna/data/glove/glove.6B.50d.txt"
 	config.patience = 5
 	config.num_new_samples = 2000
-	config.cluster_num = 32
+	config.cluster_num = 4
 	return config
 
 def fantasy_world():
