@@ -8,10 +8,11 @@ from torch.autograd import Variable
 from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.copy_task import CopyData
+from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer
 import torch.nn.functional as F
-from myTorch.memnets.config import copy_task_RNN
+from myTorch.memnets.config import *
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="copy_task_RNN", help="config name")
@@ -101,8 +102,14 @@ def run_experiment():
     if config.use_gpu:
         model.cuda()
 
-    data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
-                             max_len=config.max_len, batch_size=config.batch_size)
+    if config.task == "copy":
+        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                 max_len=config.max_len, batch_size=config.batch_size)
+    elif config.task == "repeat_copy":
+        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                       max_len=config.max_len, min_repeat=config.min_repeat,
+                                       max_repeat=config.max_repeat, batch_size=config.batch_size)
+
     experiment.register_data_iterator(data_iterator)
 
     optimizer = get_optimizer(model.parameters(), config)
