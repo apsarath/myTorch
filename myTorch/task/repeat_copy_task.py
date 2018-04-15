@@ -1,6 +1,5 @@
 """Repeat Copy Task."""
 import numpy as np
-import _pickle as pickle
 from myTorch.utils import MyContainer
 
 
