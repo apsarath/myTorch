@@ -6,7 +6,7 @@ def copy_task_RNN():
 
     config = MyContainer()
 
-    config.name = "copy_task"
+    config.name = "ex1"
 
     # model specific details
     config.model = "GRU"
@@ -44,8 +44,10 @@ def copy_task_RNN():
 
     # saving details
     config.use_tflogger = True
-    config.tflog_dir = os.environ["LOGDIR"]+"/copyRNN/{}/tflog/p2/".format(config.model)
-    config.save_dir = os.environ["SAVEDIR"]+"/copyRNN/{}/p2/".format(config.model)
+    config.tflog_dir = os.environ["LOGDIR"]+"/copyRNN/{}/{}/".format(config.model, config.name)
+    config.save_dir = os.environ["SAVEDIR"]+"/copyRNN/{}/{}/".format(config.model, config.name)
+    config.save_every_n = 100
+    config.force_restart = True
     create_folder(config.tflog_dir)
     create_folder(config.save_dir)
 

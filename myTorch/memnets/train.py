@@ -7,13 +7,11 @@ from torch.autograd import Variable
 
 from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
-from myTorch.task.copy_task import *
+from myTorch.task.copy_task import CopyDataGen
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer
 import torch.nn.functional as F
-
-
-from myTorch.memnets.config import *
+from myTorch.memnets.config import copy_task_RNN
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="copy_task_RNN", help="config name")
@@ -23,6 +21,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 def train(experiment, model, config, data_iterator, tr, logger):
+    """Training loop.
+
+    Args:
+        experiment: experiment object.
+        model: model object.
+        config: config dictionary.
+        data_iterator: data iterator object
+        tr: training statistics dictionary.
+        logger: logger object.
+    """
 
     for step in range(tr.examples_seen, config.max_steps):
 
@@ -47,7 +55,7 @@ def train(experiment, model, config, data_iterator, tr, logger):
         seqloss /= sum(data["mask"])
         tr.average_bce.append(seqloss.data[0])
         running_average = sum(tr.average_bce) / len(tr.average_bce)
-        logging.info("running average of BCE: {}".format(running_average))
+
         if config.use_tflogger:
             logger.log_scalar("loss", running_average, step + 1)
 
@@ -60,8 +68,9 @@ def train(experiment, model, config, data_iterator, tr, logger):
 
         model.reset_hidden()
         tr.examples_seen += 1
-
         if tr.examples_seen % 100 == 0:
+            logging.info("examples seen: {}, running average of BCE: {}".format(tr.examples_seen, running_average))
+        if tr.examples_seen % config.save_every_n == 0:
             experiment.save()
 
 
@@ -70,7 +79,7 @@ def run_experiment():
 
     config = eval(args.config)()
 
-    print(config.get())
+    logging.info(config.get())
 
     experiment = Experiment(config.name, config.save_dir)
     experiment.register_config(config)
