@@ -52,7 +52,7 @@ class FlatMemoryCell(nn.Module):
         forget_memory = beta.unsqueeze(2)*v_beta
 
         hidden = {}
-        hidden["memory"] = last_hidden["memory"] + torch.sum(add_memory - forget_memory, dim=1)
+        hidden["memory"] = last_hidden["memory"]*(torch.mean(add_memory, dim=1) - torch.mean(forget_memory, dim=1))
         hidden["h"] = h
         return hidden
 
