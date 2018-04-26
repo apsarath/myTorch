@@ -32,12 +32,13 @@ class FlatMemoryCell(nn.Module):
         self.hm2alpha = nn.Linear(self.memory_size + hidden_size, self.k)
         self.hm2beta = nn.Linear(self.memory_size + hidden_size, self.k)
 
-        self.hmi2h = nn.Linear(self.memory_size+hidden_size+self.input_size, hidden_size)
-
+        self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
         
     def forward(self, input, last_hidden):
+        hidden = {}
         c_input = torch.cat((input, last_hidden["h"], last_hidden["memory"]), 1)
-        h = self.activation(self.hmi2h(c_input))
+        h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
+        h = h.squeeze(0)
 
         # Flat memory equations
         alpha = self.hm2alpha(torch.cat((h,last_hidden["memory"]),1)).clone()
@@ -51,7 +52,6 @@ class FlatMemoryCell(nn.Module):
         v_beta = torch.bmm(u_beta[0].unsqueeze(2), u_beta[1].unsqueeze(1)).view(-1, self.k, self.memory_size)
         forget_memory = beta.unsqueeze(2)*v_beta
 
-        hidden = {}
         hidden["memory"] = last_hidden["memory"] * torch.mean(add_memory-forget_memory, dim=1)
         hidden["h"] = h
         return hidden
@@ -60,7 +60,10 @@ class FlatMemoryCell(nn.Module):
         hidden = {}
         hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self.hidden_size))))
         hidden["memory"] = Variable(torch.Tensor(np.zeros((batch_size, self.memory_size))))
+        hidden["lstm_cell_h"] = (Variable(torch.Tensor(np.zeros((1, batch_size, self.hidden_size)))), 
+                                Variable(torch.Tensor(np.zeros((1, batch_size, self.hidden_size)))))
         if self.use_gpu==True:
             hidden["h"] = hidden["h"].cuda()
             hidden["memory"] = hidden["memory"].cuda()
+            hidden["lstm_cell_h"] = (hidden["lstm_cell_h"][0].cuda(), hidden["lstm_cell_h"][1].cuda()) 
         return hidden
