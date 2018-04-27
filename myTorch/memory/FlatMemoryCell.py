@@ -33,10 +33,15 @@ class FlatMemoryCell(nn.Module):
         self.hm2beta = nn.Linear(self.memory_size + hidden_size, self.k)
 
         self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
+        #self.hmi2r = nn.Linear(self.memory_size + hidden_size + self.input_size, self.k)
+        
         
     def forward(self, input, last_hidden):
         hidden = {}
         c_input = torch.cat((input, last_hidden["h"], last_hidden["memory"]), 1)
+        #r_t = self.hmi2r(c_input)
+        #c_input = torch.cat((input, last_hidden["h"], r_t), 1)
+        
         h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
         h = h.squeeze(0)
 
@@ -46,13 +51,15 @@ class FlatMemoryCell(nn.Module):
 
         u_alpha = self.hm2v_alpha(torch.cat((h,last_hidden["memory"]),1)).chunk(2,dim=1)
         v_alpha = torch.bmm(u_alpha[0].unsqueeze(2), u_alpha[1].unsqueeze(1)).view(-1, self.k, self.memory_size)
+        v_alpha = torch.nn.functional.normalize(v_alpha, p=5, dim=2, eps=1e-12)
         add_memory = alpha.unsqueeze(2)*v_alpha
 
         u_beta = self.hm2v_beta(torch.cat((h,last_hidden["memory"]),1)).chunk(2, dim=1)
         v_beta = torch.bmm(u_beta[0].unsqueeze(2), u_beta[1].unsqueeze(1)).view(-1, self.k, self.memory_size)
+        v_beta = torch.nn.functional.normalize(v_beta, p=5, dim=2, eps=1e-12)
         forget_memory = beta.unsqueeze(2)*v_beta
 
-        hidden["memory"] = last_hidden["memory"] * torch.mean(add_memory-forget_memory, dim=1)
+        hidden["memory"] = last_hidden["memory"] + torch.mean(add_memory-forget_memory, dim=1)
         hidden["h"] = h
         return hidden
 
