@@ -6,6 +6,7 @@ import torch
 from torch.autograd import Variable
 import torch.optim as optim
 import numpy as np
+import yaml
 
 
 class MyContainer():
@@ -68,6 +69,31 @@ class MyContainer():
                 self.__setattr__(k, env_locals[k])
                 env_locals[k] = self.__getattr__(k)
         return True
+
+
+def create_config(file_name):
+    """Returns a config object.
+
+    Args:
+        file_name: yaml file name with absolute or relative path.
+    """
+    with open(file_name, 'r') as f:
+        config_dict = yaml.load(f)
+
+    assert("project_name" in config_dict.keys())
+    assert("ex_name" in config_dict.keys())
+
+    config = MyContainer()
+    for key in config_dict:
+        config.__setattr__(key, config_dict[key])
+
+    config.tflog_dir = os.path.join(os.environ["LOGDIR"], config.project_name, config.ex_name)
+    config.save_dir = os.path.join(os.environ["SAVEDIR"], config.project_name, config.ex_name)
+    create_folder(config.tflog_dir)
+    create_folder(config.save_dir)
+
+    return config
+
 
 def act_name(activation):
     if activation == None:

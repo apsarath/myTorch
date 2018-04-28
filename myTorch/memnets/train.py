@@ -11,12 +11,12 @@ from myTorch.task.copy_task import CopyData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.utils.logging import Logger
-from myTorch.utils import MyContainer, get_optimizer
+from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
 from myTorch.memnets.config import *
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
-parser.add_argument("--config", type=str, default="copy_task_RNN", help="config name")
+parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path")
 args = parser.parse_args()
 
 logging.basicConfig(level=logging.INFO)
@@ -87,7 +87,7 @@ def train(experiment, model, config, data_iterator, tr, logger):
         model.optimizer.step()
 
         tr.updates_done +=1
-        if tr.updates_done % 1000 == 0:
+        if tr.updates_done % 1 == 0:
             logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
                                                                                 running_average))
         if tr.updates_done % config.save_every_n == 0:
@@ -97,7 +97,7 @@ def train(experiment, model, config, data_iterator, tr, logger):
 def run_experiment():
     """Runs the experiment."""
 
-    config = eval(args.config)()
+    config = create_config(args.config)
 
     logging.info(config.get())
 
