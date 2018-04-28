@@ -48,4 +48,3 @@ batch_size: 10
 # saving details
 use_tflogger: True
 save_every_n: 10000
-force_restart:  True

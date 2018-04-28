@@ -15,7 +15,8 @@ from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
-parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path")
+parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
+parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
 
 logging.basicConfig(level=logging.INFO)
@@ -129,7 +130,7 @@ def run_experiment():
     tr.average_bce = []
     experiment.register_train_statistics(tr)
 
-    if not config.force_restart:
+    if not args.force_restart:
         if experiment.is_resumable():
             experiment.resume()
     else:
