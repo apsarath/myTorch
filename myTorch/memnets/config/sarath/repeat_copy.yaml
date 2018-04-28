@@ -1,7 +1,8 @@
-config_filename: "default.yaml"
-description: "Default LSTM model for copy task"
+parent_config: "config/default.yaml"
+config_filename: "repeat_copy.yaml"
+description: "repeat copy task"
 
-project_name: "copy_task"
+project_name: "repeat_copy_task"
 ex_name: "ex01"
 
 # model specific details
@@ -37,10 +38,12 @@ use_gpu:  True
 
 
 # task specific details
-task: "copy"
+task: "repeat_copy"
 num_bits: 8
 min_len:  1
 max_len:  20
+min_repeat: 1
+max_repeat: 10
 batch_size: 10
 
 # saving details

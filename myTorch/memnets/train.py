@@ -13,7 +13,6 @@ from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
-from myTorch.memnets.config import *
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path")

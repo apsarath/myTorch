@@ -56,6 +56,10 @@ class MyContainer():
         for p, v in zip(tparams, values):
             tparams[p] = v
 
+    def add_from_dict(self, src_dict):
+        for key in src_dict.keys():
+            self.__setattr__(key, src_dict[key])
+
     def __enter__(self):
         _, _, _, env_locals = inspect.getargvalues(inspect.currentframe().f_back)
         self.__dict__['_env_locals'] = list(env_locals.keys())
@@ -80,12 +84,17 @@ def create_config(file_name):
     with open(file_name, 'r') as f:
         config_dict = yaml.load(f)
 
+    config = MyContainer()
+
     assert("project_name" in config_dict.keys())
     assert("ex_name" in config_dict.keys())
 
-    config = MyContainer()
-    for key in config_dict:
-        config.__setattr__(key, config_dict[key])
+    if "parent_config" in config_dict.keys():
+        with open(config_dict["parent_config"], "r") as f:
+            parent_config_dict = yaml.load(f)
+            config.add_from_dict(parent_config_dict)
+
+    config.add_from_dict(config_dict)
 
     config.tflog_dir = os.path.join(os.environ["LOGDIR"], config.project_name, config.ex_name)
     config.save_dir = os.path.join(os.environ["SAVEDIR"], config.project_name, config.ex_name)
