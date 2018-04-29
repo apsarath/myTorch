@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell, FlatMemoryCell
+from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
+from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 
 
 class Recurrent(nn.Module):

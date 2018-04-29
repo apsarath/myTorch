@@ -4,9 +4,6 @@ import numpy as np
 import math
 
 
-import myTorch
-from myTorch.utils import act_name
-
 
 class FlatMemoryCell(nn.Module):
 
@@ -65,12 +62,8 @@ class FlatMemoryCell(nn.Module):
 
     def reset_hidden(self, batch_size):
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self.hidden_size))))
-        hidden["memory"] = Variable(torch.Tensor(np.zeros((batch_size, self.memory_size))))
-        hidden["lstm_cell_h"] = (Variable(torch.Tensor(np.zeros((1, batch_size, self.hidden_size)))), 
-                                Variable(torch.Tensor(np.zeros((1, batch_size, self.hidden_size)))))
-        if self.use_gpu==True:
-            hidden["h"] = hidden["h"].cuda()
-            hidden["memory"] = hidden["memory"].cuda()
-            hidden["lstm_cell_h"] = (hidden["lstm_cell_h"][0].cuda(), hidden["lstm_cell_h"][1].cuda()) 
+        hidden["h"] = torch.Tensor(np.zeros((batch_size, self.hidden_size))).to(self._device)
+        hidden["memory"] = torch.Tensor(np.zeros((batch_size, self.memory_size))).to(self._device)
+        hidden["lstm_cell_h"] = (torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device), 
+                                torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device))
         return hidden
