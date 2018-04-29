@@ -44,6 +44,7 @@ class Recurrent(nn.Module):
         self._b_o = nn.Parameter(torch.Tensor(output_size))
 
         self._reset_parameters()
+        self.print_num_parameters()
 
     def forward(self, input):
         """Implements forward computation of the model.
@@ -103,6 +104,8 @@ class Recurrent(nn.Module):
             self._Cells.append(LSTMCell(self._device, input_size, hidden_size))
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
+        elif self._cell_name == "FlatMemory":
+            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
@@ -130,5 +133,9 @@ class Recurrent(nn.Module):
         file_name = os.path.join(save_dir, "optim.p")
         self.optimizer.load_state_dict(torch.load(file_name))
 
-
-
+    def print_num_parameters(self):
+        num_params = 0
+        for p in self.parameters():
+            num_params += p.data.view(-1).size(0)
+        print("Num_params : {} ".format(num_params))
+        return num_params

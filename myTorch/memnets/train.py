@@ -83,7 +83,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         model.optimizer.step()
 
         tr.updates_done +=1
-        if tr.updates_done % 1 == 0:
+        if tr.updates_done % 100 == 0:
             logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
                                                                                 running_average))
         if tr.updates_done % config.save_every_n == 0:
