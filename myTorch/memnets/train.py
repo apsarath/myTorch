@@ -69,7 +69,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             seqloss += (loss * mask)
 
         seqloss /= sum(data["mask"])
-        tr.average_bce.append(seqloss.data[0])
+        tr.average_bce.append(seqloss.item())
         running_average = sum(tr.average_bce) / len(tr.average_bce)
 
         if config.use_tflogger:
@@ -78,7 +78,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         seqloss.backward(retain_graph=False)
 
         for param in model.parameters():
-            param.grad.data.clamp_(config.grad_clip[0], config.grad_clip[1])
+            param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
 
         model.optimizer.step()
 

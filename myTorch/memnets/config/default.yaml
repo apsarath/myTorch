@@ -6,7 +6,7 @@ ex_name: "ex01"
 
 # model specific details
 
-model:  "GRU"
+model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
