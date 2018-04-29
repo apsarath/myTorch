@@ -10,12 +10,13 @@ from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell, FlatMemoryCel
 class Recurrent(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
-    def __init__(self, input_size, output_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation="linear", use_gpu=False):
+    def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
+                 cell_name="LSTM", activation="tanh", output_activation="linear"):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
 
+        self._device = device
         self._input_size = input_size
         self._output_size = output_size
         self._num_layers = num_layers
@@ -23,7 +24,6 @@ class Recurrent(nn.Module):
         self._cell_name = cell_name
         self._activation = activation
         self._output_activation = output_activation
-        self._use_gpu = use_gpu
 
         self._Cells = []
 
@@ -97,14 +97,12 @@ class Recurrent(nn.Module):
         """
 
         if self._cell_name == "RNN":
-            self._Cells.append(RNNCell(input_size, hidden_size,
-                                       activation=self._activation, use_gpu=self._use_gpu))
+            self._Cells.append(RNNCell(self._device, input_size, hidden_size,
+                                       activation=self._activation))
         elif self._cell_name == "LSTM":
-            self._Cells.append(LSTMCell(input_size, hidden_size,
-                                        use_gpu=self._use_gpu))
+            self._Cells.append(LSTMCell(self._device, input_size, hidden_size))
         elif self._cell_name == "GRU":
-            self._Cells.append(GRUCell(input_size, hidden_size,
-                                       use_gpu=self._use_gpu))
+            self._Cells.append(GRUCell(self._device, input_size, hidden_size))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.

@@ -2,26 +2,25 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from torch.autograd import Variable
 
 
 class LSTMCell(nn.Module):
     """Implementation of an LSTM Cell based on https://arxiv.org/pdf/1308.0850.pdf"""
 
-    def __init__(self, input_size, hidden_size, use_gpu=False):
+    def __init__(self, device, input_size, hidden_size):
         """Initializes an LSTM Cell.
 
         Args:
+            device: torch device object.
             input_size: int, size of the input vector.
             hidden_size: int, LSTM hidden layer dimension.
-            use_gpu: bool, true if using GPU.
         """
 
         super(LSTMCell, self).__init__()
 
+        self._device = device
         self._input_size = input_size
         self._hidden_size = hidden_size
-        self._use_gpu = use_gpu
 
         self._W_x2i = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2i = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
@@ -82,11 +81,8 @@ class LSTMCell(nn.Module):
         """Resets the hidden state for truncating the dependency."""
 
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
-        hidden["c"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
-        if self._use_gpu:
-            hidden["h"] = hidden["h"].cuda()
-            hidden["c"] = hidden["c"].cuda()
+        hidden["h"] = torch.Tensor(np.zeros((batch_size, self._hidden_size))).to(self._device)
+        hidden["c"] = torch.Tensor(np.zeros((batch_size, self._hidden_size))).to(self._device)
         return hidden
 
     def _reset_parameters(self):

@@ -34,8 +34,7 @@ grad_clip:  [-10.0, 10.0]
 
 max_steps:  100000000
 rseed:  5
-use_gpu:  True
-
+device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "repeat_copy"

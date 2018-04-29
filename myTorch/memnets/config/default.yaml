@@ -6,7 +6,7 @@ ex_name: "ex01"
 
 # model specific details
 
-model:  "LSTM"
+model:  "GRU"
 input_size: 8
 output_size:  8
 num_layers: 1
@@ -33,7 +33,7 @@ grad_clip:  [-10.0, 10.0]
 
 max_steps:  100000000
 rseed:  5
-use_gpu:  True
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 
 # task specific details

@@ -3,7 +3,6 @@ import torch.nn as nn
 import numpy as np
 import math
 
-from torch.autograd import Variable
 
 import myTorch
 from myTorch.utils import act_name
@@ -11,11 +10,11 @@ from myTorch.utils import act_name
 
 class FlatMemoryCell(nn.Module):
 
-    def __init__(self, input_size, hidden_size, memory_size=900, k=16, activation="tanh", use_gpu=False):
+    def __init__(self, device, input_size, hidden_size, memory_size=900, k=16, activation="tanh"):
         
         super(FlatMemoryCell, self).__init__()
 
-        self.use_gpu = use_gpu
+        self._device = device
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -72,11 +71,9 @@ class FlatMemoryCell(nn.Module):
 
     def reset_hidden(self):
         hidden = {}
-        hidden["h_internal"] = Variable(torch.Tensor(np.zeros((1, self.hidden_size))))
-        hidden["memory"] = Variable(torch.Tensor(np.zeros((1, self.memory_size))))
-        if self.use_gpu==True:
-            hidden["h_internal"] = hidden["h_internal"].cuda()
-            hidden["memory"] = hidden["memory"].cuda()
+        hidden["h_internal"] = torch.Tensor(np.zeros((1, self.hidden_size))).to(self._device)
+        hidden["memory"] = torch.Tensor(np.zeros((1, self.memory_size))).to(self._device)
+
         return hidden
 
     def reset_parameters(self):

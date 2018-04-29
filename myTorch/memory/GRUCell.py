@@ -2,26 +2,25 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from torch.autograd import Variable
 
 
 class GRUCell(nn.Module):
     """Implementation of a GRU cell based on https://arxiv.org/pdf/1412.3555.pdf"""
 
-    def __init__(self, input_size, hidden_size, use_gpu=False):
+    def __init__(self, device, input_size, hidden_size):
         """Initializes a GRU Cell.
 
         Args:
+            device: torch device object.
             input_size: int, size of the input vector.
             hidden_size: int, RNN hidden layer dimension.
-            use_gpu: bool, true if using GPU.
         """
-        
+
         super(GRUCell, self).__init__()
 
+        self._device = device
         self._input_size = input_size
         self._hidden_size = hidden_size
-        self._use_gpu = use_gpu
 
         self._W_i2r = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2r = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
@@ -65,9 +64,8 @@ class GRUCell(nn.Module):
         """Resets the hidden state for truncating the dependency."""
 
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
-        if self._use_gpu:
-            hidden["h"] = hidden["h"].cuda()
+        hidden["h"] = torch.Tensor(np.zeros((batch_size, self._hidden_size))).to(self._device)
+
         return hidden
 
     def _reset_parameters(self):

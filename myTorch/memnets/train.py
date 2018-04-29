@@ -3,7 +3,6 @@ import argparse
 import logging
 
 import torch
-from torch.autograd import Variable
 
 from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
@@ -38,7 +37,7 @@ def get_data_iterator(config):
     return data_iterator
 
 
-def train(experiment, model, config, data_iterator, tr, logger):
+def train(experiment, model, config, data_iterator, tr, logger, device):
     """Training loop.
 
     Args:
@@ -59,11 +58,8 @@ def train(experiment, model, config, data_iterator, tr, logger):
 
         for i in range(0, data["datalen"]):
 
-            x = Variable(torch.from_numpy(numpy.asarray(data['x'][i])))
-            y = Variable(torch.from_numpy(numpy.asarray(data['y'][i])))
-            if config.use_gpu:
-                x = x.cuda()
-                y = y.cuda()
+            x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
+            y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
             mask = float(data["mask"][i])
 
             model.optimizer.zero_grad()
@@ -101,6 +97,9 @@ def run_experiment():
 
     logging.info(config.get())
 
+    device = torch.device(config.device)
+    logging.info("using {}".format(config.device))
+
     experiment = Experiment(config.name, config.save_dir)
     experiment.register_config(config)
 
@@ -111,13 +110,11 @@ def run_experiment():
 
     torch.manual_seed(config.rseed)
 
-    model = Recurrent(config.input_size, config.output_size,
+    model = Recurrent(device, config.input_size, config.output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
-                      output_activation="linear", use_gpu=config.use_gpu)
+                      output_activation="linear").to(device)
     experiment.register_model(model)
-    if config.use_gpu:
-        model.cuda()
 
     data_iterator = get_data_iterator(config)
     experiment.register_data_iterator(data_iterator)
@@ -136,7 +133,7 @@ def run_experiment():
     else:
         experiment.force_restart()
 
-    train(experiment, model, config, data_iterator, tr, logger)
+    train(experiment, model, config, data_iterator, tr, logger, device)
 
 
 if __name__ == '__main__':

@@ -2,29 +2,28 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 import torch.nn.functional as F
 
 
 class RNNCell(nn.Module):
     """Implementation of an RNN Cell."""
 
-    def __init__(self, input_size, hidden_size, activation="tanh", use_gpu=False):
+    def __init__(self, device, input_size, hidden_size, activation="tanh"):
         """Initializes an RNN Cell.
 
         Args:
+            device: torch device object.
             input_size: int, size of the input vector.
             hidden_size: int, RNN hidden layer dimension.
             activation: str, hidden layer activation function.
-            use_gpu: bool, true if using GPU.
         """
         
         super(RNNCell, self).__init__()
 
+        self._device = device
         self._input_size = input_size
         self._hidden_size = hidden_size
         self._activation = activation
-        self._use_gpu = use_gpu
 
         if self._activation == "tanh":
             self._activation_fn = F.tanh
@@ -63,9 +62,7 @@ class RNNCell(nn.Module):
         """Resets the hidden state for truncating the dependency."""
 
         hidden = {}
-        hidden["h"] = Variable(torch.Tensor(np.zeros((batch_size, self._hidden_size))))
-        if self._use_gpu:
-            hidden["h"] = hidden["h"].cuda()
+        hidden["h"] = torch.Tensor(np.zeros((batch_size, self._hidden_size))).to(self._device)
         return hidden
 
     def _reset_parameters(self):
