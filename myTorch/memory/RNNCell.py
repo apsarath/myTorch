@@ -8,7 +8,7 @@ import torch.nn.functional as F
 class RNNCell(nn.Module):
     """Implementation of an RNN Cell."""
 
-    def __init__(self, device, input_size, hidden_size, activation="tanh"):
+    def __init__(self, device, input_size, hidden_size, activation="tanh", layer_norm=False, identity_init=False):
         """Initializes an RNN Cell.
 
         Args:
@@ -16,6 +16,8 @@ class RNNCell(nn.Module):
             input_size: int, size of the input vector.
             hidden_size: int, RNN hidden layer dimension.
             activation: str, hidden layer activation function.
+            layer_norm: bool, if True, applies layer normalization.
+            identity_init: bool, if true, initializes hidden matrix with identity matrix.
         """
         
         super(RNNCell, self).__init__()
@@ -24,6 +26,8 @@ class RNNCell(nn.Module):
         self._input_size = input_size
         self._hidden_size = hidden_size
         self._activation = activation
+        self._layer_norm = layer_norm
+        self._identity_init = identity_init
 
         if self._activation == "tanh":
             self._activation_fn = F.tanh
@@ -35,6 +39,9 @@ class RNNCell(nn.Module):
         self._W_i2h = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2h = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
         self._b_h = nn.Parameter(torch.Tensor(hidden_size))
+
+        if self._layer_norm:
+            self._ln = nn.LayerNorm(hidden_size)
 
         self._reset_parameters()
 
@@ -52,6 +59,8 @@ class RNNCell(nn.Module):
         c_input = torch.cat((input, last_hidden["h"]), 1)
         W_h = torch.cat((self._W_i2h, self._W_h2h), 0)
         pre_hidden = torch.add(torch.mm(c_input, W_h), self._b_h)
+        if self._layer_norm:
+            pre_hidden = self._ln(pre_hidden)
         h = self._activation_fn(pre_hidden)
 
         hidden = {}
@@ -69,5 +78,8 @@ class RNNCell(nn.Module):
         """Initializes the RNN Cell parameters."""
 
         nn.init.xavier_normal(self._W_i2h, gain=nn.init.calculate_gain(self._activation))
-        nn.init.orthogonal(self._W_h2h)
+        if self._identity_init:
+            nn.init.eye_(self._W_h2h)
+        else:
+            nn.init.orthogonal(self._W_h2h)
         nn.init.constant(self._b_h, 0)

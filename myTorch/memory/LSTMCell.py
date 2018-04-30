@@ -14,6 +14,7 @@ class LSTMCell(nn.Module):
             device: torch device object.
             input_size: int, size of the input vector.
             hidden_size: int, LSTM hidden layer dimension.
+            layer_norm: bool, if True, applies layer normalization.
         """
 
         super(LSTMCell, self).__init__()
