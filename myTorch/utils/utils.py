@@ -102,9 +102,9 @@ def create_config(file_name):
 
     # checking the device type
     device_type = config.device
-    if(device_type!="cpu"):
+    if device_type != "cpu":
         # check if cuda is available or not
-        if(not torch.cuda.is_available()):
+        if not torch.cuda.is_available():
             device_type = "cpu"
 
     config.device = device_type
