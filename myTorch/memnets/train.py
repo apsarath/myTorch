@@ -57,6 +57,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         data = data_iterator.next()
         seqloss = 0
+        average_accuracy = 0
 
         model.reset_hidden(batch_size=config.batch_size)
 
@@ -75,14 +76,28 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
                 loss = F.binary_cross_entropy_with_logits(output, y)
 
             seqloss += (loss * mask)
+            predictions = F.softmax(
+                (torch.cat(
+                                       ((1 - output).unsqueeze(2), output.unsqueeze(2)),
+                                    dim=2))
+                          , dim = 2)
+            predictions = predictions.max(2)[1].float()
+            average_accuracy += ((y == predictions).int().sum().item() * mask)
 
         seqloss /= sum(data["mask"])
+        average_accuracy /= sum(data["mask"])
+        x_shape = data["x"].shape
+        average_accuracy /= (x_shape[1] * x_shape[2])
         tr.average_bce.append(seqloss.item())
-        running_average = sum(tr.average_bce) / len(tr.average_bce)
+        tr.average_accuracy.append(average_accuracy)
+        running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
+        running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
 
         if config.use_tflogger:
-            logger.log_scalar("running_avg_loss", running_average, step + 1)
+            logger.log_scalar("running_avg_loss", running_average_bce, step + 1)
             logger.log_scalar("loss", tr.average_bce[-1], step + 1)
+            logger.log_scalar("average accuracy", average_accuracy, step + 1)
+            logger.log_scalar("running_average_accuracy", running_average_accuracy, step + 1)
 
         seqloss.backward(retain_graph=False)
 
@@ -93,8 +108,12 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         tr.updates_done +=1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
-                                                                                running_average))
+            logging.info("examples seen: {}, running average of BCE: {},"
+                         "average accuracy for last batch: {}, "
+                         "running average of accuracy: {}".format(tr.updates_done*config.batch_size,
+                                                                                running_average_bce,
+                                                                  average_accuracy,
+                                                                  running_average_accuracy))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
@@ -134,6 +153,7 @@ def run_experiment():
     tr = MyContainer()
     tr.updates_done = 0
     tr.average_bce = []
+    tr.average_accuracy = []
     experiment.register_train_statistics(tr)
 
     if not args.force_restart:
