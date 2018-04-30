@@ -60,15 +60,15 @@ class LSTMCell(nn.Module):
         self._W_c = torch.cat((self._W_x2c, self._W_h2c), 0)
  
         c_input = torch.cat((input, last_hidden["h"]), 1)
-        i = torch.sigmoid(torch.mm(c_input, self._W_i) + self._b_i + last_hidden["c"]*self._W_c2i)
-        f = torch.sigmoid(torch.mm(c_input, self._W_f) + self._b_f + last_hidden["c"]*self._W_c2f)
+        i = torch.sigmoid(torch.mm(c_input, self._W_i) + self._b_i + last_hidden["c"] * self._W_c2i)
+        f = torch.sigmoid(torch.mm(c_input, self._W_f) + self._b_f + last_hidden["c"] * self._W_c2f)
 
         cp_input = torch.cat((input, last_hidden["h"]), 1)
         cp = torch.tanh(torch.mm(cp_input, self._W_c) + self._b_c)
         c = f * last_hidden["c"] + i * cp
 
         o_input = torch.cat((input, last_hidden["h"]), 1)
-        o = torch.sigmoid(torch.mm(o_input, self._W_o) + self._b_o + c*self._W_c2o)
+        o = torch.sigmoid(torch.mm(o_input, self._W_o) + self._b_o + c * self._W_c2o)
         
         h = o*torch.tanh(c)
         
