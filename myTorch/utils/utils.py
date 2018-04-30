@@ -95,8 +95,11 @@ def create_config(file_name):
             config.add_from_dict(parent_config_dict)
 
     config.add_from_dict(config_dict)
-    config.tflog_dir = os.path.join(os.environ["LOGDIR"], config.project_name, config.ex_name)
-    config.save_dir = os.path.join(os.environ["SAVEDIR"], config.project_name, config.ex_name)
+
+    key = "MYTORCH_SAVEDIR"
+    assert(key in os.environ), "Environment variable named `{}` not set".format(key)
+    config.tflog_dir = os.path.join(os.environ[key], "logs", config.project_name, config.ex_name)
+    config.save_dir = os.path.join(os.environ[key], "output", config.project_name, config.ex_name)
     create_folder(config.tflog_dir)
     create_folder(config.save_dir)
 
