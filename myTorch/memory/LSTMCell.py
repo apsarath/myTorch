@@ -7,7 +7,7 @@ import numpy as np
 class LSTMCell(nn.Module):
     """Implementation of an LSTM Cell based on https://arxiv.org/pdf/1308.0850.pdf"""
 
-    def __init__(self, device, input_size, hidden_size):
+    def __init__(self, device, input_size, hidden_size, layer_norm=True):
         """Initializes an LSTM Cell.
 
         Args:
@@ -21,6 +21,7 @@ class LSTMCell(nn.Module):
         self._device = device
         self._input_size = input_size
         self._hidden_size = hidden_size
+        self._layer_norm = layer_norm
 
         self._W_x2i = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2i = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
@@ -40,6 +41,9 @@ class LSTMCell(nn.Module):
         self._W_x2c = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2c = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
         self._b_c = nn.Parameter(torch.Tensor(hidden_size))
+
+        if self._layer_norm:
+            self._ln = nn.LayerNorm(hidden_size)
         
         self._reset_parameters()
 
@@ -66,6 +70,8 @@ class LSTMCell(nn.Module):
         cp_input = torch.cat((input, last_hidden["h"]), 1)
         cp = torch.tanh(torch.mm(cp_input, self._W_c) + self._b_c)
         c = f * last_hidden["c"] + i * cp
+        if self._layer_norm:
+            c = self._ln(c)
 
         o_input = torch.cat((input, last_hidden["h"]), 1)
         o = torch.sigmoid(torch.mm(o_input, self._W_o) + self._b_o + c * self._W_c2o)
