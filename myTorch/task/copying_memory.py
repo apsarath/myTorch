@@ -41,14 +41,14 @@ class CopyingMemoryData(object):
         x = np.zeros((data_len, batch_size, 1), dtype="uint8")
         one_hot_x = np.zeros((data_len, batch_size, 10), dtype="float32")
         y = np.zeros((data_len, batch_size, 1), dtype="int64")
-        mask = np.zeros(data_len, dtype="float32")
+        mask = np.ones(data_len, dtype="float32")
 
         data = self._state.rng.randint(1, high=9, size=(self._state.seq_len, batch_size, 1))
 
         x[0:self._state.seq_len] = data
         x[self._state.seq_len+self._state.time_lag-1] = 9
         y[self._state.seq_len + self._state.time_lag:] = data
-        mask[self._state.seq_len + self._state.time_lag:] = 1
+        #mask[self._state.seq_len + self._state.time_lag:] = 1
         for i in range(data_len):
             one_hot_x[i] = one_hot(x[i], 10).astype(np.float32)
 
