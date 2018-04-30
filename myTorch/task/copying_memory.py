@@ -48,7 +48,6 @@ class CopyingMemoryData(object):
         x[0:self._state.seq_len] = data
         x[self._state.seq_len+self._state.time_lag-1] = 9
         y[self._state.seq_len + self._state.time_lag:] = data
-        #mask[self._state.seq_len + self._state.time_lag:] = 1
         for i in range(data_len):
             one_hot_x[i] = one_hot(x[i], 10).astype(np.float32)
 
