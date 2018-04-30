@@ -95,11 +95,19 @@ def create_config(file_name):
             config.add_from_dict(parent_config_dict)
 
     config.add_from_dict(config_dict)
-
     config.tflog_dir = os.path.join(os.environ["LOGDIR"], config.project_name, config.ex_name)
     config.save_dir = os.path.join(os.environ["SAVEDIR"], config.project_name, config.ex_name)
     create_folder(config.tflog_dir)
     create_folder(config.save_dir)
+
+    # checking the device type
+    device_type = config.device
+    if(device_type!="cpu"):
+        # check if cuda is available or not
+        if(not torch.cuda.is_available()):
+            device_type = "cpu"
+
+    config.device = device_type
 
     return config
 
