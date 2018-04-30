@@ -1,6 +1,6 @@
 """Copying Memory Task."""
 import numpy as np
-from myTorch.utils import MyContainer
+from myTorch.utils import MyContainer, one_hot
 
 
 class CopyingMemoryData(object):
@@ -38,8 +38,9 @@ class CopyingMemoryData(object):
 
         data_len = 2 * self._state.seq_len + self._state.time_lag
 
-        x = np.zeros((data_len, batch_size, 1), dtype="float32")
-        y = np.zeros((data_len, batch_size, 1), dtype="float32")
+        x = np.zeros((data_len, batch_size, 1), dtype="uint8")
+        one_hot_x = np.zeros((data_len, batch_size, 10), dtype="float32")
+        y = np.zeros((data_len, batch_size, 1), dtype="int64")
         mask = np.zeros(data_len, dtype="float32")
 
         data = self._state.rng.randint(1, high=9, size=(self._state.seq_len, batch_size, 1))
@@ -48,9 +49,11 @@ class CopyingMemoryData(object):
         x[self._state.seq_len+self._state.time_lag-1] = 9
         y[self._state.seq_len + self._state.time_lag:] = data
         mask[self._state.seq_len + self._state.time_lag:] = 1
+        for i in range(data_len):
+            one_hot_x[i] = one_hot(x[i], 10).astype(np.float32)
 
         output = {}
-        output['x'] = x
+        output['x'] = one_hot_x
         output['y'] = y
         output['mask'] = mask
         output['seqlen'] = self._state.seq_len
