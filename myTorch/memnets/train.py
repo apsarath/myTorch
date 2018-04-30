@@ -81,7 +81,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         running_average = sum(tr.average_bce) / len(tr.average_bce)
 
         if config.use_tflogger:
-            logger.log_scalar("loss", running_average, step + 1)
+            logger.log_scalar("running_avg_loss", running_average, step + 1)
+            logger.log_scalar("loss", tr.average_bce[-1], step + 1)
 
         seqloss.backward(retain_graph=False)
 
