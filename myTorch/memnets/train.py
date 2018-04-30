@@ -9,6 +9,7 @@ from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.copy_task import CopyData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.task.associative_recall_task import AssociativeRecallData
+from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
@@ -34,6 +35,9 @@ def get_data_iterator(config):
         data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
                                               max_len=config.max_len, block_len=config.block_len,
                                               batch_size=config.batch_size)
+    elif config.task == "copying_memory":
+        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
+                                            batch_size=config.batch_size, seed=config.seed)
     return data_iterator
 
 
@@ -65,7 +69,11 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             model.optimizer.zero_grad()
 
             output = model(x)
-            loss = F.binary_cross_entropy_with_logits(output, y)
+            if config.task == "copying_memory":
+                loss = F.torch.nn.functional.cross_entropy(output, y.squeeze(1))
+            else:
+                loss = F.binary_cross_entropy_with_logits(output, y)
+
             seqloss += (loss * mask)
 
         seqloss /= sum(data["mask"])
@@ -83,7 +91,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         model.optimizer.step()
 
         tr.updates_done +=1
-        if tr.updates_done % 100 == 0:
+        if tr.updates_done % 1 == 0:
             logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
                                                                                 running_average))
         if tr.updates_done % config.save_every_n == 0:
