@@ -9,7 +9,7 @@ ex_name: "ex01"
 
 model:  "LSTM"
 input_size: 10
-output_size:  10
+output_size:  9
 num_layers: 1
 layer_size: [40]
 activation: "tanh"
