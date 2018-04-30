@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import numpy as np
 import math
 
@@ -7,7 +8,7 @@ import math
 
 class FlatMemoryCell(nn.Module):
 
-    def __init__(self, device, input_size, hidden_size, memory_size=900, k=16, activation="tanh"):
+    def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh"):
         
         super(FlatMemoryCell, self).__init__()
 
@@ -29,7 +30,8 @@ class FlatMemoryCell(nn.Module):
         self.hm2alpha = nn.Linear(self.memory_size + hidden_size, self.k)
         self.hm2beta = nn.Linear(self.memory_size + hidden_size, self.k)
 
-        self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
+        #self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
+        self.hmi2h = nn.Linear(self.memory_size + hidden_size + self.input_size, hidden_size)
         #self.hmi2r = nn.Linear(self.memory_size + hidden_size + self.input_size, self.k)
         
         
@@ -39,8 +41,9 @@ class FlatMemoryCell(nn.Module):
         #r_t = self.hmi2r(c_input)
         #c_input = torch.cat((input, last_hidden["h"], r_t), 1)
         
-        h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
-        h = h.squeeze(0)
+        #h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
+        #h = h.squeeze(0)
+        h = F.relu(self.hmi2h(c_input))
 
         # Flat memory equations
         alpha = self.hm2alpha(torch.cat((h,last_hidden["memory"]),1)).clone()
@@ -64,6 +67,6 @@ class FlatMemoryCell(nn.Module):
         hidden = {}
         hidden["h"] = torch.Tensor(np.zeros((batch_size, self.hidden_size))).to(self._device)
         hidden["memory"] = torch.Tensor(np.zeros((batch_size, self.memory_size))).to(self._device)
-        hidden["lstm_cell_h"] = (torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device), 
-                                torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device))
+        #hidden["lstm_cell_h"] = (torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device), 
+        #                        torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device))
         return hidden
