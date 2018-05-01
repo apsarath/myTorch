@@ -17,9 +17,6 @@ import torch.nn.functional as F
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
-args = parser.parse_args()
-
-logging.basicConfig(level=logging.INFO)
 
 
 def get_data_iterator(config):
@@ -37,7 +34,7 @@ def get_data_iterator(config):
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
         data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
-                                            batch_size=config.batch_size, seed=config.seed)
+                                          batch_size=config.batch_size, seed=config.seed)
     return data_iterator
 
 
@@ -99,12 +96,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             experiment.save()
 
 
-def run_experiment():
-    """Runs the experiment."""
-
-    config = create_config(args.config)
-
-    logging.info(config.get())
+def create_experiment(config):
+    """Creates an experiment based on config."""
 
     device = torch.device(config.device)
     logging.info("using {}".format(config.device))
@@ -137,6 +130,18 @@ def run_experiment():
     tr.average_bce = []
     experiment.register_train_statistics(tr)
 
+    return experiment, model, data_iterator, tr, logger, device
+
+
+def run_experiment(args):
+    """Runs the experiment."""
+
+    config = create_config(args.config)
+
+    logging.info(config.get())
+
+    experiment, model, data_iterator, tr, logger, device = create_experiment(config)
+
     if not args.force_restart:
         if experiment.is_resumable():
             experiment.resume()
@@ -147,4 +152,7 @@ def run_experiment():
 
 
 if __name__ == '__main__':
-    run_experiment()
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO)
+
+    run_experiment(args)

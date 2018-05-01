@@ -3,7 +3,7 @@ config_filename: "copying_memory.yaml"
 description: "copying memory task"
 
 project_name: "copying_memory_task"
-ex_name: "ex04"
+ex_name: "ex05"
 
 #01 rnn
 #02 rnn + layernorm
