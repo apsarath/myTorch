@@ -1,18 +1,19 @@
-import numpy
 import argparse
 import logging
 
+import numpy
 import torch
+import torch.nn.functional as F
 
 from myTorch import Experiment
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
-from myTorch.task.copy_task import CopyData
-from myTorch.task.repeat_copy_task import RepeatCopyData
+from myTorch.projects.overfeeding.utils.metric import get_metric_registry
 from myTorch.task.associative_recall_task import AssociativeRecallData
+from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
-from myTorch.utils.logging import Logger
+from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import MyContainer, get_optimizer, create_config
-import torch.nn.functional as F
+from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -23,7 +24,6 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_data_iterator(config):
-
     if config.task == "copy":
         data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
                                  max_len=config.max_len, batch_size=config.batch_size)
@@ -37,11 +37,11 @@ def get_data_iterator(config):
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
         data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
-                                            batch_size=config.batch_size, seed=config.seed)
+                                          batch_size=config.batch_size, seed=config.seed)
     return data_iterator
 
 
-def train(experiment, model, config, data_iterator, tr, logger, device):
+def train(experiment, model, config, data_iterator, tr, logger, device, metrics):
     """Training loop.
 
     Args:
@@ -78,9 +78,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             seqloss += (loss * mask)
             predictions = F.softmax(
                 (torch.cat(
-                                       ((1 - output).unsqueeze(2), output.unsqueeze(2)),
-                                    dim=2))
-                          , dim = 2)
+                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
+                    dim=2))
+                , dim=2)
             predictions = predictions.max(2)[1].float()
             average_accuracy += ((y == predictions).int().sum().item() * mask)
 
@@ -106,16 +106,28 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         model.optimizer.step()
 
-        tr.updates_done +=1
+        metrics["loss"].update(tr.average_bce[-1])
+        metrics["accuracy"].update(tr.average_accuracy[-1])
+
+        tr.updates_done += 1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, running average of BCE: {},"
+            logging.info("examples seen: {}, running average of BCE: {}, "
                          "average accuracy for last batch: {}, "
-                         "running average of accuracy: {}".format(tr.updates_done*config.batch_size,
-                                                                                running_average_bce,
+                         "running average of accuracy: {}".format(tr.updates_done * config.batch_size,
+                                                                  running_average_bce,
                                                                   average_accuracy,
                                                                   running_average_accuracy))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
+
+        if (metrics["accuracy"].is_best_so_far()):
+            experiment.save(tag="best")
+
+        if (metrics["loss"].should_stop_early() or metrics["accuracy"].should_stop_early()):
+            logging.info("Early stopping after {} epochs".format(step))
+            logging.info("Loss = {} for the best performing model".format(metrics["loss"].get_best_so_far()))
+            logging.info("Accuracy = {} for the best performing model".format(metrics["accuracy"].get_best_so_far()))
+            break
 
 
 def run_experiment():
@@ -162,7 +174,8 @@ def run_experiment():
     else:
         experiment.force_restart()
 
-    train(experiment, model, config, data_iterator, tr, logger, device)
+    metrics = get_metric_registry(time_span=100)
+    train(experiment, model, config, data_iterator, tr, logger, device, metrics)
 
 
 if __name__ == '__main__':
