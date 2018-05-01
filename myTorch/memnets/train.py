@@ -75,7 +75,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
             output = model(x)
             if config.task == "copying_memory":
-                loss = F.torch.nn.functional.cross_entropy(output, y.squeeze(1))
+                loss = F.cross_entropy(output, y.squeeze(1))
             elif config.task == "adding":
                 loss = F.mse_loss(output, y)
             else:
@@ -93,8 +93,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         seqloss.backward(retain_graph=False)
 
-        for param in model.parameters():
-            param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
+        torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+ 
 
         model.optimizer.step()
 
