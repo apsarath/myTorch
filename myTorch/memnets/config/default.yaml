@@ -12,6 +12,8 @@ output_size:  8
 num_layers: 1
 layer_size: [256]
 activation: "tanh"
+layer_norm: False
+identity_init: False
 
 # optimization specific details
 

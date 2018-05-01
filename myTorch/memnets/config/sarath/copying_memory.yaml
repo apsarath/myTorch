@@ -3,16 +3,23 @@ config_filename: "copying_memory.yaml"
 description: "copying memory task"
 
 project_name: "copying_memory_task"
-ex_name: "ex01"
+ex_name: "ex04"
+
+#01 rnn
+#02 rnn + layernorm
+#03 rnn + idenity
+#04 rnn + layer + idenity
 
 # model specific details
 
-model:  "LSTM"
+model:  "RNN"
 input_size: 10
 output_size:  9
 num_layers: 1
-layer_size: [40]
-activation: "tanh"
+layer_size: [80]
+activation: "relu"
+layer_norm: True  # works only for LSTM, RNN
+identity_init: True # works only for RNN
 
 # optimization specific details
 
@@ -34,7 +41,7 @@ grad_clip:  [-10.0, 10.0]
 
 max_steps:  100000000
 rseed:  5
-device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copying_memory"

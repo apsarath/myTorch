@@ -12,7 +12,8 @@ class Recurrent(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation="linear"):
+                 cell_name="LSTM", activation="tanh", output_activation="linear",
+                 layer_norm=False, identity_init=False):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
@@ -25,6 +26,8 @@ class Recurrent(nn.Module):
         self._cell_name = cell_name
         self._activation = activation
         self._output_activation = output_activation
+        self._layer_norm = layer_norm
+        self._identity_init = identity_init
 
         self._Cells = []
 
@@ -100,9 +103,10 @@ class Recurrent(nn.Module):
 
         if self._cell_name == "RNN":
             self._Cells.append(RNNCell(self._device, input_size, hidden_size,
-                                       activation=self._activation))
+                                       activation=self._activation, layer_norm=self._layer_norm,
+                                       identity_init=self._identity_init))
         elif self._cell_name == "LSTM":
-            self._Cells.append(LSTMCell(self._device, input_size, hidden_size))
+            self._Cells.append(LSTMCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm))
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":

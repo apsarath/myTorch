@@ -78,8 +78,7 @@ class RNNCell(nn.Module):
         """Initializes the RNN Cell parameters."""
 
         nn.init.xavier_normal(self._W_i2h, gain=nn.init.calculate_gain(self._activation))
+        nn.init.orthogonal_(self._W_h2h)
         if self._identity_init:
-            nn.init.eye_(self._W_h2h)
-        else:
-            nn.init.orthogonal(self._W_h2h)
-        nn.init.constant(self._b_h, 0)
+            self._W_h2h.data.copy_(torch.eye(self._hidden_size))
+        nn.init.constant_(self._b_h, 0)

@@ -7,7 +7,7 @@ import numpy as np
 class LSTMCell(nn.Module):
     """Implementation of an LSTM Cell based on https://arxiv.org/pdf/1308.0850.pdf"""
 
-    def __init__(self, device, input_size, hidden_size, layer_norm=True):
+    def __init__(self, device, input_size, hidden_size, layer_norm=False):
         """Initializes an LSTM Cell.
 
         Args:

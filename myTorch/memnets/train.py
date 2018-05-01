@@ -122,7 +122,8 @@ def run_experiment():
     model = Recurrent(device, config.input_size, config.output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
-                      output_activation="linear").to(device)
+                      output_activation="linear", layer_norm=config.layer_norm,
+                      identity_init=config.identity_init).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)
