@@ -52,6 +52,10 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
     for step in range(tr.updates_done, config.max_steps):
 
+        if config.inter_saving is not None:
+            if tr.updates_done in config.inter_saving:
+                experiment.save(str(tr.updates_done))
+
         data = data_iterator.next()
         seqloss = 0
 
