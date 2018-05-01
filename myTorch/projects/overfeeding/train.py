@@ -5,7 +5,7 @@ import logging
 import torch
 
 from myTorch import Experiment
-from myTorch.memnets.recurrent_net import Recurrent
+from myTorch.projects.overfeeding.recurrent_net import Recurrent
 from myTorch.task.copy_task import CopyData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.task.associative_recall_task import AssociativeRecallData
