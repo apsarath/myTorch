@@ -46,6 +46,10 @@ batch_size: 10
 min_seq_len:  5
 max_seq_len:  30
 step_seq_len: 2
+average_over_last_n: 10
+
+# early stopping related details
+time_span: 100
 
 # saving details
 use_tflogger: True

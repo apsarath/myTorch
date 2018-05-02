@@ -14,6 +14,7 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import MyContainer, get_optimizer, create_config
 from myTorch.utils.logging import Logger
+import numpy as np
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -127,7 +128,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics)
             logging.info("Early stopping after {} epochs".format(step))
             logging.info("Loss = {} for the best performing model".format(metrics["loss"].get_best_so_far()))
             logging.info("Accuracy = {} for the best performing model".format(metrics["accuracy"].get_best_so_far()))
-            should_stop_curriculum = False
+            average_accuracy_array = np.asarray(tr.average_accuracy)[-config.average_over_last_n:]
+            if(np.mean(average_accuracy_array)>0.8):
+                should_stop_curriculum = False
             break
 
     return should_stop_curriculum
@@ -179,10 +182,10 @@ def run_curriculum_experiment():
         else:
             experiment.force_restart()
 
-        metrics = get_metric_registry(time_span=100)
+        metrics = get_metric_registry(time_span=curriculum_config.time_span)
         should_stop_curriculum = train(experiment, model, curriculum_config, data_iterator, tr, logger, device, metrics)
         if(should_stop_curriculum):
-            print("Stopping curriculum after seq_len: {}".format(curriculum_config.seq_len))
+            logging.info("Stopping curriculum after seq_len: {}".format(curriculum_config.seq_len))
             break
 
 if __name__ == '__main__':
