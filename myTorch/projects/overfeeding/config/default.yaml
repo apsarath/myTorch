@@ -39,9 +39,13 @@ device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 # task specific details
 task: "copy"
 num_bits: 8
-min_len:  5
-max_len:  5
+seq_len: 5
 batch_size: 10
+
+# curriculum related details
+min_seq_len:  5
+max_seq_len:  30
+step_seq_len: 2
 
 # saving details
 use_tflogger: True
