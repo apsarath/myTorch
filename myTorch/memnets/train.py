@@ -11,6 +11,7 @@ from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.adding_task import AddingData
+from myTorch.task.denoising import DenoisingData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
@@ -38,6 +39,9 @@ def get_data_iterator(config):
                                           batch_size=config.batch_size, seed=config.seed)
     elif config.task == "adding":
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
+    elif config.task == "denoising_copy":
+        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag=config.time_lag, batch_size=config.batch_size,
+                                        seed=config.seed)
 
     return data_iterator
 
@@ -74,7 +78,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             model.optimizer.zero_grad()
 
             output = model(x)
-            if config.task == "copying_memory":
+            if config.task == "copying_memory" or config.task == "denoising_copy":
                 loss = F.cross_entropy(output, y.squeeze(1))
             elif config.task == "adding":
                 loss = F.mse_loss(output, y)
