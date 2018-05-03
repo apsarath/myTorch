@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from myTorch.memory import RNNCell, GRUCell, LSTMCell
+from myTorch.memory import RNNCell, GRUCell, LSTMCell, JANETCell
 from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 
 
@@ -13,7 +13,7 @@ class Recurrent(nn.Module):
 
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
-                 layer_norm=False, identity_init=False):
+                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
@@ -28,6 +28,8 @@ class Recurrent(nn.Module):
         self._output_activation = output_activation
         self._layer_norm = layer_norm
         self._identity_init = identity_init
+        self._chrono_init = chrono_init
+        self._t_max = t_max
 
         self._Cells = []
 
@@ -106,7 +108,11 @@ class Recurrent(nn.Module):
                                        activation=self._activation, layer_norm=self._layer_norm,
                                        identity_init=self._identity_init))
         elif self._cell_name == "LSTM":
-            self._Cells.append(LSTMCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm))
+            self._Cells.append(LSTMCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
+                                        chrono_init=self._chrono_init, t_max=self._t_max))
+        elif self._cell_name == "JANET":
+            self._Cells.append(JANETCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
+                                         chrono_init=self._chrono_init, t_max=self._t_max))
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":

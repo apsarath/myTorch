@@ -3,7 +3,7 @@ config_filename: "copying_memory.yaml"
 description: "copying memory task"
 
 project_name: "copying_memory_task"
-ex_name: "ex06"
+ex_name: "chrono_janet"
 
 #01 rnn
 #02 rnn + layernorm
@@ -12,14 +12,16 @@ ex_name: "ex06"
 
 # model specific details
 
-model:  "RNN"
+model:  "JANET"
 input_size: 10
 output_size:  9
 num_layers: 1
-layer_size: [80]
+layer_size: [40]
 activation: "relu"
-layer_norm: True  # works only for LSTM, RNN
+layer_norm: False  # works only for LSTM, RNN
 identity_init: True # works only for RNN
+chrono_init: True
+t_max: 120
 
 # optimization specific details
 
@@ -39,9 +41,9 @@ dampening:  0.0
 nesterov: False
 grad_clip_norm:  5.0
 
-max_steps:  100000000
+max_steps:  200000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copying_memory"
