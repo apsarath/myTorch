@@ -41,7 +41,7 @@ def get_data_iterator(config):
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
     elif config.task == "denoising_copy":
         data_iterator = DenoisingData(seq_len=config.seq_len, time_lag=config.time_lag, batch_size=config.batch_size,
-                                        seed=config.seed)
+                                        noise_len=config.noise_len, seed=config.seed)
 
     return data_iterator
 
