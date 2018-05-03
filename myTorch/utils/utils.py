@@ -7,6 +7,7 @@ from torch.autograd import Variable
 import torch.optim as optim
 import numpy as np
 import yaml
+from copy import deepcopy
 
 
 class MyContainer():
@@ -74,6 +75,10 @@ class MyContainer():
                 env_locals[k] = self.__getattr__(k)
         return True
 
+    def __deepcopy__(self, memo):
+        new_container = MyContainer()
+        new_container.add_from_dict(src_dict=deepcopy(self.get()))
+        return new_container
 
 def create_config(file_name):
     """Returns a config object.

@@ -100,8 +100,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         tr.updates_done +=1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, running average of BCE: {}".format(tr.updates_done*config.batch_size,
-                                                                                running_average))
+            logging.info("examples seen: {}, inst loss: {}".format(tr.updates_done*config.batch_size,
+                                                                                tr.average_bce[-1]))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
