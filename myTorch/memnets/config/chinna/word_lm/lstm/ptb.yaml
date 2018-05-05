@@ -12,6 +12,7 @@ input_emb_size: 400
 num_layers: 1
 layer_size: [1024]
 activation: "tanh"
+use_relu: True
 memory_size: 900
 k: 16
 

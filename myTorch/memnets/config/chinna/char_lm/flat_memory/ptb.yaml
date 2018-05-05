@@ -12,8 +12,9 @@ input_emb_size: 200
 num_layers: 1
 layer_size: [1000]
 activation: "tanh"
-memory_size: 900
-k: 16
+use_relu: True
+memory_size: 64
+k: 1
 
 # optimization specific details
 
@@ -34,19 +35,19 @@ nesterov: False
 grad_clip_norm: 5.0
 
 max_steps: 200000
-num_epochs: 10
+num_epochs: 100
 rseed:  5
-device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "char_lm_ptb"
 batch_size: 32
-eval_batch_size: 64
-test_batch_size: 32
+eval_batch_size: 128
+test_batch_size: 128
 seed: 5
 time_lag: 100
 seq_len: 10
-bptt: 70
+bptt: 150
 
 # saving details
 use_tflogger: True
