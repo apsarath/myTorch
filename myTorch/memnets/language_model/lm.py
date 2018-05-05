@@ -31,6 +31,8 @@ class LanguageModel(nn.Module):
         self._identity_init = identity_init
         self._chrono_init = chrono_init
         self._t_max = t_max
+        self._memory_size = memory_size
+        self._k = k
 
         self._Cells = []
 
@@ -131,7 +133,8 @@ class LanguageModel(nn.Module):
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":
-            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size))
+            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
+                                                memory_size=self._memory_size, k=self._k))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
