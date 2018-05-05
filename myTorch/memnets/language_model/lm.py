@@ -13,7 +13,8 @@ class LanguageModel(nn.Module):
 
     def __init__(self, device, vocab_size, input_emb_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
-                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10):
+                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10,
+                 memory_size=64, k=4):
         """Initializes a recurrent network."""
         
         super(LanguageModel, self).__init__()

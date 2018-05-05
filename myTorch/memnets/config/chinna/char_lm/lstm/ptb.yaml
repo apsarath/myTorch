@@ -12,6 +12,8 @@ input_emb_size: 200
 num_layers: 1
 layer_size: [1000]
 activation: "tanh"
+memory_size: 900
+k: 16
 
 # optimization specific details
 
