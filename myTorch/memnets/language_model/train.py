@@ -202,9 +202,6 @@ def run_experiment(args):
     for i in range(config.num_epochs):
         for mode in ["train", "valid", "test"]:
             tr.mini_batch_id[mode] = 0
-            if mode != "train":
-                tr.updates_done[mode] = 0
-                tr.average_loss[mode] = []
             run_epoch(i, mode, experiment, model, config, data_iterator, tr, logger, device)
 
 
