@@ -1,17 +1,19 @@
 config_filename: "ptb.yaml"
-description: "langauge model ptb"
+description: "word langauge model ptb"
 
-project_name: "language_model_ptb"
-ex_name: "lm_ptb_lstm"
+project_name: "word_language_model_ptb"
+ex_name: "word_lm_ptb_flatmemory"
 data: "data/penn"
 
 # model specific details
 
-model:  "LSTM"
+model:  "FlatMemory"
 input_emb_size: 400
 num_layers: 1
 layer_size: [1024]
 activation: "tanh"
+memory_size: 900
+k: 16
 
 # optimization specific details
 
@@ -37,7 +39,7 @@ rseed:  5
 device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "language_model_ptb"
+task: "word_lm_ptb"
 batch_size: 20
 eval_batch_size: 10
 test_batch_size: 1
