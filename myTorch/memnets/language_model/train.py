@@ -25,6 +25,13 @@ parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 
+def _safe_exp(x):
+    try:
+        return math.exp(x)
+    except:
+        return 0.0
+    
+
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.
     nbatch = data.size(0) // bsz
@@ -108,10 +115,10 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         running_average = sum(tr.average_loss[mode]) / len(tr.average_loss[mode])
 
         if config.use_tflogger:
-            logger.log_scalar("running_avg_loss", running_average, step + 1)
-            logger.log_scalar("loss", tr.average_loss[mode][-1], step + 1)
-            logger.log_scalar("running_perplexity", math.exp(running_average), step + 1)
-            logger.log_scalar("inst_perplexity", math.exp(tr.average_loss[mode][-1]), step + 1)
+            logger.log_scalar("running_avg_loss_{}".format(mode), running_average, step + 1)
+            logger.log_scalar("loss_{}".format(mode), tr.average_loss[mode][-1], step + 1)
+            logger.log_scalar("running_perplexity_{}".format(mode), _safe_exp(running_average), step + 1)
+            logger.log_scalar("inst_perplexity_{}".format(mode), _safe_exp(tr.average_loss[mode][-1]), step + 1)
 
         if mode == "train":
             model.optimizer.zero_grad()
@@ -123,7 +130,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         step += 1
         if tr.updates_done[mode] % 1 == 0:
             logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*config.bptt/num_total_words)))
-            logging.info("inst loss: {}, avg perp: {}".format(tr.average_loss[mode][-1], math.exp(running_average)))
+            logging.info("inst loss: {}, avg perp: {}".format(tr.average_loss[mode][-1], _safe_exp(running_average)))
             
         if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
             experiment.save()
