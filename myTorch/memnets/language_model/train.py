@@ -65,6 +65,7 @@ def get_batched_data(config):
     batched_data["valid"] = batchify(corpus.valid, config.eval_batch_size)
     batched_data["test"] = batchify(corpus.test, config.test_batch_size)
     vocab = corpus.dictionary
+    print("Vocab size : {}".format(len(vocab)))
     return batched_data, vocab
 
 
@@ -130,10 +131,12 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         step += 1
         if tr.updates_done[mode] % 1 == 0:
             logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*config.bptt/num_total_words)))
-            logging.info("inst loss: {}, avg perp: {}".format(tr.average_loss[mode][-1], _safe_exp(running_average)))
+            logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
         if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
             experiment.save()
+    logging.info("Avg loss: {}, Avg perp: {}".format(running_average, _safe_exp(running_average)))
+
 
 def create_experiment(config):
     """Creates an experiment based on config."""
