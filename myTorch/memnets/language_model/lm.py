@@ -14,7 +14,7 @@ class LanguageModel(nn.Module):
     def __init__(self, device, vocab_size, input_emb_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
                  layer_norm=False, identity_init=False, chrono_init=False, t_max=10,
-                 memory_size=64, k=4):
+                 memory_size=64, k=4, use_relu=True):
         """Initializes a recurrent network."""
         
         super(LanguageModel, self).__init__()
@@ -33,6 +33,7 @@ class LanguageModel(nn.Module):
         self._t_max = t_max
         self._memory_size = memory_size
         self._k = k
+        self._use_relu = use_relu
 
         self._Cells = []
 
@@ -134,7 +135,7 @@ class LanguageModel(nn.Module):
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":
             self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
-                                                memory_size=self._memory_size, k=self._k))
+                                                memory_size=self._memory_size, k=self._k, use_relu=self._use_relu))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
