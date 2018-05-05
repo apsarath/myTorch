@@ -28,7 +28,7 @@ class SSMNISTData(object):
 
         self._load_data()
 
-        self._reset_iterator()
+        self.reset_iterator()
 
     def _load_data(self):
 
@@ -47,7 +47,7 @@ class SSMNISTData(object):
                                                             str(self._state.num_digits), "seq_len_"+fold+".npy"))
             self._data.seq_len[fold] = np.asarray(self._data.seq_len[fold], dtype="int32")
 
-    def _reset_iterator(self):
+    def reset_iterator(self):
 
         self._state.iter_list = {}
         self._state.batches = {}
@@ -93,9 +93,9 @@ class SSMNISTData(object):
             new_y[i][seq_len[i]+1: seq_len[i]+1+self._state.num_digits+1] = y[i]
             mask[i][seq_len[i]+1: seq_len[i]+1+self._state.num_digits+1] = 1
 
-        new_x = np.swapaxes(new_x, 0, 1)
+        new_x = np.swapaxes(new_x, 0, 1).astype('float32')
         new_y = np.swapaxes(new_y, 0, 1).astype('int64')
-        mask = np.swapaxes(mask, 0, 1)
+        mask = np.swapaxes(mask, 0, 1).astype('float32')
 
         output = {}
         output['x'] = new_x
