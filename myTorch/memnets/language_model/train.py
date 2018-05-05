@@ -46,7 +46,7 @@ def get_batch(source, i, bptt, seq_len=None, evaluation=False):
     data = source[i:i+seq_len]
     target = source[i+1:i+1+seq_len]
     done = False
-    if i+seq_len > source.shape[0]:
+    if i+seq_len > source.shape[0] or data.shape[0] < bptt:
         done = True 
     return data, target, done, i+seq_len
 
@@ -90,6 +90,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
     elif mode == "test":
         batch_size = config.test_batch_size
 
+    batched_data[mode] = batched_data[mode].to(device)
+
     model.reset_hidden(batch_size=batch_size)
     num_total_words = batched_data[mode].shape[0] * batched_data[mode].shape[1]
     done = False
@@ -99,17 +101,16 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
             if tr.updates_done[mode] in config.inter_saving and mode == "train":
                 experiment.save(str(tr.updates_done[mode]))
 
-        if mode == "train":
-            model.repackage_hidden()
+        model.repackage_hidden()
 
         x, y, done, tr.mini_batch_id[mode] = get_batch(batched_data[mode], tr.mini_batch_id[mode], config.bptt)
-        x, y = x.to(device), y.to(device)
         seqloss = 0
         output_logits = model(x)
 
-        for i in range(config.bptt):
+        curr_time_steps = y.shape[0]
+        for i in range(curr_time_steps):
             seqloss += F.cross_entropy(output_logits[i], y[i])
-        seqloss /= config.bptt
+        seqloss /= curr_time_steps
         
         tr.average_loss[mode].append(seqloss.item())
 
@@ -130,12 +131,13 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         tr.updates_done[mode] +=1
         step += 1
         if tr.updates_done[mode] % 1 == 0:
-            logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*config.bptt/num_total_words)))
+            logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words)))
             logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
         if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
             experiment.save()
     logging.info("Avg loss: {}, Avg perp: {}".format(running_average, _safe_exp(running_average)))
+    batched_data[mode] = batched_data[mode].to("cpu")
 
 
 def create_experiment(config):
