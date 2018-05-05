@@ -2,7 +2,7 @@ config_filename: "ptb.yaml"
 description: "character langauge model ptb"
 
 project_name: "char_language_model_ptb"
-ex_name: "char_lm_ptb_flatmemory"
+ex_name: "char_lm_ptb_flatmemory_relu_gcn1_m576"
 data: "data/pennchar"
 
 # model specific details
@@ -13,8 +13,8 @@ num_layers: 1
 layer_size: [1000]
 activation: "tanh"
 use_relu: True
-memory_size: 64
-k: 1
+memory_size: 576
+k: 4
 
 # optimization specific details
 
@@ -32,7 +32,7 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 5.0
+grad_clip_norm: 1.0
 
 max_steps: 200000
 num_epochs: 100
@@ -41,7 +41,7 @@ device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "char_lm_ptb"
-batch_size: 32
+batch_size: 128
 eval_batch_size: 128
 test_batch_size: 128
 seed: 5

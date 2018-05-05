@@ -131,7 +131,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         tr.updates_done[mode] +=1
         step += 1
         if tr.updates_done[mode] % 1 == 0:
-            logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words)))
+            logging.info("Epoch : {}, {} %: {}, step : {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words), tr.updates_done[mode]))
             logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
         if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
