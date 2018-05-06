@@ -1,8 +1,8 @@
-config_filename: "ptb.yaml_8"
+config_filename: "ptb_25.yaml"
 description: "character langauge model ptb"
 
 project_name: "char_language_model_ptb"
-ex_name: "char_lm_ptb_flatmemory_relu_gcn1_m576_k8"
+ex_name: "char_lm_ptb_flatmemory_relu_gcn1_m576_k25"
 data: "data/pennchar"
 
 # model specific details
@@ -14,7 +14,7 @@ layer_size: [1000]
 activation: "tanh"
 use_relu: True
 memory_size: 576
-k: 8
+k: 25
 
 # optimization specific details
 
