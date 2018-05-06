@@ -41,7 +41,8 @@ def get_data_iterator(config):
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
     elif config.task == "denoising_copy":
         data_iterator = DenoisingData(seq_len=config.seq_len, time_lag=config.time_lag, batch_size=config.batch_size,
-                                        noise_len=config.noise_len, seed=config.seed)
+                                        num_noise_digits=config.num_noise_digits, num_digits = config.num_digits,
+                                        seed=config.seed)
 
     return data_iterator
 
@@ -125,13 +126,16 @@ def create_experiment(config):
         experiment.register_logger(logger)
 
     torch.manual_seed(config.rseed)
+    input_size = config.num_digits + config.num_noise_digits + 1
+    output_size = input_size - 1
+    t_max = 1 + config.time_lag + config.seq_len
 
-    model = Recurrent(device, config.input_size, config.output_size,
+    model = Recurrent(device, input_size, output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max).to(device)
+                      t_max=t_max).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)

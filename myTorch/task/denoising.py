@@ -8,7 +8,7 @@ class DenoisingData(object):
     As defined in https://arxiv.org/pdf/1706.02761.pdf
     """
 
-    def __init__(self, seq_len=10, time_lag=15, batch_size=5, noise_len=5, seed=5):
+    def __init__(self, seq_len=10, time_lag=15, num_digits=12, batch_size=5, num_noise_digits=5, seed=5):
         """Initializes the data generator.
 
         Args:
@@ -22,8 +22,9 @@ class DenoisingData(object):
 
         self._state.seq_len = seq_len
         self._state.time_lag = time_lag
+        self._state.num_digits = num_digits
         self._state.batch_size = batch_size
-        self._state.noise_len = noise_len
+        self._state.num_noise_digits = num_noise_digits
         self._state.examples_seen = 0
         self._state.rng = np.random.RandomState(seed)
 
@@ -42,12 +43,12 @@ class DenoisingData(object):
         mask = np.zeros(data_len, dtype="float32")
         mask[-self._state.seq_len:] = 1.0
 
-        noise_id_range = [0, self._state.noise_len-1]
-        marker_id = self._state.seq_len - 1
-        seq_id_range = [self._state.noise_len, self._state.seq_len - 2]
+        digit_range = self._state.num_noise_digits + self._state.num_digits + 1
+        noise_id_range = [0, self._state.num_noise_digits-1]
+        marker_id = digit_range - 1
+        seq_id_range = [self._state.num_noise_digits, digit_range - 2]
 
         seq = np.random.randint(seq_id_range[0], high=seq_id_range[1]+1, size=(batch_size, self._state.seq_len))
-        #zeros1 = np.zeros((batch_size, self._state.time_lag))
         zeros1 = np.random.randint(noise_id_range[0], high=noise_id_range[1]+1, size=(batch_size, self._state.time_lag))
 
         for i in range(batch_size):
@@ -65,9 +66,9 @@ class DenoisingData(object):
         x = np.expand_dims(x.T, -1)
         y = np.expand_dims(y.T, -1)
     
-        one_hot_x = np.zeros((x.shape[0], x.shape[1], self._state.seq_len), dtype="float32")
+        one_hot_x = np.zeros((x.shape[0], x.shape[1], digit_range), dtype="float32")
         for i in range(data_len):
-            one_hot_x[i] = one_hot(x[i], self._state.seq_len).astype(np.float32)
+            one_hot_x[i] = one_hot(x[i], digit_range).astype(np.float32)
 
         output = {}
         output['x'] = one_hot_x

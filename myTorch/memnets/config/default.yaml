@@ -44,6 +44,8 @@ num_bits: 8
 min_len:  1
 max_len:  20
 batch_size: 10
+num_noise_digits: 1
+num_digits: 8
 
 # saving details
 use_tflogger: True
