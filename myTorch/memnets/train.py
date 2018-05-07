@@ -138,7 +138,7 @@ def create_experiment(config):
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=t_max).to(device)
+                      t_max=t_max, use_relu=config.use_relu).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)

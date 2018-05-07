@@ -13,7 +13,7 @@ class Recurrent(nn.Module):
 
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
-                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10):
+                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10, use_relu=True):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
@@ -30,6 +30,7 @@ class Recurrent(nn.Module):
         self._identity_init = identity_init
         self._chrono_init = chrono_init
         self._t_max = t_max
+        self._use_relu = use_relu
 
         self._Cells = []
 
@@ -116,7 +117,7 @@ class Recurrent(nn.Module):
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":
-            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size))
+            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, use_relu=self._use_relu))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
