@@ -50,16 +50,16 @@ class ExpandableLSTMCell(LSTMCell):
         self._hidden_size = new_hidden_dim
         for name, param in self.named_parameters():
             if (name in weights_to_widen_in_output_dim):
-                student_w1 = make_weight_wider_at_output(teacher_w=param.data.numpy(),
+                student_w1 = make_weight_wider_at_output(teacher_w=param.data.cpu().numpy(),
                                                          indices_to_copy=indices_to_copy)
                 param.data = torch.from_numpy(student_w1)
 
             elif (name in biases_to_widen):
-                student_b = make_bias_wider(teacher_b=param.data.numpy(),
+                student_b = make_bias_wider(teacher_b=param.data.cpu().numpy(),
                                             indices_to_copy=indices_to_copy)
                 param.data = torch.from_numpy(student_b)
             elif (name in weights_to_widen_in_input_and_output_dim):
-                student_w = make_weight_wider_at_input(teacher_w=param.data.numpy(),
+                student_w = make_weight_wider_at_input(teacher_w=param.data.cpu().numpy(),
                                                        indices_to_copy=indices_to_copy,
                                                        replication_factor=replication_factor)
                 student_w = make_weight_wider_at_output(teacher_w=student_w.copy(),

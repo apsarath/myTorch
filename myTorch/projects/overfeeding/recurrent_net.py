@@ -201,7 +201,7 @@ class Recurrent(nn.Module):
         # Growing the parameters of the recurrent net
         self._layer_size = new_hidden_dim
 
-        student_w = make_weight_wider_at_input(teacher_w=self._W_h2o.data.numpy(),
+        student_w = make_weight_wider_at_input(teacher_w=self._W_h2o.data.cpu().numpy(),
                                                indices_to_copy=indices_to_copy,
                                                replication_factor=replication_factor)
         self._W_h2o.data = torch.from_numpy(student_w)
@@ -209,6 +209,6 @@ class Recurrent(nn.Module):
         # Growing the hidden state vectors
         for h in self._h_prev:
             for key, param in h.items():
-                student_b = make_h_wider(teacher_b=param.data.numpy(),
+                student_b = make_h_wider(teacher_b=param.data.cpu().numpy(),
                                          indices_to_copy=indices_to_copy)
-                h[key].data = torch.from_numpy(student_b)
+                h[key].data = torch.from_numpy(student_b).to(self._device)
