@@ -38,10 +38,11 @@ device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 task: "copying_memory"
 batch_size: 10
 seed: 5
-time_lag: 100
+time_lag_min: 100
+time_lag_max: 200
 seq_len: 10
-num_noise_digits: 1
-num_digits: 8
+num_noise_digits: 6
+num_digits: 10
 
 # saving details
 use_tflogger: True

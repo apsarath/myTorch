@@ -35,7 +35,9 @@ def get_data_iterator(config):
                                               max_len=config.max_len, block_len=config.block_len,
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
-        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
+        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag_min=config.time_lag_min,
+                                          time_lag_max=config.time_lag_max, num_digits=config.num_digits,
+                                          num_noise_digits=config.num_noise_digits, 
                                           batch_size=config.batch_size, seed=config.seed)
     elif config.task == "adding":
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
@@ -70,7 +72,6 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         seqloss = 0
 
         model.reset_hidden(batch_size=config.batch_size)
-        print("time_lag : {}".format(data["datalen"] - config.seq_len - 1))
 
         for i in range(0, data["datalen"]):
 
