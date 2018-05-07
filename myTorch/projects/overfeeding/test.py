@@ -59,7 +59,7 @@ def test_make_net_wider_op(model, data_iterator, device, batch_size=32, error_th
         x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
         output_original = model(x)
         model.set_hidden(h)
-        model.make_net_wider(new_hidden_dim=512)
+        model.make_net_wider(new_hidden_dim=256)
         model = model.to(device)
         output_after_widen = model(x)
         error = torch.sum(torch.abs(output_after_widen - output_original))
