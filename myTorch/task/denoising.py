@@ -8,12 +8,15 @@ class DenoisingData(object):
     As defined in https://arxiv.org/pdf/1706.02761.pdf
     """
 
-    def __init__(self, seq_len=10, time_lag_min=15, time_lag_max=20, num_digits=12, batch_size=5, num_noise_digits=5, seed=5):
+    def __init__(self, seq_len=10, time_lag_min=100, time_lag_max=100, num_digits=8, num_noise_digits=1, batch_size=5, seed=5):
         """Initializes the data generator.
 
         Args:
             seq_len: int, length of data sequence.
-            time_lag: int, number of time steps lag from input to output.
+            time_lag_min: int, Min number of time steps lag from input to output.
+            time_lag_max: int, Max number of time steps lag from input to output.
+            num_digits: int, Range of the numbers to sample the values of the "output sequence"
+            num_noise_digits: int, Range of numbers that act as noise.
             batch_size: int, batch size.
             seed: int, random seed.
         """
@@ -23,8 +26,8 @@ class DenoisingData(object):
         self._state.seq_len = seq_len
         self._state.time_lag_range = [time_lag_min, time_lag_max]
         self._state.num_digits = num_digits
-        self._state.batch_size = batch_size
         self._state.num_noise_digits = num_noise_digits
+        self._state.batch_size = batch_size
         self._state.examples_seen = 0
         self._state.rng = np.random.RandomState(seed)
 
@@ -38,27 +41,27 @@ class DenoisingData(object):
         if batch_size is None:
             batch_size = self._state.batch_size
 
-        self._state.time_lag = np.random.randint(self._state.time_lag_range[0], self._state.time_lag_range[1]+1)
+        time_lag = self._state.rng.randint(self._state.time_lag_range[0], self._state.time_lag_range[1] + 1)
 
-        data_len = self._state.seq_len + self._state.time_lag + 1
+        data_len = self._state.seq_len + time_lag + 1
 
         mask = np.zeros(data_len, dtype="float32")
         mask[-self._state.seq_len:] = 1.0
 
         digit_range = self._state.num_noise_digits + self._state.num_digits + 1
-        noise_id_range = [0, self._state.num_noise_digits-1]
-        marker_id = digit_range - 1
+        noise_id_range = [0, self._state.num_noise_digits - 1]
         seq_id_range = [self._state.num_noise_digits, digit_range - 2]
+        marker_id = digit_range - 1
 
-        seq = np.random.randint(seq_id_range[0], high=seq_id_range[1]+1, size=(batch_size, self._state.seq_len))
-        zeros1 = np.random.randint(noise_id_range[0], high=noise_id_range[1]+1, size=(batch_size, self._state.time_lag))
+        seq = self._state.rng.randint(seq_id_range[0], high=seq_id_range[1] + 1, size=(batch_size, self._state.seq_len))
+        zeros1 = self._state.rng.randint(noise_id_range[0], high=noise_id_range[1] + 1, size=(batch_size, time_lag))
 
         for i in range(batch_size):
-            ind = np.random.choice(self._state.time_lag, self._state.seq_len, replace=False)
+            ind = self._state.rng.choice(time_lag, self._state.seq_len, replace=False)
             ind.sort()
             zeros1[i][ind] = seq[i]
 
-        zeros2 = np.zeros((batch_size, self._state.time_lag + 1))
+        zeros2 = np.zeros((batch_size, time_lag + 1))
         marker = marker_id * np.ones((batch_size, 1))
         zeros3 = np.zeros((batch_size, self._state.seq_len))
 
@@ -103,10 +106,11 @@ class DenoisingData(object):
 if __name__=="__main__":
 
     gen = DenoisingData()
-    data = gen.next()
-    print(data['seqlen'])
-    print(data['x'])
-    print(data['y'])
-    print(data['mask'])
+    for i in range(10):
+        data = gen.next()
+        print(data['seqlen'])
+        print(data['x'].shape)
+        print(data['y'].shape)
+        print(data['mask'].shape)
 
 
