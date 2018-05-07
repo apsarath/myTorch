@@ -158,6 +158,22 @@ class Recurrent(nn.Module):
         print("Num_params : {} ".format(num_params))
         return num_params
 
+    def can_make_net_wider(self, new_hidden_dim):
+        """
+        Method to check if the recurrent net can be made wider. The net can be made wider only if
+        new_hidden_dim > self._layer_size[0] (ie current hidden dim)
+        For now, we check for only 1 layer. This is trivial to extend for multiple layers and
+        can be done on demand :)
+        :param expanded_layer_size:
+        :return:
+        """
+        flag = True
+        for old_dim in self._layer_size:
+            if (old_dim >= new_hidden_dim):
+                flag = False
+                break
+        return flag
+
     def make_net_wider(self, new_hidden_dim):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
@@ -176,7 +192,7 @@ class Recurrent(nn.Module):
                                        replication_factor=replication_factor,
                                        is_first_cell=True)
 
-        for cell in self._Cells[1:]:
+        for idx, cell in enumerate(self._Cells[1:], 1):
             cell.make_cell_wider(new_hidden_dim=new_hidden_dim,
                                  indices_to_copy=indices_to_copy,
                                  replication_factor=replication_factor,
