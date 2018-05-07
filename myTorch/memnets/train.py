@@ -35,14 +35,17 @@ def get_data_iterator(config):
                                               max_len=config.max_len, block_len=config.block_len,
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
-        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
+        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag_min=config.time_lag_min,
+                                          time_lag_max=config.time_lag_max, num_digits=config.num_digits,
+                                          num_noise_digits=config.num_noise_digits, 
                                           batch_size=config.batch_size, seed=config.seed)
     elif config.task == "adding":
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
     elif config.task == "denoising_copy":
-        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag=config.time_lag, batch_size=config.batch_size,
-                                        num_noise_digits=config.num_noise_digits, num_digits = config.num_digits,
-                                        seed=config.seed)
+        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag_min=config.time_lag_min, 
+                                      time_lag_max=config.time_lag_max, batch_size=config.batch_size, 
+                                      num_noise_digits=config.num_noise_digits, 
+                                      num_digits=config.num_digits, seed=config.seed)
 
     return data_iterator
 
@@ -128,7 +131,7 @@ def create_experiment(config):
     torch.manual_seed(config.rseed)
     input_size = config.num_digits + config.num_noise_digits + 1
     output_size = input_size - 1
-    t_max = 1 + config.time_lag + config.seq_len
+    t_max = 1 + config.time_lag_max + config.seq_len
 
     model = Recurrent(device, input_size, output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
