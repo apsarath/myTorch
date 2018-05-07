@@ -10,7 +10,7 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [256]
+layer_size: [128]
 activation: "tanh"
 
 # optimization specific details
@@ -44,12 +44,17 @@ batch_size: 10
 
 # curriculum related details
 min_seq_len:  5
-max_seq_len:  30
+max_seq_len:  11
 step_seq_len: 2
 average_over_last_n: 10
+evaluate_over_n: 10
+curriculum_seed: 6
 
 # early stopping related details
-time_span: 100
+time_span: 10
+
+# Details related to expanding the rnn
+expanded_layer_size: [256]
 
 # saving details
 use_tflogger: True
