@@ -8,7 +8,7 @@ class CopyingMemoryData(object):
     As defined in https://arxiv.org/pdf/1511.06464.pdf
     """
 
-    def __init__(self, seq_len=20, time_lag_min=10, time_lag_max=20, num_digits=15, num_noise_digits=12, batch_size=5, seed=5):
+    def __init__(self, seq_len=10, time_lag_min=100, time_lag_max=100, num_digits=8, num_noise_digits=1, batch_size=5, seed=5):
         """Initializes the data generator.
 
         Args:
