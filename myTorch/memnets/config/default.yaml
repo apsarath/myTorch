@@ -14,7 +14,7 @@ layer_size: [256]
 activation: "tanh"
 layer_norm: False
 identity_init: False
-use_relu: True
+use_relu: False
 
 # optimization specific details
 
