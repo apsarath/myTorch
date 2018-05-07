@@ -7,7 +7,6 @@ import torch
 import torch.nn.functional as F
 
 from myTorch import Experiment
-# from myTorch.projects.overfeeding.utils.curriculum import CurriculumExperiment
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
 from myTorch.projects.overfeeding.utils.curriculum import curriculum_generator
 from myTorch.projects.overfeeding.utils.metric import get_metric_registry
