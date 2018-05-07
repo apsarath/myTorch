@@ -1,18 +1,22 @@
-import numpy
 import argparse
 import logging
 
+import numpy
+import numpy as np
 import torch
+import torch.nn.functional as F
 
 from myTorch import Experiment
-from myTorch.memnets.recurrent_net import Recurrent
-from myTorch.task.copy_task import CopyData
-from myTorch.task.repeat_copy_task import RepeatCopyData
+# from myTorch.projects.overfeeding.utils.curriculum import CurriculumExperiment
+from myTorch.projects.overfeeding.recurrent_net import Recurrent
+from myTorch.projects.overfeeding.utils.curriculum import curriculum_generator
+from myTorch.projects.overfeeding.utils.metric import get_metric_registry
 from myTorch.task.associative_recall_task import AssociativeRecallData
+from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
-from myTorch.utils.logging import Logger
+from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import MyContainer, get_optimizer, create_config
-import torch.nn.functional as F
+from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -23,25 +27,24 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_data_iterator(config):
-
     if config.task == "copy":
-        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
-                                 max_len=config.max_len, batch_size=config.batch_size)
+        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.seq_len,
+                                 max_len=config.seq_len, batch_size=config.batch_size)
     elif config.task == "repeat_copy":
-        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
-                                       max_len=config.max_len, min_repeat=config.min_repeat,
+        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.seq_len,
+                                       max_len=config.seq_len, min_repeat=config.min_repeat,
                                        max_repeat=config.max_repeat, batch_size=config.batch_size)
     elif config.task == "associative_recall":
-        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
-                                              max_len=config.max_len, block_len=config.block_len,
+        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.seq_len,
+                                              max_len=config.seq_len, block_len=config.block_len,
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
         data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
-                                            batch_size=config.batch_size, seed=config.seed)
+                                          batch_size=config.batch_size, seed=config.seed)
     return data_iterator
 
 
-def train(experiment, model, config, data_iterator, tr, logger, device):
+def train(experiment, model, config, data_iterator, tr, logger, device, metrics):
     """Training loop.
 
     Args:
@@ -52,7 +55,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         tr: training statistics dictionary.
         logger: logger object.
     """
-
+    should_stop_curriculum = True
     for step in range(tr.updates_done, config.max_steps):
 
         data = data_iterator.next()
@@ -78,9 +81,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             seqloss += (loss * mask)
             predictions = F.softmax(
                 (torch.cat(
-                                       ((1 - output).unsqueeze(2), output.unsqueeze(2)),
-                                    dim=2))
-                          , dim = 2)
+                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
+                    dim=2))
+                , dim=2)
             predictions = predictions.max(2)[1].float()
             average_accuracy += ((y == predictions).int().sum().item() * mask)
 
@@ -106,19 +109,36 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         model.optimizer.step()
 
-        tr.updates_done +=1
+        metrics["loss"].update(tr.average_bce[-1])
+        metrics["accuracy"].update(tr.average_accuracy[-1])
+
+        tr.updates_done += 1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, running average of BCE: {},"
+            logging.info("examples seen: {}, running average of BCE: {}, "
                          "average accuracy for last batch: {}, "
-                         "running average of accuracy: {}".format(tr.updates_done*config.batch_size,
-                                                                                running_average_bce,
+                         "running average of accuracy: {}".format(tr.updates_done * config.batch_size,
+                                                                  running_average_bce,
                                                                   average_accuracy,
                                                                   running_average_accuracy))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
+        if (metrics["accuracy"].is_best_so_far()):
+            experiment.save(tag="best")
 
-def run_experiment():
+        if (metrics["loss"].should_stop_early() or metrics["accuracy"].should_stop_early()):
+            logging.info("Early stopping after {} epochs".format(step))
+            logging.info("Loss = {} for the best performing model".format(metrics["loss"].get_best_so_far()))
+            logging.info("Accuracy = {} for the best performing model".format(metrics["accuracy"].get_best_so_far()))
+            average_accuracy_array = np.asarray(tr.average_accuracy)[-config.average_over_last_n:]
+            if (np.mean(average_accuracy_array) > 0.8):
+                should_stop_curriculum = False
+            break
+
+    return should_stop_curriculum
+
+
+def train_curriculum():
     """Runs the experiment."""
 
     config = create_config(args.config)
@@ -126,15 +146,7 @@ def run_experiment():
     logging.info(config.get())
 
     device = torch.device(config.device)
-    logging.info("using {}".format(config.device))
-
-    experiment = Experiment(config.name, config.save_dir)
-    experiment.register_config(config)
-
-    logger = None
-    if config.use_tflogger:
-        logger = Logger(config.tflog_dir)
-        experiment.register_logger(logger)
+    logging.info("using device {}".format(config.device))
 
     torch.manual_seed(config.rseed)
 
@@ -142,28 +154,45 @@ def run_experiment():
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear").to(device)
-    experiment.register_model(model)
-
-    data_iterator = get_data_iterator(config)
-    experiment.register_data_iterator(data_iterator)
 
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
 
-    tr = MyContainer()
-    tr.updates_done = 0
-    tr.average_bce = []
-    tr.average_accuracy = []
-    experiment.register_train_statistics(tr)
+    should_stop_curriculum = False
+    experiment = Experiment(config.name, config.save_dir)
+    logger = None
+    if config.use_tflogger:
+        logger = Logger(config.tflog_dir)
+        experiment.register_logger(logger)
+    experiment.register_model(model)
+    experiment.register_config(config)
 
+    # This part might cause some issues later
     if not args.force_restart:
         if experiment.is_resumable():
             experiment.resume()
+            logging.info("Resuming experiment")
+        else:
+            logging.info("Restarting the experiment")
     else:
         experiment.force_restart()
+        logging.info("Forced to restart the experiment")
 
-    train(experiment, model, config, data_iterator, tr, logger, device)
+    for curriculum_config in curriculum_generator(config):
+        logging.info("Starting curriculum with seq_len: {}".format(curriculum_config.seq_len))
+        data_iterator = get_data_iterator(curriculum_config)
+        experiment.register_data_iterator(data_iterator)
+        tr = MyContainer()
+        tr.updates_done = 0
+        tr.average_bce = []
+        tr.average_accuracy = []
+        experiment.register_train_statistics(tr)
+        metrics = get_metric_registry(time_span=curriculum_config.time_span)
+        should_stop_curriculum = train(experiment, model, curriculum_config, data_iterator, tr, logger, device, metrics)
+        if (should_stop_curriculum):
+            logging.info("Stopping curriculum after seq_len: {}".format(curriculum_config.seq_len))
+            break
 
 
 if __name__ == '__main__':
-    run_experiment()
+    train_curriculum()
