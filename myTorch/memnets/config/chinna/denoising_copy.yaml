@@ -44,7 +44,8 @@ device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 task: "denoising_copy"
 batch_size: 32
 seed: 5
-time_lag: 500
+time_lag_min: 100
+time_lag_max: 200
 seq_len: 10
 num_noise_digits: 2
 num_digits: 12

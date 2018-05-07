@@ -8,7 +8,7 @@ class DenoisingData(object):
     As defined in https://arxiv.org/pdf/1706.02761.pdf
     """
 
-    def __init__(self, seq_len=10, time_lag=15, num_digits=12, batch_size=5, num_noise_digits=5, seed=5):
+    def __init__(self, seq_len=10, time_lag_min=15, time_lag_max=20, num_digits=12, batch_size=5, num_noise_digits=5, seed=5):
         """Initializes the data generator.
 
         Args:
@@ -21,7 +21,7 @@ class DenoisingData(object):
         self._state = MyContainer()
 
         self._state.seq_len = seq_len
-        self._state.time_lag = time_lag
+        self._state.time_lag_range = [time_lag_min, time_lag_max]
         self._state.num_digits = num_digits
         self._state.batch_size = batch_size
         self._state.num_noise_digits = num_noise_digits
@@ -37,6 +37,8 @@ class DenoisingData(object):
 
         if batch_size is None:
             batch_size = self._state.batch_size
+
+        self._state.time_lag = np.random.randint(self._state.time_lag_range[0], self._state.time_lag_range[1]+1)
 
         data_len = self._state.seq_len + self._state.time_lag + 1
 
