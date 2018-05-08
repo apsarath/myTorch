@@ -101,15 +101,18 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         seqloss.backward(retain_graph=False)
 
-        torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+        total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+
+        if config.use_tflogger:
+            logger.log_scalar("inst_total_norm", total_norm, step + 1)
  
 
         model.optimizer.step()
 
         tr.updates_done +=1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, inst loss: {}".format(tr.updates_done*config.batch_size,
-                                                                                tr.average_bce[-1]))
+            logging.info("examples seen: {}, inst loss: {}, total_norm : {}".format(tr.updates_done*config.batch_size,
+                                                                                tr.average_bce[-1], total_norm))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
