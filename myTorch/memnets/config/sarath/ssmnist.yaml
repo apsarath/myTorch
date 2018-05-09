@@ -3,11 +3,11 @@ config_filename: "ssmnist.yaml"
 description: "ssmnist task"
 
 project_name: "ssmnist_task"
-ex_name: "test33"
+ex_name: "lstm_80_chrono_d15"
 
 # model specific details
 
-model:   "FlatMemory"  # flat 576, 9, h100  #28651
+model:   "LSTM"  # flat 576, 9, h100  #28651
 input_size: 5
 output_size:  11
 num_layers: 1
@@ -16,7 +16,9 @@ activation: "relu"
 layer_norm: False  # works only for LSTM, RNN
 identity_init: True # works only for RNN
 chrono_init: True
-t_max: 335
+t_max: 802
+
+# t_max for 5: 335, 10: 560, 15: 802
 
 # optimization specific details
 
@@ -45,7 +47,7 @@ task: "ssmnist"
 data_folder: "/mnt/data/sarath/data/ssmnist/data/"
 batch_size: 100
 seed: 50
-num_digits: 5
+num_digits: 15
 
 # saving details
 use_tflogger: True
