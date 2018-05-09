@@ -174,7 +174,8 @@ def get_optimizer(params, config):
     elif config.optim_name == "Adagrad":
         return optim.Adagrad(params, lr=config.lr, lr_decay=config.lr_decay, weight_decay=config.weight_decay)
     elif config.optim_name == "Adam":
-        return optim.Adam(params, lr=config.lr, betas=(config.beta_0, config.beta_1), eps=config.eps, weight_decay=config.weight_decay)
+        return optim.Adam(params, lr=config.lr, betas=(config.beta_0, config.beta_1), eps=config.eps, weight_decay=config.weight_decay,
+                          amsgrad=config.amsgrad)
     elif config.optim_name == "SGD":
         return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
     else:
