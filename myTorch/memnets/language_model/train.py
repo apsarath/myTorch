@@ -116,11 +116,11 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
 
         running_average = sum(tr.average_loss[mode]) / len(tr.average_loss[mode])
 
-        if config.use_tflogger:
-            logger.log_scalar("running_avg_loss_{}".format(mode), running_average, step + 1)
-            logger.log_scalar("loss_{}".format(mode), tr.average_loss[mode][-1], step + 1)
-            logger.log_scalar("running_perplexity_{}".format(mode), _safe_exp(running_average), step + 1)
-            logger.log_scalar("inst_perplexity_{}".format(mode), _safe_exp(tr.average_loss[mode][-1]), step + 1)
+        if config.use_tflogger and mode == "train":
+            logger.log_scalar("running_avg_loss", running_average, tr.updates_done[mode] + 1)
+            logger.log_scalar("loss", tr.average_loss[mode][-1], tr.updates_done[mode] + 1)
+            logger.log_scalar("running_perplexity", _safe_exp(running_average), tr.updates_done[mode] + 1)
+            logger.log_scalar("inst_perplexity", _safe_exp(tr.average_loss[mode][-1]), tr.updates_done[mode] + 1)
 
         if mode == "train":
             model.optimizer.zero_grad()
@@ -131,13 +131,17 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         tr.updates_done[mode] +=1
         step += 1
         if tr.updates_done[mode] % 1 == 0:
-            logging.info("Epoch : {}, {} %: {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words)))
+            logging.info("Epoch : {}, {} %: {}, step : {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words), tr.updates_done[mode]))
             logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
         if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
             experiment.save()
     logging.info("Avg loss: {}, Avg perp: {}".format(running_average, _safe_exp(running_average)))
     batched_data[mode] = batched_data[mode].to("cpu")
+
+    if mode != "train":
+        logger.log_scalar("loss_{}".format(mode), running_average, epoch_id+1)
+        logger.log_scalar("perplexity_{}".format(mode), _safe_exp(running_average), epoch_id+1)
 
 
 def create_experiment(config):
@@ -191,7 +195,7 @@ def run_experiment(args):
 
     logging.info(config.get())
 
-    experiment, model, data_iterator, tr, logger, device = create_experiment(config)
+    experiment, model, batched_data, tr, logger, device = create_experiment(config)
 
     if not args.force_restart:
         if experiment.is_resumable():
@@ -202,10 +206,7 @@ def run_experiment(args):
     for i in range(config.num_epochs):
         for mode in ["train", "valid", "test"]:
             tr.mini_batch_id[mode] = 0
-            if mode != "train":
-                tr.updates_done[mode] = 0
-                tr.average_loss[mode] = []
-            run_epoch(i, mode, experiment, model, config, data_iterator, tr, logger, device)
+            run_epoch(i, mode, experiment, model, config, batched_data, tr, logger, device)
 
 
 if __name__ == '__main__':

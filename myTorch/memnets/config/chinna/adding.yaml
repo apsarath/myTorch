@@ -43,6 +43,8 @@ task: "adding"
 batch_size: 10
 seed: 5
 seq_len: 100
+num_noise_digits: 1
+num_digits: 8
 
 # saving details
 use_tflogger: True

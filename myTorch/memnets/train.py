@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy
 import argparse
 import logging
@@ -35,13 +36,17 @@ def get_data_iterator(config):
                                               max_len=config.max_len, block_len=config.block_len,
                                               batch_size=config.batch_size)
     elif config.task == "copying_memory":
-        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
+        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag_min=config.time_lag_min,
+                                          time_lag_max=config.time_lag_max, num_digits=config.num_digits,
+                                          num_noise_digits=config.num_noise_digits, 
                                           batch_size=config.batch_size, seed=config.seed)
     elif config.task == "adding":
         data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
     elif config.task == "denoising_copy":
-        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag=config.time_lag, batch_size=config.batch_size,
-                                        noise_len=config.noise_len, seed=config.seed)
+        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag_min=config.time_lag_min, 
+                                      time_lag_max=config.time_lag_max, batch_size=config.batch_size, 
+                                      num_noise_digits=config.num_noise_digits, 
+                                      num_digits=config.num_digits, seed=config.seed)
 
     return data_iterator
 
@@ -97,15 +102,18 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         seqloss.backward(retain_graph=False)
 
-        torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+        total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+
+        if config.use_tflogger:
+            logger.log_scalar("inst_total_norm", total_norm, step + 1)
  
 
         model.optimizer.step()
 
         tr.updates_done +=1
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, inst loss: {}".format(tr.updates_done*config.batch_size,
-                                                                                tr.average_bce[-1]))
+            logging.info("examples seen: {}, inst loss: {}, total_norm : {}".format(tr.updates_done*config.batch_size,
+                                                                                tr.average_bce[-1], total_norm))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
@@ -125,13 +133,16 @@ def create_experiment(config):
         experiment.register_logger(logger)
 
     torch.manual_seed(config.rseed)
+    input_size = config.num_digits + config.num_noise_digits + 1
+    output_size = input_size - 1
+    t_max = 1 + config.time_lag_max + config.seq_len
 
-    model = Recurrent(device, config.input_size, config.output_size,
+    model = Recurrent(device, input_size, output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max).to(device)
+                      t_max=t_max, use_relu=config.use_relu).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)

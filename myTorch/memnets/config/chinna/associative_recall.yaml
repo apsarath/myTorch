@@ -43,6 +43,8 @@ min_len:  2
 max_len:  6
 block_len:  3
 batch_size: 10
+num_noise_digits: 1
+num_digits: 8
 
 # saving details
 use_tflogger: True

@@ -1,16 +1,20 @@
-parent_config: "config/default.yaml"
-config_filename: "copying_memory.yaml"
-description: "copying memory task"
+config_filename: "ptb_25.yaml"
+description: "character langauge model ptb"
 
-project_name: "copying_memory_task"
-ex_name: "flatmemory_m64_k4_h80_linear_gc1"
+project_name: "char_language_model_ptb"
+ex_name: "char_lm_ptb_flatmemory_relu_gcn1_m576_k25"
+data: "data/pennchar"
 
 # model specific details
 
 model:  "FlatMemory"
+input_emb_size: 200
 num_layers: 1
-layer_size: [80]
+layer_size: [1000]
 activation: "tanh"
+use_relu: True
+memory_size: 576
+k: 25
 
 # optimization specific details
 
@@ -28,21 +32,22 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 5.0
+grad_clip_norm: 1.0
 
 max_steps: 200000
+num_epochs: 5
 rseed:  5
 device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "copying_memory"
-batch_size: 10
+task: "char_lm_ptb"
+batch_size: 128
+eval_batch_size: 128
+test_batch_size: 128
 seed: 5
-time_lag_min: 100
-time_lag_max: 200
+time_lag: 100
 seq_len: 10
-num_noise_digits: 6
-num_digits: 10
+bptt: 150
 
 # saving details
 use_tflogger: True
