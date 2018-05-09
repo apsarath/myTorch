@@ -135,7 +135,13 @@ def create_experiment(config):
     torch.manual_seed(config.rseed)
     input_size = config.num_digits + config.num_noise_digits + 1
     output_size = input_size - 1
-    t_max = 1 + config.time_lag_max + config.seq_len
+
+    if config.task == "copying_memory":
+        t_max = config.time_lag_max + 2*config.seq_len
+    elif config.task == "denoising_copy":
+        t_max = 1 + config.time_lag_max + config.seq_len
+    else:
+        t_max = 1
 
     model = Recurrent(device, input_size, output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
