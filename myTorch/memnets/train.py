@@ -103,14 +103,17 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         seqloss.backward(retain_graph=False)
 
         total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+        tr.grad_norm.append(total_norm)
 
         if config.use_tflogger:
             logger.log_scalar("inst_total_norm", total_norm, step + 1)
- 
 
-        model.optimizer.step()
+        if torch.isnan(total_norm) != 1:
+            model.optimizer.step()
+        else:
+            logging.info("no updates")
 
-        tr.updates_done +=1
+        tr.updates_done += 1
         if tr.updates_done % 1 == 0:
             logging.info("examples seen: {}, inst loss: {}, total_norm : {}".format(tr.updates_done*config.batch_size,
                                                                                 tr.average_bce[-1], total_norm))
@@ -160,6 +163,7 @@ def create_experiment(config):
     tr = MyContainer()
     tr.updates_done = 0
     tr.average_bce = []
+    tr.grad_norm = []
     experiment.register_train_statistics(tr)
 
     return experiment, model, data_iterator, tr, logger, device
