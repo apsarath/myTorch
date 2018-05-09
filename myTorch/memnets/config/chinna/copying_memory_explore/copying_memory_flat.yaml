@@ -3,7 +3,7 @@ config_filename: "copying_memory.yaml"
 description: "copying memory task"
 
 project_name: "copying_memory_task_explore"
-ex_name: "flatmemory_m64_k4_h80_linear_gcn0_5_flat_grad"
+ex_name: "flatmemory_m64_k4_h80_linear_gcn1_flat_new_grad"
 
 # model specific details
 
@@ -29,11 +29,11 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 0.5
+grad_clip_norm: 1
 
 max_steps: 200000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copying_memory"
