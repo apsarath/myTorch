@@ -11,7 +11,7 @@ model:  "RNN"
 num_layers: 1
 layer_size: [143]
 activation: "relu"
-layer_norm: False
+layer_norm: True
 identity_init: False
 
 # optimization specific details
