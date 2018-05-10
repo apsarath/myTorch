@@ -1,0 +1,55 @@
+config_filename: "opus_default.yaml"
+description: "word langauge model opus"
+project_name: "word_language_model_opus"
+ex_name: "opus_lm"
+base_data_path: "/mnt/data/chinna/data/OpenSubData/"
+num_dialogs: 200000 # valid ones are 10, 1000, 200000, 500000
+
+# Model details
+emb_size_src: 512
+hidden_dim_src: 1024
+bidirectional: False
+nlayers_src: 1
+
+# Dataset specific details
+eou: "<eou>"
+go: "<go>"
+unk: "<unk>"
+num: "<num>"
+pad: "<pad>"
+sentence_len_cut_off: 15
+min_sent_len: 6
+train_valid_split: 0.85
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD  
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9                                                                                                                   
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm: 5.0
+
+# task specific details
+device: "cuda"
+num_epochs: 10
+batch_size: 32
+task: "opus_lm"
+eval_batch_size: 32
+test_batch_size: 32
+rseed: 5
+time_lag: 100
+seq_len: 10
+bptt: 70
+
+# saving details
+use_tflogger: True
+save_every_n: 500
+inter_saving: [0, 1000, 2000, 3000, 4000, 5000]

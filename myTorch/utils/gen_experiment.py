@@ -71,8 +71,8 @@ class GenExperiment(object):
 		create_folder(savedir)
 		rmtree(savedir)
 
-		if self._logger is not None:
-			self._logger.force_restart()
+		if self._data["logger"] is not None:
+			self._data["logger"].force_restart()
 
 
 

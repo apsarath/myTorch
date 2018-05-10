@@ -3,12 +3,23 @@
 import sys
 import numpy as np
 import pdb
-from tools import my_lib
 import json
 import os
+import torch
+
+def _num_present(input_string):
+    return any(i.isdigit() for i in input_string)
+
+def _remove_adjacent(nums):
+    i = 1
+    while i < len(nums):    
+        if nums[i] == nums[i-1]:
+            nums.pop(i)
+            i -= 1  
+        i += 1
+    return nums
 
 class OPUS(object):
-
     def __init__(self, config):
         self._config = config
         self._load_and_process_data()
@@ -16,33 +27,33 @@ class OPUS(object):
         
     def _load_and_process_data(self):
         self._data = {}
-        if self._config.toy_mode:
-            with open(os.path.join(self._config.base_data_path, "t_given_s_dialogue_length2_6_toy.txt"), "r") as f:
-                lines = [line for line in f]
-        else:
-            with open(os.path.join(self._config.base_data_path, "t_given_s_dialogue_length2_6_500000.txt"), "r") as f:
-                lines = [line for line in f]
+        with open(os.path.join(self._config.base_data_path, str(self._config.num_dialogs), 
+                                "t_given_s_dialogue_length2_6.txt"), "r") as f:
+            lines = [line for line in f]
 
         with open(os.path.join(self._config.base_data_path, "movie_25000"), "r") as f:
             words = [word[:-1] for word in f]
 
-        words += self._config.extra_vocab
+        words += [self._config.eou, self._config.go, self._config.num, self._config.pad]
         
         self._vocab = list(zip(words, list(range(len(words)))))
         
         id_to_str = dict([(i,w) for w,i in self._vocab])
         str_to_id = dict([(w,i) for w,i in self._vocab])
+        self._id_to_str = id_to_str
+        self._str_to_id = str_to_id
         num_id = str_to_id[self._config.num]
         eou_id = str_to_id[self._config.eou]
         go_id = str_to_id[self._config.go]
         unk_id = str_to_id[self._config.unk]
+        pad_id = str_to_id[self._config.pad]
         
         def _process(utterance):
             utterance =  [int(w)-1 for w in utterance.split(" ")]
             for loc, w_id in enumerate(utterance):
-                if my_lib.num_present(id_to_str[w_id]):
+                if _num_present(id_to_str[w_id]):
                     utterance[loc] = num_id
-            utterance = my_lib.remove_adjacent(utterance)
+            utterance = _remove_adjacent(utterance)
             utterance = utterance[:self._config.sentence_len_cut_off-1]
             return utterance
                     
@@ -56,23 +67,35 @@ class OPUS(object):
             sources.append(source)
             targets.append(target)
 
-        def _pad_unknowns(sent_list, cut_off):
+        def _pad_sentences(sent_list, cut_off):
             for i, sent in enumerate(sent_list):
                 if len(sent) < cut_off:
-                    sent_list[i] += (cut_off - len(sent))*[unk_id]
-            return np.array(sent_list)
+                    sent_list[i] += (cut_off - len(sent))*[pad_id]
+            return torch.LongTensor(sent_list)
 
-        self._data["sources_len"] = np.array([len(sent) for sent in sources])
-        self._data["targets_len"] = np.array([len(sent)-1 for sent in targets])
+        #sort sent lens
+        src_lens = [len(line) for line in sources]
+        sorted_indices = np.argsort(src_lens)[::-1]
+        sources = [sources[idx] for idx in sorted_indices]
+        targets = [targets[idx] for idx in sorted_indices]
 
-        self._data["sources"] = _pad_unknowns(sources, self._config.sentence_len_cut_off)
-        targets = _pad_unknowns(targets, self._config.sentence_len_cut_off + 1)
+        # store data
+        self._data["sources_len"] = torch.LongTensor([len(sent) for sent in sources])
+        self._data["targets_len"] = torch.LongTensor([len(sent)-1 for sent in targets])
+
+        self._data["sources"] = _pad_sentences(sources, self._config.sentence_len_cut_off)
+        targets = _pad_sentences(targets, self._config.sentence_len_cut_off + 1)
         self._data["targets_input"] = targets[:,:-1]
         self._data["targets_output"] = targets[:,1:]
         self._data["targets"] = targets
-        self._data["wts"] = np.zeros_like(self._data["targets_output"], dtype=np.float32)
-        for i in range(self._data["targets_input"].shape[0]):
-            self._data["wts"][i,:self._data["targets_len"][i]] = 1.0
+        self._data["sources_input_lm"] = self._data["sources"][:,:-1]
+        self._data["sources_output_lm"] = self._data["sources"][:,1:]
+        self._data["sources_len_lm"] = torch.LongTensor([len(sent)-1 for sent in sources])
+        #self._data["wts"] = np.zeros_like(self._data["targets_output"], dtype=np.float32)
+        #for i in range(self._data["targets_input"].shape[0]):
+        #    self._data["wts"][i,:self._data["targets_len"][i]] = 1.0
+        self._data["wts"] = torch.ones(len(str_to_id))
+        self._data["wts"][pad_id] = 0
 
     def _split_train_valid(self):
         self._processed_data = {"train": {}, "valid" : {}}
@@ -90,8 +113,14 @@ class OPUS(object):
         for k in self._data:
             self._processed_data["valid"][k] = self._data[k][s:e]
 
-    def get_data(self, mode):
-        return self._processed_data[mode]
-        
-    def get_vocab(self):
-        return self._vocab   
+    @property
+    def data(self):
+        return self._processed_data
+
+    @property
+    def str_to_id(self):
+        return self._str_to_id   
+
+    @property
+    def id_to_str(self):
+        return self._id_to_str

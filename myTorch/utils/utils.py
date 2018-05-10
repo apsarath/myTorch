@@ -44,13 +44,27 @@ class MyContainer():
 
     def save(self, filename):
         tparams = self.__dict__['tparams']
-        pickle.dump({p: tparams[p] for p in tparams}, open(filename, 'wb'), 2)
+        try:
+            pickle.dump({p: tparams[p] for p in tparams}, open(filename, 'wb'), 2)
+        except:
+            self.save_(filename)
+
+    def save_(self, folder):
+        filename = os.path.join(folder, "config.p")
+        self.save(filename)
 
     def load(self, filename):
         tparams = self.__dict__['tparams']
-        loaded = pickle.load(open(filename, 'rb'))
-        for k in loaded:
-            tparams[k] = loaded[k]
+        try:
+            loaded = pickle.load(open(filename, 'rb'))
+            for k in loaded:
+                tparams[k] = loaded[k]
+        except:
+            self.load_(filename)
+
+    def load_(self, folder):
+        filename = os.path.join(folder, "config.p")
+        self.load(filename)
 
     def setvalues(self, values):
         tparams = self.__dict__['tparams']
@@ -180,3 +194,33 @@ def get_optimizer(params, config):
         return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
     else:
         assert("Unsupported optimizer : {}. Valid optimizers : Adadelta, Adagrad, Adam, RMSprop, SGD".format(config.optim_name))
+
+def num_present(input_string):
+    return any(i.isdigit() for i in input_string)
+
+def remove_adjacent(nums):
+    i = 1
+    while i < len(nums):    
+        if nums[i] == nums[i-1]:
+            nums.pop(i)
+            i -= 1  
+        i += 1
+    return nums
+
+def add_config_params(config, config_flag):
+    config_flag = config_flag.split("__")
+    if len(config_flag) % 2 != 0:
+        print("format {config_param1}__{value1}__{config_param2}__{value2} ... ")
+        assert(0)
+
+    config_flag_values = [(flag, value) for flag, value in zip(config_flag[::2], config_flag[1::2])]
+
+    for flag, value in config_flag_values:
+        if flag in config.__dict__:
+            print("Setting {} with value {}".format(flag, value))
+            if isinstance(config.__dict__[flag], str):
+                config.__dict__[flag] = value
+            else:
+                config.__dict__[flag] = eval(value)
+        else:
+            assert("Flag {} not present in config !".format(flag))

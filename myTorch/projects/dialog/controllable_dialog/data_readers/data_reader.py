@@ -2,7 +2,6 @@
 
 import sys
 import numpy as np
-from tools import my_lib
 import json
 
 class Reader(object):
@@ -10,11 +9,10 @@ class Reader(object):
     def __init__(self, config, dataset):
         self._config = config
         self._dataset = dataset
-        self._data = {}
-        for mode in ["train", "valid"]:
-            self._data[mode] = self._dataset.get_data(mode)
+        self._data = dataset.data
+        self._seed = config.rseed
 
-    def itr_generator(self, mode, seed=400, resume_mb_id=0):
+    def itr_generator(self, mode, resume_mb_id=0):
         input_data = {}
         data_len = self._data[mode]["sources"].shape[0]
         input_data["num_batches"] = int(data_len / self._config.batch_size)
@@ -26,6 +24,7 @@ class Reader(object):
             input_data["mb_id"] = resume_mb_id + mb_id
             mb_id += 1
             yield input_data
-
-    def get_dataset(self):
+    
+    @property
+    def corpus(self):
         return self._dataset
