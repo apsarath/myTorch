@@ -165,6 +165,7 @@ def run_experiment(args):
     for i in range(tr.epoch_id, config.num_epochs):
         for mode in ["train", "valid"]:
             tr.mini_batch_id[mode] = 0
+            tr.inst_loss[mode] = []
             tr.epoch_id = i
             run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
         
