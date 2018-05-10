@@ -100,7 +100,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         output_logits = model(
                         mini_batch["sources"].to(device), 
                         mini_batch["sources_len"].to(device),
-                        mini_batch["targets_input"].to(device))
+                        mini_batch["targets_input"].to(device),
+                        is_training=True if mode=="train" else False)
         loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
         
