@@ -38,8 +38,8 @@ class Seq2Seq(nn.Module):
 
         # Encoder GRU
         self._encoder = nn.GRU(
-            self._src_emb_dim // 2 if self._bidirectional else self._src_emb_dim,
-            self._src_hidden_dim,
+            self._src_emb_dim,
+            self._src_hidden_dim //2 if self._bidirectional else self._src_hidden_dim,
             self._nlayers_src,
             bidirectional=bidirectional,
             batch_first=True,
@@ -49,10 +49,9 @@ class Seq2Seq(nn.Module):
         dec_inp_dim = self._src_emb_dim + self._src_hidden_dim
         #dec_inp_dim = self._src_emb_dim
         self._decoder = nn.GRU(
-            dec_inp_dim // 2 if self._bidirectional else dec_inp_dim,
+            dec_inp_dim,
             self._tgt_hidden_dim,
             self._nlayers_tgt,
-            bidirectional=bidirectional,
             batch_first=True,
         )
 
@@ -71,7 +70,7 @@ class Seq2Seq(nn.Module):
         _, src_h_t = self._encoder(src_emb)
 
         # extract the last hidden of encoder
-        h_t = src_h_t[-1]
+        h_t = torch.cat((src_h_t[-1], src_h_t[-2]), 1) if self._bidirectional else src_h_t[-1]
         #tgt_input = tgt_emb
         tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1))

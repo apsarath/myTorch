@@ -24,7 +24,7 @@ min_sent_len: 6
 train_valid_split: 0.85
 
 # Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD  
-optim_name: "Adam"
+optim_name: "RMSprop"
 lr: 1.0e-3
 rho: 0.9
 eps:  1.0e-8
