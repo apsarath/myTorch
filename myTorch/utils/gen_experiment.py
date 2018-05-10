@@ -73,7 +73,3 @@ class GenExperiment(object):
 
 		if self._data["logger"] is not None:
 			self._data["logger"].force_restart()
-
-
-
-

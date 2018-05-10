@@ -91,11 +91,6 @@ class OPUS(object):
         self._data["sources_input_lm"] = self._data["sources"][:,:-1]
         self._data["sources_output_lm"] = self._data["sources"][:,1:]
         self._data["sources_len_lm"] = torch.LongTensor([len(sent)-1 for sent in sources])
-        #self._data["wts"] = np.zeros_like(self._data["targets_output"], dtype=np.float32)
-        #for i in range(self._data["targets_input"].shape[0]):
-        #    self._data["wts"][i,:self._data["targets_len"][i]] = 1.0
-        self._data["wts"] = torch.ones(len(str_to_id))
-        self._data["wts"][pad_id] = 0
 
     def _split_train_valid(self):
         self._processed_data = {"train": {}, "valid" : {}}
