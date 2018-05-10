@@ -30,11 +30,11 @@ class Seq2Seq(nn.Module):
         )
         
         # Word Embedding look-up table for the target
-        self._tgt_embedding = nn.Embedding(
-            self._src_vocab_size,
-            self._src_emb_dim,
-            self._pad_token_src,
-        )
+        #self._tgt_embedding = nn.Embedding(
+        #    self._src_vocab_size,
+        #    self._src_emb_dim,
+        #    self._pad_token_src,
+        #)
 
         # Encoder GRU
         self._encoder = nn.GRU(
@@ -45,9 +45,9 @@ class Seq2Seq(nn.Module):
             batch_first=True,
         )
 
-        # Decoder GRU
-        #dec_inp_dim = self._src_emb_dim + self._src_hidden_dim
-        dec_inp_dim = self._src_emb_dim
+        # Decoder RNN
+        dec_inp_dim = self._src_emb_dim + self._src_hidden_dim
+        #dec_inp_dim = self._src_emb_dim
         self._decoder = nn.GRU(
             dec_inp_dim // 2 if self._bidirectional else dec_inp_dim,
             self._tgt_hidden_dim,
@@ -57,12 +57,12 @@ class Seq2Seq(nn.Module):
         )
 
         # Projection layer from decoder hidden states to target language vocabulary
-        self._decoder2vocab = nn.Linear(tgt_hidden_dim, src_vocab_size)
+        self._decoder2vocab = nn.Linear(self._tgt_hidden_dim, self._src_vocab_size)
 
     def forward(self, input_src, src_lengths, input_tgt):
         # Lookup word embeddings in source and target minibatch
         src_emb = self._src_embedding(input_src)
-        tgt_emb = self._tgt_embedding(input_tgt)
+        tgt_emb = self._src_embedding(input_tgt)
 
         # Pack padded sequence for length masking in encoder RNN (This requires sorting input sequence by length)
         src_emb = pack_padded_sequence(src_emb, src_lengths, batch_first=True)
@@ -70,12 +70,13 @@ class Seq2Seq(nn.Module):
         # Run sequence of embeddings through the encoder GRU
         _, src_h_t = self._encoder(src_emb)
 
-        # extract the last hiddent of encoder
+        # extract the last hidden of encoder
         h_t = src_h_t[-1]
-        #tgt_input = torch.concat((tgt_emb, h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1))), dim=2)
+        #tgt_input = tgt_emb
+        tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1))
 
-        tgt_h, _ = self._decoder(tgt_emb, h_t)
+        tgt_h, _ = self._decoder(tgt_input, h_t)
 
         output_logits = F.relu(self._decoder2vocab(tgt_h.contiguous().view(-1,tgt_h.size(2))))
         output_logits = output_logits.view(tgt_h.size(0), tgt_h.size(1), output_logits.size(1))

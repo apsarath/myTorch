@@ -117,7 +117,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         if mode == "train":
             model.optimizer.zero_grad()
             loss.backward(retain_graph=False)
-            torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip_norm)
             model.optimizer.step()
 
         tr.mini_batch_id[mode] += 1
@@ -127,7 +127,9 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
             logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
             logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
 
-    experiment.save("current")
+    if mode == "train":
+        experiment.save("current")
+
     avg_loss = np.mean(np.array(tr.inst_loss[mode]))
     tr.loss_per_epoch[mode].append(avg_loss)
     if config.use_tflogger:
@@ -138,11 +140,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     logging.info("{}: loss: {},  perp: {}".format(mode, avg_loss, _safe_exp(avg_loss)))
     logging.info("\n*****************************\n")
 
-    if mode == "valid":
-        if len(tr.loss_per_epoch[mode]) <= 1:
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
-        elif tr.loss_per_epoch[mode][-1] >= np.max(np.array(tr.loss_per_epoch[mode][:-1])):
+    if mode == "valid" and len(tr.loss_per_epoch[mode]) > 1:
+        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
             logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
             experiment.save("best_model", "model")
 
@@ -161,6 +160,7 @@ def run_experiment(args):
             experiment.resume("current")
     else:
         experiment.force_restart("current")
+        experiment.force_restart("best_model")
 
     for i in range(tr.epoch_id, config.num_epochs):
         for mode in ["train", "valid"]:
