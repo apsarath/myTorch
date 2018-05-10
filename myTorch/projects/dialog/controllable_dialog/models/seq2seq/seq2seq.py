@@ -73,7 +73,7 @@ class Seq2Seq(nn.Module):
         h_t = torch.cat((src_h_t[-1], src_h_t[-2]), 1) if self._bidirectional else src_h_t[-1]
         #tgt_input = tgt_emb
         tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
-        h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1))
+        h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()
 
         tgt_h, _ = self._decoder(tgt_input, h_t)
 
