@@ -9,7 +9,7 @@ class Seq2Seq(nn.Module):
         self, src_emb_dim, src_vocab_size,
         src_hidden_dim, tgt_hidden_dim,
         pad_token_src, bidirectional,
-        nlayers_src, nlayers_tgt, dropout_rate=0.0):
+        nlayers_src, nlayers_tgt, dropout_rate):
         """Initialize Language Model."""
         super(Seq2Seq, self).__init__()
 

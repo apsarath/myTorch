@@ -59,9 +59,10 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = Seq2Seq( config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
-                           corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
-                           nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt).to(device)
+    model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
+                    corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
+                    nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
+                    dropout_rate=config.dropout_rate).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
 
     experiment.register("model", model)
