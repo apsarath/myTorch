@@ -19,10 +19,8 @@ from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
-parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
+parser.add_argument("--force_restart", type=bool, default=True, help="if True start training from scratch.")
 args = parser.parse_args()
-
-logging.basicConfig(level=logging.INFO)
 
 
 def get_data_iterator(config, seed=None):
@@ -128,24 +126,26 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         if (metrics["accuracy"].is_best_so_far()):
             experiment.save(tag="best")
 
-        if (metrics["loss"].should_stop_early() or metrics["accuracy"].should_stop_early()):
+        if(tr.updates_done > config.average_over_last_n):
             average_accuracy_array = np.asarray(tr.average_accuracy)[-config.average_over_last_n:]
             if (np.mean(average_accuracy_array) > 0.8):
                 # Could complete the task. No need to grow the model
                 should_stop_curriculum = False
-            else:
+                break
+
+            elif (metrics["loss"].should_stop_early() or metrics["accuracy"].should_stop_early()):
                 # Could not complete the task
                 # Lets try to grow:
-                if (model.can_make_net_wider(new_hidden_dim=config.expanded_layer_size[0])):
+                if (model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size)):
                     # Lets expand
-                    model.make_net_wider(new_hidden_dim=config.expanded_layer_size[0])
+                    model.make_net_wider(expanded_layer_size=config.expanded_layer_size)
                     # Now we will reset the counters and continue training
                     metrics["loss"].reset()
                     metrics["accuracy"].reset()
 
                     # I would be happy to discuss why am I creating a new model and not using the previous model
                     wider_model = Recurrent(device, config.input_size, config.output_size,
-                                            num_layers=config.num_layers, layer_size=config.expanded_layer_size,
+                                            num_layers=config.num_layers, layer_size=model.layer_size,
                                             cell_name=config.model, activation=config.activation,
                                             output_activation="linear")
 
@@ -164,16 +164,16 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                     # Could neither complete the task nor is there a scope to grow the model.
                     # Time to meet the creator
                     should_stop_curriculum = True
-            logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
-                model_idx, step))
-            logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
-                model_idx, metrics["loss"].get_best_so_far()))
-            logging.info(
-                "When training model, model_index: {}, accuracy = {} for the best performing model".format
-                (model_idx, metrics["accuracy"].get_best_so_far()))
-            break
+                logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
+                    model_idx, step))
+                logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
+                    model_idx, metrics["loss"].get_best_so_far()))
+                logging.info(
+                    "When training model, model_index: {}, accuracy = {} for the best performing model".format
+                    (model_idx, metrics["accuracy"].get_best_so_far()))
+                break
 
-    return should_stop_curriculum
+    return should_stop_curriculum, model
 
 
 def evaluate(model, config, data_iterator, tr, logger, device, model_idx, curriculum_idx):
@@ -247,6 +247,8 @@ def train_curriculum():
 
     config = create_config(args.config)
 
+    logging.basicConfig(level=logging.INFO, filename=config.save_dir+"/log.txt")
+
     logging.info(config.get())
 
     device = torch.device(config.device)
@@ -292,11 +294,13 @@ def train_curriculum():
         tr.average_accuracy = []
         experiment.register_train_statistics(tr)
         metrics = get_metric_registry(time_span=curriculum_config.time_span)
-        should_stop_curriculum = train(experiment, model, curriculum_config, data_iterator, tr, logger, device,
+        should_stop_curriculum, model = train(experiment, model, curriculum_config, data_iterator, tr, logger, device,
                                        metrics, model_idx)
 
         model.eval()
         for curriculum_idx, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
+            if curriculum_idx >= model_idx+10:
+                break
             tr_for_eval = MyContainer()
             tr_for_eval.updates_done = 0
             tr_for_eval.average_bce = []
@@ -307,7 +311,7 @@ def train_curriculum():
         model.train()
 
         if (should_stop_curriculum):
-            logging.info("Stopping curriculum after seq_len: {}".format(curriculum_config.seq_len))
+            logging.info("Stopping curriculum after curriculum index:{}, seq_len: {}".format(model_idx, curriculum_config.seq_len))
             break
 
 
