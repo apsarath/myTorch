@@ -34,7 +34,7 @@ class FlatNet(nn.Module):
 
         self._list_of_modules = nn.ModuleList(self._Cells)
 
-        self._reset_parameters()
+        self.reset_hidden()
 
     def forward(self, input, hidden_init=None):
         outputs = []
@@ -79,12 +79,6 @@ class FlatNet(nn.Module):
             for key in self._h_prev[cell_id]:
                 self._h_prev[cell_id][key] = self._h_prev[cell_id][key].detach()
 
-    def _reset_parameters(self):
-        """Initializes the parameters."""
-
-        nn.init.xavier_normal_(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
-        nn.init.constant_(self._b_o, 0)
-
     def register_optimizer(self, optimizer):
         """Registers an optimizer for the model.
 
@@ -102,21 +96,8 @@ class FlatNet(nn.Module):
             hidden_size: int, hidden layer dimension.
         """
 
-        if self._cell_name == "RNN":
-            self._Cells.append(RNNCell(self._device, input_size, hidden_size,
-                                       activation=self._activation, layer_norm=self._layer_norm,
-                                       identity_init=self._identity_init))
-        elif self._cell_name == "LSTM":
-            self._Cells.append(LSTMCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
-                                        chrono_init=self._chrono_init, t_max=self._t_max))
-        elif self._cell_name == "JANET":
-            self._Cells.append(JANETCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
-                                         chrono_init=self._chrono_init, t_max=self._t_max))
-        elif self._cell_name == "GRU":
-            self._Cells.append(GRUCell(self._device, input_size, hidden_size))
-        elif self._cell_name == "FlatMemory":
-            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
-                                                memory_size=self._memory_size, k=self._k, use_relu=self._use_relu))
+        self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
+                memory_size=self._memory_size, k=self._k, use_relu=self._use_relu))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
