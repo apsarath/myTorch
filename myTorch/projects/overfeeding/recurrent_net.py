@@ -1,5 +1,6 @@
 """Implementation of a generic Recurrent Network."""
 import os
+import logging
 
 import numpy as np
 import torch
@@ -158,7 +159,7 @@ class Recurrent(nn.Module):
         print("Num_params : {} ".format(num_params))
         return num_params
 
-    def can_make_net_wider(self, new_hidden_dim):
+    def can_make_net_wider(self, expanded_layer_size):
         """
         Method to check if the recurrent net can be made wider. The net can be made wider only if
         new_hidden_dim > self._layer_size[0] (ie current hidden dim)
@@ -167,14 +168,13 @@ class Recurrent(nn.Module):
         :param expanded_layer_size:
         :return:
         """
-        flag = True
-        for old_dim in self._layer_size:
-            if (old_dim >= new_hidden_dim):
-                flag = False
-                break
+        flag = False
+        candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
+        if(candidate_layers):
+            flag = True
         return flag
 
-    def make_net_wider(self, new_hidden_dim):
+    def make_net_wider(self, expanded_layer_size):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
         size new_hidden_dim
@@ -182,33 +182,44 @@ class Recurrent(nn.Module):
              new_hidden_dim: Size of the hidden dim of the recurrent net after making it wider
         """
 
-        initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
-        indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
-        replication_factor = np.bincount(indices_to_copy)
+        candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
+        if (candidate_layers):
+            new_hidden_dim = candidate_layers[0]
+            new_layer_size = [new_hidden_dim]*len(self._layer_size)
+            logging.info("Making RNN wider. Previous width = {}, new width = {}".format("_".join([str(x) for x in self._layer_size]),
+                                                                                        "_".join([str(x) for x in new_layer_size])))
 
-        # Growing all the RNN cells
-        self._Cells[0].make_cell_wider(new_hidden_dim=new_hidden_dim,
-                                       indices_to_copy=indices_to_copy,
-                                       replication_factor=replication_factor,
-                                       is_first_cell=True)
+            initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
+            indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
+            replication_factor = np.bincount(indices_to_copy)
 
-        for idx, cell in enumerate(self._Cells[1:], 1):
-            cell.make_cell_wider(new_hidden_dim=new_hidden_dim,
-                                 indices_to_copy=indices_to_copy,
-                                 replication_factor=replication_factor,
-                                 is_first_cell=False)
+            # Growing all the RNN cells
+            self._Cells[0].make_cell_wider(new_hidden_dim=new_layer_size[0],
+                                           indices_to_copy=indices_to_copy,
+                                           replication_factor=replication_factor,
+                                           is_first_cell=True)
 
-        # Growing the parameters of the recurrent net
-        self._layer_size = new_hidden_dim
+            for idx, cell in enumerate(self._Cells[1:]):
+                cell.make_cell_wider(new_hidden_dim=new_layer_size[idx],
+                                     indices_to_copy=indices_to_copy,
+                                     replication_factor=replication_factor,
+                                     is_first_cell=False)
 
-        student_w = make_weight_wider_at_input(teacher_w=self._W_h2o.data.cpu().numpy(),
-                                               indices_to_copy=indices_to_copy,
-                                               replication_factor=replication_factor)
-        self._W_h2o.data = torch.from_numpy(student_w)
+            # Growing the parameters of the recurrent net
+            self._layer_size = new_layer_size
 
-        # Growing the hidden state vectors
-        for h in self._h_prev:
-            for key, param in h.items():
-                student_b = make_h_wider(teacher_b=param.data.cpu().numpy(),
-                                         indices_to_copy=indices_to_copy)
-                h[key].data = torch.from_numpy(student_b).to(self._device)
+            student_w = make_weight_wider_at_input(teacher_w=self._W_h2o.data.cpu().numpy(),
+                                                   indices_to_copy=indices_to_copy,
+                                                   replication_factor=replication_factor)
+            self._W_h2o.data = torch.from_numpy(student_w)
+
+            # Growing the hidden state vectors
+            for h in self._h_prev:
+                for key, param in h.items():
+                    student_b = make_h_wider(teacher_b=param.data.cpu().numpy(),
+                                             indices_to_copy=indices_to_copy)
+                    h[key].data = torch.from_numpy(student_b).to(self._device)
+
+    @property
+    def layer_size(self):
+        return self._layer_size
