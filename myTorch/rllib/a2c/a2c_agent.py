@@ -73,7 +73,7 @@ class A2CAgent(object):
 
 
         if self._grad_clip[0] is not None:
-            torch.nn.utils.clip_grad_value_(self._a2cnet.parameters(), self._grad_clip[0])
+            torch.nn.utils.clip_grad_value_(self._a2cnet.parameters(), self._grad_clip[1])
 
         self._optimizer.step()
 

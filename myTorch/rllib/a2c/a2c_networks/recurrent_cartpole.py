@@ -21,6 +21,8 @@ class RecurrentCartPole(nn.Module):
         self._action_dim = action_dim
         self._rnn_input_size = self._obs_dim
         self._rnn_hidden_size = 30
+        memory_size=16
+        k=4
         self._rnn_type = rnn_type
         self._is_rnn_policy = True
         self._device = device
@@ -28,8 +30,8 @@ class RecurrentCartPole(nn.Module):
             self._rnn = LSTMCell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
         elif self._rnn_type == "GRU":
             self._rnn = GRUCell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
-        elif self._rnn_type == "FLatMemory":
-            self._rnn = FlatMemoryCell(self._device, input_size, hidden_size)
+        elif self._rnn_type == "FlatMemory":
+            self._rnn = FlatMemoryCell(self._device, self._rnn_input_size, self._rnn_hidden_size, memory_size, k)
 
         self._hidden = None
 
@@ -44,6 +46,7 @@ class RecurrentCartPole(nn.Module):
 
         self._fcv = nn.Linear(self._rnn_hidden_size, 1)
         self._fcp = nn.Linear(self._rnn_hidden_size, self._action_dim)
+        self.print_num_parameters()
 
     def _conv_to_linear(self, obs):
         assert(self._is_obs_image)
@@ -55,11 +58,7 @@ class RecurrentCartPole(nn.Module):
             return self._fc1(x.view(x.size(0), -1))
 
     def reset_hidden(self, batch_size):
-        self._hidden = {}
-        self._hidden["h"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
-        
-        if self._rnn_type == "LSTM":
-            self._hidden["c"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
+        self._hidden = self._rnn.reset_hidden(batch_size)
 
     def forward(self, obs, update_hidden_state):
         if self._hidden is None:
@@ -75,13 +74,13 @@ class RecurrentCartPole(nn.Module):
 
     def update_hidden(self, mask):
         for k in self._hidden:
-            self._hidden[k] = mask.expand(-1,self._rnn_hidden_size) * self._hidden[k]
+            self._hidden[k] = mask.expand(-1, self._hidden[k].size(1)) * self._hidden[k]
 
     def detach_hidden(self):
         for k in self._hidden:
-            self._hidden[k] = self._hidden[k].detach()
-            #hidden_value = self._hidden[k].data.cpu().numpy()
-            #self._hidden[k] =  torch.from_numpy(hidden_value)
+            #self._hidden[k] = self._hidden[k].detach()
+            hidden_value = self._hidden[k].detach().cpu().numpy()
+            self._hidden[k] =  torch.from_numpy(hidden_value).to(self._device)
         
     @property
     def action_dim(self):
@@ -112,6 +111,13 @@ class RecurrentCartPole(nn.Module):
         inference_net = self.__class__(*self.get_attributes()).to(self._device)
         inference_net.set_params(self.get_params())
         return inference_net
+
+    def print_num_parameters(self):
+        num_params = 0
+        for p in self.parameters():
+            num_params += p.data.view(-1).size(0)
+        print("Num_params : {} ".format(num_params))
+        return num_params
 
 
 if __name__=="__main__":
