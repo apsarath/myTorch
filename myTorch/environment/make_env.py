@@ -18,6 +18,9 @@ def make_environment(env_name, game_dir=None, mode="train", is_one_hot_world=Fal
 	elif env_name == "blocksworld_matrix":
 		env = BlocksWorldMatrixEnv(game_dir, mode=mode, is_one_hot_world=is_one_hot_world)
 		return env
+	elif env_name == "memory":
+		env = MemoryEnvironment()
+		return env
 	else:
 		assert("unsupported environment : {}".format(env_name))
 
