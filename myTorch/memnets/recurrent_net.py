@@ -115,7 +115,7 @@ class Recurrent(nn.Module):
             self._Cells.append(JANETCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
                                          chrono_init=self._chrono_init, t_max=self._t_max))
         elif self._cell_name == "GRU":
-            self._Cells.append(GRUCell(self._device, input_size, hidden_size))
+            self._Cells.append(GRUCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm))
         elif self._cell_name == "FlatMemory":
             self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, use_relu=self._use_relu))
 

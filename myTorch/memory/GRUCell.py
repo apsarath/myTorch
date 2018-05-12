@@ -7,7 +7,7 @@ import numpy as np
 class GRUCell(nn.Module):
     """Implementation of a GRU cell based on https://arxiv.org/pdf/1412.3555.pdf"""
 
-    def __init__(self, device, input_size, hidden_size):
+    def __init__(self, device, input_size, hidden_size, layer_norm=False):
         """Initializes a GRU Cell.
 
         Args:
@@ -21,6 +21,7 @@ class GRUCell(nn.Module):
         self._device = device
         self._input_size = input_size
         self._hidden_size = hidden_size
+        self._layer_norm = layer_norm
 
         self._W_i2r = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2r = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
@@ -33,6 +34,12 @@ class GRUCell(nn.Module):
         self._W_i2h = nn.Parameter(torch.Tensor(input_size, hidden_size))
         self._W_h2h = nn.Parameter(torch.Tensor(hidden_size, hidden_size))
         self._b_h = nn.Parameter(torch.Tensor(hidden_size))
+
+        if self._layer_norm:
+            self._ln_r = nn.LayerNorm(hidden_size)
+            self._ln_z = nn.LayerNorm(hidden_size)
+            self._ln_h = nn.LayerNorm(hidden_size)
+
 
         self._reset_parameters()
 
@@ -51,9 +58,21 @@ class GRUCell(nn.Module):
         self._W_z = torch.cat((self._W_i2z, self._W_h2z), 0)
         c_input = torch.cat((input, last_hidden["h"]), 1)
 
-        r = torch.sigmoid(torch.add(torch.mm(c_input, self._W_r), self._b_r))
-        z = torch.sigmoid(torch.add(torch.mm(c_input, self._W_z), self._b_z))
-        hp = torch.tanh(torch.mm(input, self._W_i2h) + torch.mm(last_hidden["h"] * r, self._W_h2h) + self._b_h)
+        pre_r = torch.add(torch.mm(c_input, self._W_r), self._b_r)
+        if self._layer_norm:
+            pre_r = self._ln_r(pre_r)
+        r = torch.sigmoid(pre_r)
+
+        pre_z = torch.add(torch.mm(c_input, self._W_z), self._b_z)
+        if self._layer_norm:
+            pre_z = self._ln_z(pre_z)
+        z = torch.sigmoid(pre_z)
+
+        hp_pre = torch.mm(input, self._W_i2h) + torch.mm(last_hidden["h"] * r, self._W_h2h) + self._b_h
+        if self._layer_norm:
+            hp_pre = self._ln_h(hp_pre)
+        hp = torch.tanh(hp_pre)
+
         h = ((1 - z) * hp) + (z * last_hidden["h"])
         
         hidden = {}
