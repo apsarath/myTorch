@@ -46,7 +46,11 @@ class LSTMCell(nn.Module):
         self._b_c = nn.Parameter(torch.Tensor(hidden_size))
 
         if self._layer_norm:
-            self._ln = nn.LayerNorm(hidden_size)
+            self._ln_c = nn.LayerNorm(hidden_size)
+            self._ln_i = nn.LayerNorm(hidden_size)
+            self._ln_f = nn.LayerNorm(hidden_size)
+            self._ln_o = nn.LayerNorm(hidden_size)
+            self._ln_g = nn.LayerNorm(hidden_size)
         
         self._reset_parameters()
 
@@ -67,18 +71,33 @@ class LSTMCell(nn.Module):
         self._W_c = torch.cat((self._W_x2c, self._W_h2c), 0)
  
         c_input = torch.cat((input, last_hidden["h"]), 1)
-        i = torch.sigmoid(torch.mm(c_input, self._W_i) + self._b_i + last_hidden["c"] * self._W_c2i)
-        f = torch.sigmoid(torch.mm(c_input, self._W_f) + self._b_f + last_hidden["c"] * self._W_c2f)
+
+        pre_i = torch.mm(c_input, self._W_i) + self._b_i + last_hidden["c"] * self._W_c2i
+        if self._layer_norm:
+            pre_i = self._ln_i(pre_i)
+        i = torch.sigmoid(pre_i)
+
+        pre_f = torch.mm(c_input, self._W_f) + self._b_f + last_hidden["c"] * self._W_c2f
+        if self._layer_norm:
+            pre_f = self._ln_f(pre_f)
+        f = torch.sigmoid(pre_f)
 
         cp_input = torch.cat((input, last_hidden["h"]), 1)
-        cp = torch.tanh(torch.mm(cp_input, self._W_c) + self._b_c)
-        c = f * last_hidden["c"] + i * cp
+        pre_cp = torch.mm(cp_input, self._W_c) + self._b_c
         if self._layer_norm:
-            c = self._ln(c)
+            pre_cp = self._ln_g(pre_cp)
+        cp = torch.tanh(pre_cp)
+
+        c = f * last_hidden["c"] + i * cp
 
         o_input = torch.cat((input, last_hidden["h"]), 1)
-        o = torch.sigmoid(torch.mm(o_input, self._W_o) + self._b_o + c * self._W_c2o)
-        
+        pre_o = torch.mm(o_input, self._W_o) + self._b_o + c * self._W_c2o
+        if self._layer_norm:
+            pre_o = self._ln_o(pre_o)
+        o = torch.sigmoid(pre_o)
+
+        if self._layer_norm:
+            c = self._ln_c(c)
         h = o*torch.tanh(c)
         
         hidden = {}
