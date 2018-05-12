@@ -8,7 +8,7 @@ import math
 
 class FlatMemoryCell(nn.Module):
 
-    def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh", use_relu=True):        
+    def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh", use_relu=True, layer_norm=False): 
         super(FlatMemoryCell, self).__init__()
 
         self._device = device
@@ -23,12 +23,17 @@ class FlatMemoryCell(nn.Module):
         self.memory_size = memory_size
         self.k = k
         self._use_relu =  use_relu
+        self._layer_norm = layer_norm
+
         assert math.sqrt(self.memory_size*self.k).is_integer()
         sqrt_memk = int(math.sqrt(self.memory_size*self.k))
         self.hm2v_alpha = nn.Linear(self.memory_size + hidden_size, 2 * sqrt_memk)
         self.hm2v_beta = nn.Linear(self.memory_size + hidden_size, 2 * sqrt_memk)
         self.hm2alpha = nn.Linear(self.memory_size + hidden_size, self.k)
         self.hm2beta = nn.Linear(self.memory_size + hidden_size, self.k)
+
+        if self._layer_norm:
+            self._ln_h = nn.LayerNorm(hidden_size)
 
         #self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
         self.hmi2h = nn.Linear(self.memory_size + hidden_size + self.input_size, hidden_size)
@@ -40,6 +45,12 @@ class FlatMemoryCell(nn.Module):
         else:
             return x
 
+    def _opt_layernorm(self, x):
+        if self._layer_norm:
+            return self._ln_h(x)
+        else:
+            return x
+
     def forward(self, input, last_hidden):
         hidden = {}
         c_input = torch.cat((input, last_hidden["h"], last_hidden["memory"]), 1)
@@ -48,7 +59,7 @@ class FlatMemoryCell(nn.Module):
         
         #h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
         #h = h.squeeze(0)
-        h = F.relu(self.hmi2h(c_input))
+        h = F.relu(self._opt_layernorm(self.hmi2h(c_input)))
 
         # Flat memory equations
         alpha = self._opt_relu(self.hm2alpha(torch.cat((h,last_hidden["memory"]),1))).clone()
