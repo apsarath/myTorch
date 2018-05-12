@@ -14,7 +14,7 @@ from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
-from myTorch.utils import MyContainer, get_optimizer, create_config
+from myTorch.utils import MyContainer, get_optimizer, create_config, compute_grad_norm
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
@@ -96,17 +96,24 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
         running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
 
+        seqloss.backward(retain_graph=False)
+
+        for param in model.parameters():
+            param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
+
+
+        gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
+
         if config.use_tflogger:
             logger.log_scalar("train_running_avg_loss_model_idx_" + str(model_idx), running_average_bce, step + 1)
             logger.log_scalar("train_loss_model_idx_" + str(model_idx), tr.average_bce[-1], step + 1)
             logger.log_scalar("train_average accuracy_model_idx_" + str(model_idx), average_accuracy, step + 1)
             logger.log_scalar("train_running_average_accuracy_model_idx_" + str(model_idx), running_average_accuracy,
                               step + 1)
+            logger.log_scalar("train_gradient_norm_model_idx_" + str(model_idx), gradient_norm,
+                        step + 1)
 
-        seqloss.backward(retain_graph=False)
 
-        for param in model.parameters():
-            param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
 
         model.optimizer.step()
 
@@ -117,17 +124,19 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         if tr.updates_done % 1 == 0:
             logging.info("When training model, model_index: {}, examples seen: {}, running average of BCE: {}, "
                          "average accuracy for last batch: {}, "
-                         "running average of accuracy: {}".format(model_idx, tr.updates_done * config.batch_size,
-                                                                  running_average_bce,
-                                                                  average_accuracy,
-                                                                  running_average_accuracy))
+                         "running average of accuracy: {},"
+                         "gradient norm: {}".format(model_idx, tr.updates_done * config.batch_size,
+                                                    running_average_bce,
+                                                    average_accuracy,
+                                                    running_average_accuracy,
+                                                    gradient_norm))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
         if (metrics["accuracy"].is_best_so_far()):
             experiment.save(tag="best")
 
-        if(tr.updates_done > config.average_over_last_n):
+        if (tr.updates_done > config.average_over_last_n):
             average_accuracy_array = np.asarray(tr.average_accuracy)[-config.average_over_last_n:]
             if (np.mean(average_accuracy_array) > 0.8):
                 # Could complete the task. No need to grow the model
@@ -162,9 +171,11 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                     wider_model.load_state_dict(model.state_dict())
                     model = wider_model.to(device)
 
-                    # get new optimizer and do the standard bookkeeping tasks
-                    optimizer = get_optimizer(model.parameters(), config)
-                    model.register_optimizer(optimizer)
+                    if (config.make_optimizer_wider == False):
+                        # get new optimizer and do the standard bookkeeping tasks
+                        optimizer = get_optimizer(model.parameters(), config)
+                        model.register_optimizer(optimizer)
+
                     experiment.register_model(model)
                     logging.info("When training model, model_index: {}, made model wider after {} epochs.".format(
                         model_idx, step))
@@ -305,11 +316,11 @@ def train_curriculum():
         experiment.register_train_statistics(tr)
         metrics = get_metric_registry(time_span=curriculum_config.time_span)
         should_stop_curriculum, model = train(experiment, model, curriculum_config, data_iterator, tr, logger, device,
-                                       metrics, model_idx)
+                                              metrics, model_idx)
 
         model.eval()
         for curriculum_idx, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
-            if curriculum_idx >= model_idx+10:
+            if curriculum_idx >= model_idx + 10:
                 break
             tr_for_eval = MyContainer()
             tr_for_eval.updates_done = 0
@@ -321,7 +332,8 @@ def train_curriculum():
         model.train()
 
         if (should_stop_curriculum):
-            logging.info("Stopping curriculum after curriculum index:{}, seq_len: {}".format(model_idx, curriculum_config.seq_len))
+            logging.info("Stopping curriculum after curriculum index:{}, seq_len: {}".format(model_idx,
+                                                                                             curriculum_config.seq_len))
             break
 
 
