@@ -18,6 +18,7 @@ from myTorch.utils import MyContainer, get_optimizer, create_config
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
+# parser.add_argument("--config", type=str, default="config/shagun/copying_memory.yaml", help="config file path.")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=True, help="if True start training from scratch.")
 args = parser.parse_args()
@@ -140,7 +141,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                     # Lets expand
 
                     previous_layer_size = model.layer_size
-                    model.make_net_wider(expanded_layer_size=config.expanded_layer_size)
+                    model.make_net_wider(expanded_layer_size=config.expanded_layer_size,
+                                         can_make_optimizer_wider=config.make_optimizer_wider)
                     new_layer_size = model.layer_size
                     # Now we will reset the counters and continue training
                     metrics["loss"].reset()
@@ -254,7 +256,7 @@ def train_curriculum():
 
     config = create_config(args.config)
 
-    logging.basicConfig(level=logging.INFO, filename=config.save_dir+"/log.txt")
+    logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
 
     logging.info(config.get())
 

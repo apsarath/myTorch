@@ -1,6 +1,6 @@
 """Implementation of a generic Recurrent Network."""
-import os
 import logging
+import os
 
 import numpy as np
 import torch
@@ -10,7 +10,8 @@ import torch.nn.functional as F
 from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 from myTorch.memory import RNNCell, GRUCell
 from myTorch.projects.overfeeding.utils.ExpandableLSTMCell import ExpandableLSTMCell
-from myTorch.projects.overfeeding.utils.net2net import make_h_wider, make_weight_wider_at_input
+from myTorch.projects.overfeeding.utils.net2net import make_h_wider, make_weight_wider_at_input, \
+    make_weight_wider_at_output, make_bias_wider
 
 
 class Recurrent(nn.Module):
@@ -170,11 +171,11 @@ class Recurrent(nn.Module):
         """
         flag = False
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
-        if(candidate_layers):
+        if (candidate_layers):
             flag = True
         return flag
 
-    def make_net_wider(self, expanded_layer_size):
+    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider = False):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
         size new_hidden_dim
@@ -185,9 +186,10 @@ class Recurrent(nn.Module):
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
         if (candidate_layers):
             new_hidden_dim = candidate_layers[0]
-            new_layer_size = [new_hidden_dim]*len(self._layer_size)
-            logging.info("Making RNN wider. Previous width = {}, new width = {}".format("_".join([str(x) for x in self._layer_size]),
-                                                                                        "_".join([str(x) for x in new_layer_size])))
+            new_layer_size = [new_hidden_dim] * len(self._layer_size)
+            logging.info("Making RNN wider. Previous width = {}, new width = {}".format(
+                "_".join([str(x) for x in self._layer_size]),
+                "_".join([str(x) for x in new_layer_size])))
 
             initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
             indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
@@ -220,6 +222,51 @@ class Recurrent(nn.Module):
                                              indices_to_copy=indices_to_copy)
                     h[key].data = torch.from_numpy(student_b).to(self._device)
 
+            if can_make_optimizer_wider == True:
+
+                logging.info("Making Optimizer wider. Previous width = {}, new width = {}".format(
+                    "_".join([str(x) for x in self._layer_size]),
+                    "_".join([str(x) for x in new_layer_size])))
+
+                self.make_optimizer_wider(new_hidden_dim=new_hidden_dim, indices_to_copy=indices_to_copy,
+                                          replication_factor=replication_factor)
+
     @property
     def layer_size(self):
         return self._layer_size
+
+    def make_optimizer_wider(self, new_hidden_dim, indices_to_copy,
+                             replication_factor):
+        # Note that this function is written specifically with this network in mind
+
+
+
+        param_indices_to_widen_in_input_dim = [0, 3, 7, 11, 15]
+        param_indices_to_widen_in_output_dim = [2, 3, 6, 7, 10, 11, 14, 15]
+        param_indices_to_widen_in_bias = [4, 5, 7, 8, 9, 12, 13, 16]
+
+        for index, (param, state) in enumerate(self.optimizer.state_dict()["state"].items()):
+            # print(index)
+            for key in ["exp_avg", "exp_avg_sq"]:
+                # print(state[key].shape)
+                if index in param_indices_to_widen_in_input_dim:
+                    state[key] = torch.from_numpy(
+                        make_weight_wider_at_input(teacher_w=state[key].data.cpu().numpy(),
+                                                   indices_to_copy=indices_to_copy,
+                                                   replication_factor=replication_factor)) \
+                        .to(self._device)
+                if index in param_indices_to_widen_in_output_dim:
+                    state[key] = torch.from_numpy(
+                        make_weight_wider_at_output(teacher_w=state[key].data.cpu().numpy(),
+                                                   indices_to_copy=indices_to_copy)) \
+                        .to(self._device)
+
+                if index in param_indices_to_widen_in_bias:
+                    state[key] = torch.from_numpy(
+                        make_bias_wider(teacher_b=state[key].data.cpu().numpy(),
+                                                   indices_to_copy=indices_to_copy)) \
+                        .to(self._device)
+                # print(state[key].shape)
+
+            # print("=============")
+
