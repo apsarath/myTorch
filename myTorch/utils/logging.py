@@ -1,13 +1,14 @@
-import tensorflow as tf
 from io import StringIO
-import matplotlib.pyplot as plt
-import numpy as np
 from os import listdir
 from os.path import isfile, join
 from shutil import copyfile, rmtree
 
-import myTorch
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+
 from myTorch.utils import create_folder
+
 
 class Logger(object):
     """Logging in tensorboard without tensorflow ops."""
@@ -38,38 +39,37 @@ class Logger(object):
 
         avg_value = 0
         if len(value_list) > avglen:
-            avg_value = sum(value_list[-avglen:])/avglen
+            avg_value = sum(value_list[-avglen:]) / avglen
         else:
-            avg_value = sum(value_list)/len(value_list)
+            avg_value = sum(value_list) / len(value_list)
 
         summary = tf.Summary(value=[tf.Summary.Value(tag="Avg_{}".format(tag), simple_value=avg_value)])
         self.writer.add_summary(summary, step)
 
     def log_scalar_rl(self, tag, value_list, avglen, step):
-        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_episodes", simple_value=value_list[-1])])
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag + "_num_episodes", simple_value=value_list[-1])])
         self.writer.add_summary(summary, step[0])
 
-        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_steps", simple_value=value_list[-1])])
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag + "_num_steps", simple_value=value_list[-1])])
         self.writer.add_summary(summary, step[1])
 
-        summary = tf.Summary(value=[tf.Summary.Value(tag=tag+"_num_updates", simple_value=value_list[-1])])
+        summary = tf.Summary(value=[tf.Summary.Value(tag=tag + "_num_updates", simple_value=value_list[-1])])
         self.writer.add_summary(summary, step[2])
 
         avg_value = 0
         if len(value_list) > avglen:
-            avg_value = float(sum(value_list[-avglen:]))/avglen
+            avg_value = float(sum(value_list[-avglen:])) / avglen
         else:
-            avg_value = float(sum(value_list))/len(value_list)
+            avg_value = float(sum(value_list)) / len(value_list)
 
-        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_episodes", simple_value=avg_value)])
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_" + tag + "_num_episodes", simple_value=avg_value)])
         self.writer.add_summary(summary, step[0])
 
-        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_steps", simple_value=avg_value)])
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_" + tag + "_num_steps", simple_value=avg_value)])
         self.writer.add_summary(summary, step[1])
 
-        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_"+tag+"_num_updates", simple_value=avg_value)])
+        summary = tf.Summary(value=[tf.Summary.Value(tag="avg_" + tag + "_num_updates", simple_value=avg_value)])
         self.writer.add_summary(summary, step[2])
-
 
     def log_images(self, tag, images, step):
         """Logs a list of images."""
@@ -91,7 +91,6 @@ class Logger(object):
         # Create and write Summary
         summary = tf.Summary(value=im_summaries)
         self.writer.add_summary(summary, step)
-        
 
     def log_histogram(self, tag, values, step, bins=1000):
         """Logs the histogram of a list/vector of values."""
@@ -105,7 +104,7 @@ class Logger(object):
         hist.max = float(np.max(values))
         hist.num = int(np.prod(values.shape))
         hist.sum = float(np.sum(values))
-        hist.sum_squares = float(np.sum(values**2))
+        hist.sum_squares = float(np.sum(values ** 2))
 
         # Requires equal number as bins, where the first goes from -DBL_MAX to bin_edges[1]
         # See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/framework/summary.proto#L30
@@ -123,19 +122,37 @@ class Logger(object):
         self.writer.add_summary(summary, step)
         self.writer.flush()
 
+    def log_text(self, tag, value):
+        """Log textual data.
+        Parameter
+        ----------
+        tag : basestring
+            Name of the scalar
+        value
+        step : int
+            training iteration
+        """
+        # This implementation is taken from: https://stackoverflow.com/a/46589493/1353861
+        meta = tf.SummaryMetadata()
+        meta.plugin_data.plugin_name = "text"
+        text_tensor = tf.make_tensor_proto(value, dtype=tf.string)
+        summary = tf.Summary()
+        summary.value.add(tag=tag, metadata=meta, tensor=text_tensor)
+        self.writer.add_summary(summary)
+
     def _append_to(self, tlist, tr, val):
         tlist[0].append(val)
         tlist[1].append([tr.episodes_done, tr.global_steps_done, tr.iterations_done])
 
     def track_a2c_training_metrics(self, episode_dones, rewards):
         for env_id, episode_done in enumerate(episode_dones):
-            self._training_metrics["episode_lens"][env_id] +=1.0
+            self._training_metrics["episode_lens"][env_id] += 1.0
             self._training_metrics["rewards"][env_id] += rewards[env_id]
 
             if episode_done:
                 self._tr.episodes_done += 1
-                if env_id==0:
-                      self.log_a2c_training_metrics()
+                if env_id == 0:
+                    self.log_a2c_training_metrics()
                 self._training_metrics["episode_lens"][env_id] = 0.0
                 self._training_metrics["rewards"][env_id] = 0.0
 
@@ -144,14 +161,16 @@ class Logger(object):
         self._avglen = avglen
         self._training_metrics = {}
         for tag in ["episode_lens", "rewards"]:
-            self._training_metrics[tag] = [0]*num_envs
+            self._training_metrics[tag] = [0] * num_envs
 
     def log_a2c_training_metrics(self):
         self._append_to(self._tr.train_reward, self._tr, self._training_metrics["rewards"][0])
         self._append_to(self._tr.train_episode_len, self._tr, self._training_metrics["episode_lens"][0])
 
-        self.log_scalar_rl("train_rewards", self._tr.train_reward[0], self._avglen, [self._tr.episodes_done, self._tr.global_steps_done, self._tr.iterations_done])
-        self.log_scalar_rl("train_episode_len", self._tr.train_episode_len[0], self._avglen, [self._tr.episodes_done, self._tr.global_steps_done, self._tr.iterations_done])
+        self.log_scalar_rl("train_rewards", self._tr.train_reward[0], self._avglen,
+                           [self._tr.episodes_done, self._tr.global_steps_done, self._tr.iterations_done])
+        self.log_scalar_rl("train_episode_len", self._tr.train_episode_len[0], self._avglen,
+                           [self._tr.episodes_done, self._tr.global_steps_done, self._tr.iterations_done])
 
     def save(self, dir_name):
         if self._backup:
@@ -163,7 +182,7 @@ class Logger(object):
             onlyfiles = [f for f in listdir(tfpath) if isfile(join(tfpath, f))]
 
             for file in onlyfiles:
-                copyfile(join(tfpath,file),join(dir_name, file))
+                copyfile(join(tfpath, file), join(dir_name, file))
 
     def load(self, dir_name):
         if self._backup:
@@ -179,4 +198,4 @@ class Logger(object):
         create_folder(self._log_dir)
         rmtree(self._log_dir)
         self.writer = tf.summary.FileWriter(self._log_dir)
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()

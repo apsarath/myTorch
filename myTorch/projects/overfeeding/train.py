@@ -138,10 +138,17 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                 # Lets try to grow:
                 if (model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size)):
                     # Lets expand
+
+                    previous_layer_size = model.layer_size
                     model.make_net_wider(expanded_layer_size=config.expanded_layer_size)
+                    new_layer_size = model.layer_size
                     # Now we will reset the counters and continue training
                     metrics["loss"].reset()
                     metrics["accuracy"].reset()
+
+                    if config.use_tflogger:
+                        logger.log_text("Widening model", "Model index: {}. Previous size {}. New size {}".format(
+                            model_idx, previous_layer_size, new_layer_size))
 
                     # I would be happy to discuss why am I creating a new model and not using the previous model
                     wider_model = Recurrent(device, config.input_size, config.output_size,
@@ -285,7 +292,8 @@ def train_curriculum():
         logging.info("Forced to restart the experiment")
 
     for model_idx, curriculum_config in enumerate(curriculum_generator(config)):
-        logging.info("Starting curriculum with seq_len: {}".format(curriculum_config.seq_len))
+        logging.info("Starting curriculum index:{}, having sequence length: {}".format(model_idx,
+                                                                                       curriculum_config.seq_len))
         data_iterator = get_data_iterator(curriculum_config)
         experiment.register_data_iterator(data_iterator)
         tr = MyContainer()
