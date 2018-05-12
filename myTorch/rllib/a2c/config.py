@@ -9,7 +9,7 @@ def cartpole():
 	config.exp_name = "a2c"
 
 	config.env_name = "CartPole-v0"
-	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
+	config.policy_type = "LSTM" # Valid options : LSTM, GRU, FeedForward
 
 	config.discount_rate = 0.90
 	config.ent_coef = 0.001
@@ -24,12 +24,12 @@ def cartpole():
 	config.save_freq = 10000
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.device = "cuda"
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
 	config.backup_logger = False
-	config.force_restart = False
+	config.force_restart = True
 
 	# optimizer params
 	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD

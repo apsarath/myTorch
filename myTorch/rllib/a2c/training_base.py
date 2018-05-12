@@ -18,7 +18,7 @@ from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="A2C Training")
-parser.add_argument('--config', type=str, default="blocksworld_matrix", help="config name")
+parser.add_argument('--config', type=str, default="cartpole", help="config name")
 parser.add_argument('--base_dir', type=str, default=None, help="base directory")
 parser.add_argument('--config_params', type=str, default="default", help="config params to change")
 parser.add_argument('--exp_desc', type=str, default="default", help="additional desc of exp")
@@ -49,10 +49,9 @@ def train_a2c_agent():
 	experiment.register_env(env)
 	test_env = get_batched_env(config.env_name, 1, config.seed)
 
-	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu, policy_type=config.policy_type)
+	a2cnet = get_a2cnet(config.env_name, env.obs_dim, env.action_dim, device=config.device, policy_type=config.policy_type)
 
-	if config.use_gpu == True:
-		a2cnet.cuda()
+	a2cnet.to(config.device)
 
 	optimizer = get_optimizer(a2cnet.parameters(), config)
 
@@ -72,8 +71,6 @@ def train_a2c_agent():
 										vf_coef = config.vf_coef,
 										discount_rate=config.discount_rate,
 										grad_clip = [config.grad_clip_min, config.grad_clip_max])
-
-
 
 	logger = None
 	if config.use_tflogger==True:
@@ -127,8 +124,9 @@ def train_a2c_agent():
 			update_dict["log_taken_pvals"].append(log_taken_pvals)
 			update_dict["vvals"].append(vvals)
 			update_dict["entropies"].append(entropies)
-			update_dict["rewards"].append(my_variable(torch.from_numpy(rewards).type(torch.FloatTensor), use_gpu=config.use_gpu))
-			update_dict["episode_dones"].append(my_variable(torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor), use_gpu=config.use_gpu))
+			update_dict["rewards"].append(torch.from_numpy(rewards).type(torch.FloatTensor).to(config.device))
+			update_dict["episode_dones"].append(
+                torch.from_numpy(episode_dones.astype(np.float32)).type(torch.FloatTensor).to(config.device))
 
 		_, _, update_dict["vvals_step_plus_one"], _, _ = agent.sample_action(obs, 
 																		dones=update_dict["episode_dones"], 
@@ -171,8 +169,8 @@ def inference(config, test_agent, test_env):
 		while not done:
 			actions, log_taken_pvals, vvals, entropies, pvals = test_agent.sample_action(obs, is_training=False)
 			sampled_actions,_,_,_, sampled_pvals = test_agent.sample_action(obs, is_training=True, update_agent_state=False)
-			print("Arg Max action: {}, sampled action : {}".format(actions, sampled_actions))
-			print("Test pvals ",pvals)
+			#print("Arg Max action: {}, sampled action : {}".format(actions, sampled_actions))
+			#print("Test pvals ",pvals)
 			obs, legal_moves, reward, episode_dones = test_env.step(actions)
 			done = episode_dones[0]
 			total_reward += reward[0]
