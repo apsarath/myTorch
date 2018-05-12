@@ -3,7 +3,7 @@ config_filename: "lstm_chrono.yaml"
 description: "copying memory task"
 
 project_name: "denoise"
-ex_name: "lstm_chrono_n1_d18"
+ex_name: "lstm_chrono_n10_d18"
 
 # model specific details
 

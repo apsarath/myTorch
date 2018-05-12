@@ -3,7 +3,7 @@ config_filename: "fm.yaml"
 description: "copying memory task"
 
 project_name: "denoise"
-ex_name: "fm_n1_d18"
+ex_name: "fm_n10_d18"
 
 # model specific details
 
