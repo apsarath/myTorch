@@ -138,12 +138,10 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
             logging.info("Epoch : {}, {} %: {}, step : {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words), tr.updates_done[mode]))
             logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
-        if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
-            experiment.save()
     curr_epoch_avg_loss = np.mean(np.array(curr_epoch_loss))
     tr.average_loss_per_epoch[mode].append(curr_epoch_avg_loss)
 
-    logging.info("Avg {} loss: {}, Avg perp: {}, time : {}".format(mode, curr_epoch_avg_loss, _safe_exp(curr_epoch_avg_loss), time.time() - start_time))
+    logging.info("Avg {} loss: {}, BPC : {}, Avg perp: {}, time : {}".format(mode, curr_epoch_avg_loss, curr_epoch_avg_loss/0.693, _safe_exp(curr_epoch_avg_loss), time.time() - start_time))
     batched_data[mode] = batched_data[mode].to("cpu")
 
     if mode != "train":
@@ -174,7 +172,7 @@ def create_experiment(config):
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max, memory_size=config.memory_size, k=config.k, use_relu=config.use_relu).to(device)
+                      t_max=config.bptt, memory_size=config.memory_size, k=config.k, use_relu=config.use_relu).to(device)
     experiment.register_model(model)
 
     optimizer = get_optimizer(model.parameters(), config)
@@ -219,10 +217,10 @@ def run_experiment(args):
 
     logging.info("\n#####################\n Best Model\n")
     min_id = np.argmin(np.array(tr.average_loss_per_epoch["valid"]))
-    valid_loss = tr.average_loss_per_epoch["valid"][min_id]
-    logging.info("Best Valid loss : {}, perplexity : {}".format(valid_loss, _safe_exp(valid_loss)))
-    test_loss = tr.average_loss_per_epoch["test"][min_id]
-    logging.info("Best Valid loss : {}, perplexity : {}".format(test_loss, _safe_exp(test_loss)))
+    valid_loss = tr.average_loss_per_epoch["valid"][min_id] / 0.693
+    logging.info("Best Valid BPC : {}, perplexity : {}".format(valid_loss, _safe_exp(valid_loss)))
+    test_loss = tr.average_loss_per_epoch["test"][min_id] / 0.693
+    logging.info("Best Test BPC : {}, perplexity : {}".format(test_loss, _safe_exp(test_loss)))
 
 
 if __name__ == '__main__':
