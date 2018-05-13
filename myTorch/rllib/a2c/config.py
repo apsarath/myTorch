@@ -9,13 +9,13 @@ def cartpole():
 	config.exp_name = "a2c"
 
 	config.env_name = "CartPole-v0"
-	config.policy_type = "FeedForward" # Valid options : LSTM, GRU, FeedForward
+	config.policy_type = "LSTM" # Valid options : LSTM, GRU, FeedForward
 
 	config.discount_rate = 0.90
 	config.ent_coef = 0.001
 	config.vf_coef = 0.5
 
-	config.global_num_steps = 100000
+	config.global_num_steps = 1000000
 	config.num_env = 10
 	config.num_steps_per_upd = 10
 	config.test_freq = 1
@@ -24,12 +24,12 @@ def cartpole():
 	config.save_freq = 10000
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.device = "cuda"
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True
 	config.backup_logger = False
-	config.force_restart = False
+	config.force_restart = True
 
 	# optimizer params
 	config.optim_name = "RMSprop" # valid optimizer names : Adadelta, Adagrad, Adam, RMSprop, SGD
@@ -71,3 +71,13 @@ def blocksworld_matrix():
 	config.is_one_hot_world=False
 	return config
 
+def memory():
+    config = cartpole()
+    config.env_name = "memory"
+    config.policy_type = "GRU"
+    config.num_steps_per_upd = 12
+    config.discount_rate = 0.99
+    config.ent_coef = 0.1
+    config.global_num_steps = 10000000000
+    config.device = "cuda"
+    return config

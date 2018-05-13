@@ -42,7 +42,6 @@ class MemoryEnvironment(EnivironmentBase):
 
     def step(self, action):
         self._num_steps += 1
-        self._plot[-1] = 0
 
         if action == 0 and self._agent_loc > 0:
             self._agent_loc_new = self._agent_loc - 1

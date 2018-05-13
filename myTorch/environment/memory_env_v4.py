@@ -13,7 +13,7 @@ class MemoryEnvironment(EnivironmentBase):
         self._state.time_lag = time_lag
         self._state.action_dim = 3
         self._state.legal_moves = np.arange(self._state.action_dim)
-        self._state.obs_dim = plot_len + 1
+        self._state.obs_dim = plot_len
         self._state.rng = np.random.RandomState(seed)
 
     @property
@@ -26,15 +26,15 @@ class MemoryEnvironment(EnivironmentBase):
 
     def reset(self):
         self._final_reward = -5
-        self._plot = np.zeros(self._state.plot_len + 1)
+        self._plot = np.zeros(self._state.plot_len)
         self._color = self._state.rng.randint(4,6)
-        self._rlocs = self._state.rng.choice(self._state.plot_len, 3, replace=False)
+        self._rlocs = self._state.rng.choice(self._state.plot_len, 4, replace=False)
         
         self._plot[self._rlocs[0]] = 2
         self._plot[self._rlocs[1]] = 3
         self._agent_loc = self._rlocs[2]
         self._plot[self._agent_loc] = 1
-        self._plot[-1] = self._color
+        self._plot[self._rlocs[3]] = self._color
         self._num_steps = 0
         self._touch2 = False
         self._touch3 = False
@@ -42,7 +42,6 @@ class MemoryEnvironment(EnivironmentBase):
 
     def step(self, action):
         self._num_steps += 1
-        self._plot[-1] = 0
 
         if action == 0 and self._agent_loc > 0:
             self._agent_loc_new = self._agent_loc - 1
@@ -60,18 +59,17 @@ class MemoryEnvironment(EnivironmentBase):
         reward = 0#-0.1
         if self._num_steps == 12:
             done = True
-            if not self._touch2 and not self._touch3:
-                reward = -10
 
         if self._agent_loc == self._rlocs[0] and action == 2 and self._touch2 == False:
             self._touch2 = True
-            self._touch3 = True
             reward = 5 if self._color == 4 else -5
         elif self._agent_loc == self._rlocs[1] and action == 2 and self._touch3 == False:
             self._touch3 = True
-            self._touch2 = True
             reward = -5 if self._color == 4 else 5
 
+        if self._agent_loc != self._rlocs[3]:
+            self._plot[self._rlocs[3]] = self._color
+        
         return self._plot/10, self._state.legal_moves, reward, done
 
     def render(self, mode='rgb_array'):

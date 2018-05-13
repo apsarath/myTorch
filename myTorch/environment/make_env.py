@@ -1,6 +1,6 @@
 import myTorch
 from myTorch.environment.Blocksworld import *
-from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv
+from myTorch.environment import GymEnvironment, CartPoleImage, BlocksEnvironment, BlocksWorldMatrixEnv, MemoryEnvironment
 
 
 def make_environment(env_name, game_dir=None, mode="train", is_one_hot_world=False):
