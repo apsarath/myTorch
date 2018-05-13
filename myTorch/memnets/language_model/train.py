@@ -1,9 +1,10 @@
-import numpy
+import numpy as np
 import math
 import argparse
 import logging
 import os
 import hashlib
+import time
 
 import torch
 from myTorch import Experiment
@@ -96,6 +97,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
     num_total_words = batched_data[mode].shape[0] * batched_data[mode].shape[1]
     done = False
     step = 0
+    curr_epoch_loss = []
+    start_time = time.time()
     while not done:
         if config.inter_saving is not None:
             if tr.updates_done[mode] in config.inter_saving and mode == "train":
@@ -113,6 +116,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
         seqloss /= curr_time_steps
         
         tr.average_loss[mode].append(seqloss.item())
+        curr_epoch_loss.append(seqloss.item())
 
         running_average = sum(tr.average_loss[mode]) / len(tr.average_loss[mode])
 
@@ -130,18 +134,19 @@ def run_epoch(epoch_id, mode, experiment, model, config, batched_data, tr, logge
 
         tr.updates_done[mode] +=1
         step += 1
-        if tr.updates_done[mode] % 1 == 0:
+        if tr.updates_done[mode] % 1e6 == 0 and mode == "train":
             logging.info("Epoch : {}, {} %: {}, step : {}".format(epoch_id, mode, (100.0*step*batch_size*curr_time_steps/num_total_words), tr.updates_done[mode]))
             logging.info("inst loss: {}, inst perp: {}".format(tr.average_loss[mode][-1], _safe_exp(tr.average_loss[mode][-1])))
             
-        if tr.updates_done[mode] % config.save_every_n == 0 and mode == "train":
-            experiment.save()
-    logging.info("Avg loss: {}, Avg perp: {}".format(running_average, _safe_exp(running_average)))
+    curr_epoch_avg_loss = np.mean(np.array(curr_epoch_loss))
+    tr.average_loss_per_epoch[mode].append(curr_epoch_avg_loss)
+
+    logging.info("Avg {} loss: {}, BPC : {}, Avg perp: {}, time : {}".format(mode, curr_epoch_avg_loss, curr_epoch_avg_loss/0.693, _safe_exp(curr_epoch_avg_loss), time.time() - start_time))
     batched_data[mode] = batched_data[mode].to("cpu")
 
     if mode != "train":
-        logger.log_scalar("loss_{}".format(mode), running_average, epoch_id+1)
-        logger.log_scalar("perplexity_{}".format(mode), _safe_exp(running_average), epoch_id+1)
+        logger.log_scalar("loss_{}".format(mode), curr_epoch_avg_loss, epoch_id+1)
+        logger.log_scalar("perplexity_{}".format(mode), _safe_exp(curr_epoch_avg_loss), epoch_id+1)
 
 
 def create_experiment(config):
@@ -167,7 +172,7 @@ def create_experiment(config):
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max, memory_size=config.memory_size, k=config.k, use_relu=config.use_relu).to(device)
+                      t_max=config.bptt, memory_size=config.memory_size, k=config.k, use_relu=config.use_relu).to(device)
     experiment.register_model(model)
 
     optimizer = get_optimizer(model.parameters(), config)
@@ -175,12 +180,13 @@ def create_experiment(config):
 
     tr = MyContainer()
 
-    tr.mini_batch_id, tr.updates_done, tr.average_loss = {}, {}, {}
+    tr.mini_batch_id, tr.updates_done, tr.average_loss, tr.average_loss_per_epoch = {}, {}, {}, {}
 
     for mode in ["train", "valid", "test"]:
         tr.mini_batch_id[mode] = 0
         tr.updates_done[mode] = 0
         tr.average_loss[mode] = []
+        tr.average_loss_per_epoch[mode] = []
         
 
     experiment.register_train_statistics(tr)
@@ -204,9 +210,17 @@ def run_experiment(args):
         experiment.force_restart()
 
     for i in range(config.num_epochs):
+        logging.info("\n#####################\n Epoch id: {}\n".format(i+1))
         for mode in ["train", "valid", "test"]:
             tr.mini_batch_id[mode] = 0
             run_epoch(i, mode, experiment, model, config, batched_data, tr, logger, device)
+
+    logging.info("\n#####################\n Best Model\n")
+    min_id = np.argmin(np.array(tr.average_loss_per_epoch["valid"]))
+    valid_loss = tr.average_loss_per_epoch["valid"][min_id] / 0.693
+    logging.info("Best Valid BPC : {}, perplexity : {}".format(valid_loss, _safe_exp(valid_loss)))
+    test_loss = tr.average_loss_per_epoch["test"][min_id] / 0.693
+    logging.info("Best Test BPC : {}, perplexity : {}".format(test_loss, _safe_exp(test_loss)))
 
 
 if __name__ == '__main__':
