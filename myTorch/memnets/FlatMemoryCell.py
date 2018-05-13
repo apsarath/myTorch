@@ -8,7 +8,7 @@ import math
 
 class FlatMemoryCell(nn.Module):
 
-    def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh", use_relu=True, layer_norm=False): 
+    def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh", use_relu=False, layer_norm=False): 
         super(FlatMemoryCell, self).__init__()
 
         self._device = device

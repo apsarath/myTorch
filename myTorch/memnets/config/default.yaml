@@ -40,16 +40,6 @@ max_steps:  100000000
 rseed:  5
 device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
-
-# task specific details
-task: "copy"
-num_bits: 8
-min_len:  1
-max_len:  20
-batch_size: 10
-num_noise_digits: 1
-num_digits: 8
-
 # saving details
 use_tflogger: True
 save_every_n: 10000
