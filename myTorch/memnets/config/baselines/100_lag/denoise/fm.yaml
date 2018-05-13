@@ -18,6 +18,7 @@ identity_init: False # works only for RNN
 layer_norm: False  # works only for LSTM, RNN
 chrono_init: False
 memory_size: 64
+use_relu: False
 k: 4
 
 # optimization specific details
