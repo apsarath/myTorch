@@ -4,7 +4,7 @@ from myTorch.rllib.a2c.a2c_networks import *
 
 def get_a2cnet(env_name, obs_dim, action_dim, device, policy_type, one_hot=False):
 
-	if env_name == "CartPole-v0" or env_name == "CartPole-v1":
+	if env_name == "CartPole-v0" or env_name == "CartPole-v1" or env_name == "memory":
 		if policy_type == "FeedForward":
 			return FeedForwardCartPole(obs_dim, action_dim, device)
 		else:

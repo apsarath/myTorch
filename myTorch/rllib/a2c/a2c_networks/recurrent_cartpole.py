@@ -20,7 +20,7 @@ class RecurrentCartPole(nn.Module):
 
         self._action_dim = action_dim
         self._rnn_input_size = self._obs_dim
-        self._rnn_hidden_size = 30
+        self._rnn_hidden_size = 100
         memory_size=16
         k=4
         self._rnn_type = rnn_type
@@ -29,6 +29,7 @@ class RecurrentCartPole(nn.Module):
         if self._rnn_type == "LSTM": 
             self._rnn = LSTMCell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
         elif self._rnn_type == "GRU":
+            self._rnn_hidden_size = 70
             self._rnn = GRUCell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
         elif self._rnn_type == "FlatMemory":
             self._rnn = FlatMemoryCell(self._device, self._rnn_input_size, self._rnn_hidden_size, memory_size, k)

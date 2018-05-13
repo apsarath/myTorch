@@ -71,3 +71,13 @@ def blocksworld_matrix():
 	config.is_one_hot_world=False
 	return config
 
+def memory():
+    config = cartpole()
+    config.env_name = "memory"
+    config.policy_type = "GRU"
+    config.num_steps_per_upd = 12
+    config.discount_rate = 0.99
+    config.ent_coef = 0.1
+    config.global_num_steps = 10000000000
+    config.device = "cuda"
+    return config
