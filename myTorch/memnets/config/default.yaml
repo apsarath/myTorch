@@ -17,6 +17,8 @@ identity_init: False
 use_relu: False
 memory_size: 64
 k: 4
+phi_size: 256
+r_size: 64
 
 # optimization specific details
 
