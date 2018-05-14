@@ -6,15 +6,16 @@ project_name: "denoising_copy_task_t200"
 #ex_name: "flatmemory_m64_k4_h80_n1_t500"
 #ex_name: "lstm_h70_chrono_n1_t500"
 #ex_name: "gru_h80_n1_t500"
-ex_name: "janet"
+ex_name: "sru"
 
 # model specific details
-model:  "JANET"
+
+model:  "SRU"
 num_layers: 1
-layer_size: [101]
+layer_size: [60]
 activation: "relu"
-layer_norm: False
-chrono_init: True
+phi_size: 55
+r_size: 16
 
 # optimization specific details
 

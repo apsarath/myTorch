@@ -36,7 +36,7 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 5.0
+grad_clip_norm: 1.0
 
 max_steps: 200000
 rseed:  5

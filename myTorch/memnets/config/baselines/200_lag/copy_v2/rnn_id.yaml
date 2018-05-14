@@ -1,20 +1,18 @@
 parent_config: "config/default.yaml"
-config_filename: "denoising_copy.yaml"
-description: "denoising copy task"
+config_filename: "rnn_id.yaml"
+description: "copying memory task"
 
-project_name: "denoising_copy_task_t200"
-#ex_name: "flatmemory_m64_k4_h80_n1_t500"
-#ex_name: "lstm_h70_chrono_n1_t500"
-#ex_name: "gru_h80_n1_t500"
-ex_name: "janet"
+project_name: "copy_v2_lag_200"
+ex_name: "rnn_id"
 
 # model specific details
-model:  "JANET"
+
+model:  "RNN"
 num_layers: 1
-layer_size: [101]
+layer_size: [143]
 activation: "relu"
-layer_norm: False
-chrono_init: True
+layer_norm: True
+identity_init: True
 
 # optimization specific details
 
@@ -33,16 +31,18 @@ centered: False
 dampening:  0.0
 nesterov: False
 grad_clip_norm: 1.0
+amsgrad: False
+
 
 max_steps: 200000
 rseed:  5
 device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "denoising_copy"
+task: "copying_memory"
 batch_size: 10
 seed: 5
-time_lag_min: 200
+time_lag_min: 1
 time_lag_max: 200
 seq_len: 10
 num_noise_digits: 1
