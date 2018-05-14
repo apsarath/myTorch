@@ -2,19 +2,20 @@ parent_config: "config/default.yaml"
 config_filename: "denoising_copy.yaml"
 description: "denoising copy task"
 
-project_name: "denoising_copy_task_t200"
+project_name: "denoising_copy_task_t100"
 #ex_name: "flatmemory_m64_k4_h80_n1_t500"
 #ex_name: "lstm_h70_chrono_n1_t500"
 #ex_name: "gru_h80_n1_t500"
-ex_name: "janet"
+ex_name: "sru"
 
 # model specific details
-model:  "JANET"
+
+model:  "SRU"
 num_layers: 1
-layer_size: [101]
+layer_size: [60]
 activation: "relu"
-layer_norm: False
-chrono_init: True
+phi_size: 55
+r_size: 16
 
 # optimization specific details
 
@@ -42,8 +43,8 @@ device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 task: "denoising_copy"
 batch_size: 10
 seed: 5
-time_lag_min: 200
-time_lag_max: 200
+time_lag_min: 100
+time_lag_max: 100
 seq_len: 10
 num_noise_digits: 1
 num_digits: 8
