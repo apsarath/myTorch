@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 from myTorch.memory import RNNCell, GRUCell, LSTMCell, JANETCell
 from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
+from myTorch.memnets.SRUCell import SRUCell
 
 
 class Recurrent(nn.Module):
@@ -14,7 +15,7 @@ class Recurrent(nn.Module):
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
                  layer_norm=False, identity_init=False, chrono_init=False, t_max=10, use_relu=False,
-                 memory_size=64, k=4):
+                 memory_size=64, k=4, phi_size=256, r_size=64):
         """Initializes a recurrent network."""
         
         super(Recurrent, self).__init__()
@@ -34,6 +35,8 @@ class Recurrent(nn.Module):
         self._use_relu = use_relu
         self._memory_size = memory_size
         self._k = k
+        self._phi_size = phi_size
+        self._r_size = r_size
 
         self._Cells = []
 
@@ -123,6 +126,10 @@ class Recurrent(nn.Module):
             self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
                                               memory_size=self._memory_size, k=self._k,
                                               use_relu=self._use_relu, layer_norm=self._layer_norm))
+        elif self._cell_name == "SRU":
+            self._Cells.append(SRUCell(self._device, input_size, hidden_size, phi_size=self._phi_size,
+                                r_size=self._r_size))
+                                    
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
