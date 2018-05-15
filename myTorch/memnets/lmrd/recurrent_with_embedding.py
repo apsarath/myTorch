@@ -11,13 +11,13 @@ from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 class RecurrentModel(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
-    def __init__(self, device, vocab_size, input_emb_size, num_layers=1, layer_size=[10],
+    def __init__(self, device, num_classes, vocab_size, input_emb_size, num_layers=1, layer_size=[10],
                  cell_name="LSTM", activation="tanh", output_activation="linear",
                  layer_norm=False, identity_init=False, chrono_init=False, t_max=10,
                  memory_size=64, k=4, use_relu=True):
         """Initializes a recurrent network."""
         
-        super(LanguageModel, self).__init__()
+        super(RecurrentModel, self).__init__()
 
         self._device = device
         self._vocab_size = vocab_size
@@ -52,8 +52,8 @@ class RecurrentModel(nn.Module):
         elif self._output_activation == "LogSoftmax":
             self._output_activation_fn = F.LogSoftmax
 
-        self._W_h2o = nn.Parameter(torch.Tensor(layer_size[-1], vocab_size))
-        self._b_o = nn.Parameter(torch.Tensor(vocab_size))
+        self._W_h2o = nn.Parameter(torch.Tensor(layer_size[-1], num_classes))
+        self._b_o = nn.Parameter(torch.Tensor(num_classes))
 
         self._reset_parameters()
         self.print_num_parameters()
