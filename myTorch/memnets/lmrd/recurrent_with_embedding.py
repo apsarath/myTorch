@@ -11,10 +11,11 @@ from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 class RecurrentModel(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
-    def __init__(self, device, num_classes, vocab_size, input_emb_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation="linear",
-                 layer_norm=False, identity_init=False, chrono_init=False, t_max=10,
-                 memory_size=64, k=4, use_relu=True):
+    def __init__(self, device, num_classes, vocab_size, input_emb_size,
+                 num_layers=1, layer_size=[10], cell_name="LSTM",
+                 activation="tanh", output_activation="linear",
+                 layer_norm=False, identity_init=False, chrono_init=False,
+                 t_max=10, memory_size=64, k=4, use_relu=True):
         """Initializes a recurrent network."""
         
         super(RecurrentModel, self).__init__()
@@ -96,12 +97,13 @@ class RecurrentModel(nn.Module):
     def repackage_hidden(self):
         for cell_id in range(len(self._Cells)):
             for key in self._h_prev[cell_id]:
-                self._h_prev[cell_id][key] = self._h_prev[cell_id][key].detach()
+                self._h_prev[cell_id][key] =self._h_prev[cell_id][key].detach()
 
     def _reset_parameters(self):
         """Initializes the parameters."""
 
-        nn.init.xavier_normal_(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
+        nn.init.xavier_normal_(self._W_h2o, 
+                         gain=nn.init.calculate_gain(self._output_activation))
         nn.init.constant_(self._b_o, 0)
 
     def register_optimizer(self, optimizer):
@@ -123,19 +125,28 @@ class RecurrentModel(nn.Module):
 
         if self._cell_name == "RNN":
             self._Cells.append(RNNCell(self._device, input_size, hidden_size,
-                                       activation=self._activation, layer_norm=self._layer_norm,
+                                       activation=self._activation,
+                                       layer_norm=self._layer_norm,
                                        identity_init=self._identity_init))
         elif self._cell_name == "LSTM":
-            self._Cells.append(LSTMCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
-                                        chrono_init=self._chrono_init, t_max=self._t_max))
+            self._Cells.append(LSTMCell(self._device, input_size, hidden_size,
+                                        layer_norm=self._layer_norm,
+                                        chrono_init=self._chrono_init,
+                                        t_max=self._t_max))
         elif self._cell_name == "JANET":
-            self._Cells.append(JANETCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm,
-                                         chrono_init=self._chrono_init, t_max=self._t_max))
+            self._Cells.append(JANETCell(self._device, input_size, hidden_size,
+                                         layer_norm=self._layer_norm,
+                                         chrono_init=self._chrono_init,
+                                         t_max=self._t_max))
         elif self._cell_name == "GRU":
             self._Cells.append(GRUCell(self._device, input_size, hidden_size))
         elif self._cell_name == "FlatMemory":
-            self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
-                                                memory_size=self._memory_size, k=self._k, use_relu=self._use_relu))
+            self._Cells.append(FlatMemoryCell(self._device,
+                                              input_size,
+                                              hidden_size, 
+                                              memory_size=self._memory_size,
+                                              k=self._k,
+                                              use_relu=self._use_relu))
 
     def save(self, save_dir):
         """Saves the model and the optimizer.
