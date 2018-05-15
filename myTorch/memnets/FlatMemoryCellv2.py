@@ -25,7 +25,7 @@ class FlatMemoryCellV2(nn.Module):
         self._use_relu =  use_relu
         self._layer_norm = layer_norm
 
-        assert math.sqrt(self.memory_size*self.k).is_integer()
+        assert math.sqrt(self.memory_size).is_integer()
         sqrt_mem = int(math.sqrt(self.memory_size))
         
         self.hm2v_alpha = nn.Linear(self.memory_size + hidden_size, 2 * k * sqrt_mem)

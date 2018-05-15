@@ -35,7 +35,6 @@ class FlatMemoryCellV1(nn.Module):
         if self._layer_norm:
             self._ln_h = nn.LayerNorm(hidden_size)
 
-        self._version = version
         self.m2h = nn.Linear(self.memory_size, hidden_size)
         self.i2h = nn.Linear(self.input_size, hidden_size, bias=False)
 

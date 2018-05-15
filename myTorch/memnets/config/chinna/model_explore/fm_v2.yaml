@@ -14,7 +14,7 @@ activation: "relu"
 layer_norm: False
 memory_size: 64
 use_relu: False
-k: 4
+k: 2
 version: "v2"
 
 # optimization specific details

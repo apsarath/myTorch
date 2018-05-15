@@ -9,7 +9,7 @@ ex_name: "fm_v1"
 
 model:  "FlatMemory"
 num_layers: 1
-layer_size: [80]
+layer_size: [120]
 activation: "relu"
 layer_norm: False
 memory_size: 64
