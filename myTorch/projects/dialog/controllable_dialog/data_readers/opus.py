@@ -24,6 +24,8 @@ class OPUS(object):
     def __init__(self, config):
         self._config = config
         self._load_and_process_data()
+        if config.act_anotation_dataset is not None:
+            self.load_acts(config.act_anotation_dataset)
         self._split_train_valid()
         
     def _load_and_process_data(self):
@@ -119,8 +121,8 @@ class OPUS(object):
         with open(os.path.join(self._config.base_data_path, str(self._config.num_dialogs),
                                 "{}_acts.txt".format(tag)), "rb") as f:
             acts = _pickle.load(f)
-            self._data["{}_source_acts".format(tag)] = acts["source"]
-            self._data["{}_target_acts".format(tag)] = acts["target"]
+            self._data["{}_source_acts".format(tag)] = torch.LongTensor(acts["source"])
+            self._data["{}_target_acts".format(tag)] = torch.LongTensor(acts["target"])
 
     @property
     def data(self):
@@ -137,3 +139,6 @@ class OPUS(object):
     @property
     def id_to_str(self):
         return self._id_to_str
+
+    def num_acts(self, tag):
+        return int(np.max(self._data["{}_source_acts".format(tag)].cpu().numpy()) + 1)
