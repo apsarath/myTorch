@@ -119,7 +119,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
         loss = logit_loss + config.curr_act_loss_coeff * curr_act_loss + config.next_act_loss_coeff * next_act_loss
         
-        loss_per_epoch.append(loss.item())
+        loss_per_epoch.append(logit_loss.item())
         
         running_average = np.mean(np.array(loss_per_epoch))
 

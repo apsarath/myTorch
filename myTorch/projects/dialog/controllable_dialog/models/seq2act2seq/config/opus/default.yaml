@@ -7,8 +7,8 @@ num_dialogs: 200000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
 emb_size_src: 512
-act_emb_dim: 50
-act_layer_dim: 128
+act_emb_dim: 256
+act_layer_dim: 256
 hidden_dim_src: 512
 hidden_dim_tgt: 512
 bidirectional: False
@@ -42,8 +42,8 @@ centered: False
 dampening:  0.0
 nesterov: False
 grad_clip_norm: 5.0
-curr_act_loss_coeff: 0.4
-next_act_loss_coeff: 0.7
+curr_act_loss_coeff: 0.2
+next_act_loss_coeff: 0.5
 
 # task specific details
 device: "cuda"
