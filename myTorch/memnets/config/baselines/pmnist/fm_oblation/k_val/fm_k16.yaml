@@ -1,0 +1,52 @@
+parent_config: "config/default.yaml"
+config_filename: "ssmnist.yaml"
+description: "ssmnist task"
+
+project_name: "pmnist_task"
+ex_name: "fm_k16"
+
+# model specific details
+
+# m81 k4
+
+model:   "FlatMemory"  # flat 576, 9, h100  #28651
+input_size: 1
+output_size:  10
+num_layers: 1
+layer_size: [212]  #[256]
+memory_size: 256
+use_relu: False
+k: 16
+
+# t_max for 5: 335, 10: 560, 15: 802
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm:  1.0
+
+max_steps:  25000
+rseed:  5
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "pmnist"
+batch_size: 100
+seed: 50
+
+# saving details
+use_tflogger: True
+save_every_n: 1000
