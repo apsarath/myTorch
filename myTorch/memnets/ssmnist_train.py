@@ -7,6 +7,7 @@ import torch
 from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.ssmnist_task import SSMNISTData
+from myTorch.task.mnist_task import PMNISTData
 from myTorch.utils.logging import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
@@ -20,6 +21,9 @@ def get_data_iterator(config):
     if config.task == "ssmnist":
         data_iterator = SSMNISTData(config.data_folder, num_digits=config.num_digits,
                                     batch_size=config.batch_size, seed=config.seed)
+    elif config.task == "pmnist":
+        data_iterator = PMNISTData(batch_size=config.batch_size, seed=config.seed)
+
     return data_iterator
 
 
@@ -127,7 +131,12 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
         seqloss.backward(retain_graph=False)
 
-        torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+
+        total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
+        tr.grad_norm.append(total_norm)
+
+        if config.use_tflogger:
+            logger.log_scalar("inst_total_norm", total_norm, step + 1)
 
         model.optimizer.step()
 
@@ -162,7 +171,8 @@ def create_experiment(config):
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max).to(device)
+                      t_max=config.t_max, use_relu=config.use_relu, memory_size=config.memory_size,
+                      k=config.k).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)
@@ -179,6 +189,8 @@ def create_experiment(config):
     tr.accuracy = {}
     tr.accuracy["valid"] = []
     tr.accuracy["test"] = []
+    tr.grad_norm = []
+
     experiment.register_train_statistics(tr)
 
     return experiment, model, data_iterator, tr, logger, device
