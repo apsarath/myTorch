@@ -172,7 +172,7 @@ def create_experiment(config):
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
                       t_max=config.t_max, use_relu=config.use_relu, memory_size=config.memory_size,
-                      k=config.k).to(device)
+                      k=config.k, phi_size=config.phi_size, r_size=config.r_size).to(device)
     experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)
