@@ -36,8 +36,6 @@ class SwitchBoard(object):
                 data["act"] = utt.act_tag
                 self._data.append(data)
             count += 1
-            if count > 500:
-                break
     
     def _contruct_vocab(self, vocab_cut_off):
         words = []

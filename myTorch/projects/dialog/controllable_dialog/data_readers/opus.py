@@ -6,6 +6,7 @@ import pdb
 import json
 import os
 import torch
+import _pickle
 
 def _num_present(input_string):
     return any(i.isdigit() for i in input_string)
@@ -108,9 +109,26 @@ class OPUS(object):
         for k in self._data:
             self._processed_data["valid"][k] = self._data[k][s:e]
 
+    def save_acts(self, tag, acts):
+        with open(os.path.join(self._config.base_data_path, str(self._config.num_dialogs),
+                                "{}_acts.txt".format(tag)), "wb") as f:
+            _pickle.dump(acts, f)
+        print("Done saving acts !")
+            
+    def load_acts(self, tag):
+        with open(os.path.join(self._config.base_data_path, str(self._config.num_dialogs),
+                                "{}_acts.txt".format(tag)), "rb") as f:
+            acts = _pickle.load(f)
+            self._data["{}_source_acts".format(tag)] = acts["source"]
+            self._data["{}_target_acts".format(tag)] = acts["target"]
+
     @property
     def data(self):
         return self._processed_data
+
+    @property
+    def raw_data(self):
+        return self._data
 
     @property
     def str_to_id(self):
