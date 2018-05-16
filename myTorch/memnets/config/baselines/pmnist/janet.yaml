@@ -38,7 +38,7 @@ dampening:  0.0
 nesterov: False
 grad_clip_norm:  1.0
 
-max_steps:  100000000
+max_steps: 50000
 rseed:  5
 device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
