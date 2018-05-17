@@ -2,8 +2,8 @@ parent_config: "config/default.yaml"
 config_filename: "fm.yaml"
 description: "copying memory task"
 
-project_name: "copy_v1_lag_200"
-ex_name: "fm"
+project_name: "copy_v1_lag_200_e"
+ex_name: "fm_4"
 
 # model specific details
 
@@ -32,13 +32,13 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 1.0
-amsgrad: False
+grad_clip_norm: 0.5
+amsgrad: True
 
 
 max_steps: 200000
 rseed:  5
-device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copying_memory"

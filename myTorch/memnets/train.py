@@ -108,10 +108,11 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         if config.use_tflogger:
             logger.log_scalar("inst_total_norm", total_norm, step + 1)
 
-        if torch.isnan(total_norm) != 1:
-            model.optimizer.step()
-        else:
-            logging.info("no updates")
+        model.optimizer.step()
+        #if torch.isnan(total_norm) != 1:
+        #    model.optimizer.step()
+        #else:
+        #    logging.info("no updates")
 
         tr.updates_done += 1
         if tr.updates_done % 1 == 0:
