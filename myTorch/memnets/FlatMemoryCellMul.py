@@ -6,10 +6,10 @@ import math
 
 
 
-class FlatMemoryCellV1(nn.Module):
+class FlatMemoryCellMul(nn.Module):
 
     def __init__(self, device, input_size, hidden_size, memory_size=64, k=4, activation="tanh", use_relu=False, layer_norm=False): 
-        super(FlatMemoryCellV1, self).__init__()
+        super(FlatMemoryCellMul, self).__init__()
 
         self._device = device
 
@@ -35,9 +35,10 @@ class FlatMemoryCellV1(nn.Module):
         if self._layer_norm:
             self._ln_h = nn.LayerNorm(hidden_size)
 
-        self.m2h = nn.Linear(self.memory_size, hidden_size)
-        self.i2h = nn.Linear(self.input_size, hidden_size, bias=False)
-
+        #self.hmi2h = torch.nn.LSTM(input_size=self.memory_size + hidden_size + self.input_size, hidden_size=hidden_size)
+        self.hmi2h = nn.Linear(self.memory_size + hidden_size + self.input_size, hidden_size)
+        #self.hmi2r = nn.Linear(self.memory_size + hidden_size + self.input_size, self.k)
+        
     def _opt_relu(self, x):
         if self._use_relu:
             return F.relu(x)
@@ -52,10 +53,13 @@ class FlatMemoryCellV1(nn.Module):
 
     def forward(self, input, last_hidden):
         hidden = {}
-
-        h = self.i2h(input) + self.m2h(last_hidden["memory"])
+        c_input = torch.cat((input, last_hidden["h"], last_hidden["memory"]), 1)
+        #r_t = self.hmi2r(c_input)
+        #c_input = torch.cat((input, last_hidden["h"], r_t), 1)
         
-        h = F.relu(self._opt_layernorm(h))
+        #h, hidden["lstm_cell_h"] = self.hmi2h(c_input.unsqueeze(0), last_hidden["lstm_cell_h"])
+        #h = h.squeeze(0)
+        h = F.relu(self._opt_layernorm(self.hmi2h(c_input)))
 
         # Flat memory equations
         alpha = self._opt_relu(self.hm2alpha(torch.cat((h,last_hidden["memory"]),1))).clone()
@@ -73,7 +77,7 @@ class FlatMemoryCellV1(nn.Module):
         v_beta = torch.nn.functional.normalize(v_beta, p=5, dim=2, eps=1e-12)
         forget_memory = beta.unsqueeze(2)*v_beta
 
-        hidden["memory"] = last_hidden["memory"] + torch.mean(add_memory-forget_memory, dim=1)
+        hidden["memory"] = last_hidden["memory"]*torch.mean(add_memory-forget_memory, dim=1)
         hidden["h"] = h
         return hidden
 
