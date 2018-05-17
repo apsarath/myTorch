@@ -35,9 +35,9 @@ nesterov: False
 grad_clip_norm: 5.0
 
 max_steps: 200000
-num_epochs: 10
+num_epochs: 20
 rseed:  5
-device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:3" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "word_lm_ptb"
