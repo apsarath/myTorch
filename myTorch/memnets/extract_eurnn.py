@@ -1,6 +1,10 @@
 
-file = open("eurnn.txt", "r")
-ofile = open("eurnn_valid.csv", "w")
+#file = open("eurnn.txt", "r")
+#ofile = open("eurnn_valid.csv", "w")
+
+
+file = open("goru.txt", "r")
+ofile = open("goru_valid.csv", "w")
 
 count = 0
 
