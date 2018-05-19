@@ -59,14 +59,15 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = Seq2Act2Seq(config.emb_size_src, len(corpus.str_to_id), 
-                        corpus.num_acts(tag=config.act_anotation_dataset),
+    model = Seq2Act2Seq(config.emb_size_src, len(corpus.str_to_id), len(config.act_anotation_datasets),
+                        corpus.num_acts(tag=config.act_anotation_datasets[0]),
                         config.act_emb_dim, config.act_layer_dim,
                         config.hidden_dim_src, config.hidden_dim_tgt,
                         corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
                         nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
                         dropout_rate=config.dropout_rate).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
+    logging.info("Act annotation datasets : {}".format(config.act_anotation_datasets))
 
     experiment.register("model", model)
 
@@ -104,18 +105,22 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                         mini_batch["sources"].to(device), 
                         mini_batch["sources_len"].to(device),
                         mini_batch["targets_input"].to(device),
-                        mini_batch["{}_source_acts".format(config.act_anotation_dataset)].to(device),
+                        [mini_batch["{}_source_acts".format(act_anotation_dataset)].to(device) \
+                        for act_anotation_dataset in config.act_anotation_datasets],
                         is_training=True if mode=="train" else False)
         logit_loss = logit_loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
 
-        curr_act_loss = act_loss_fn(
-                            curr_act_logits, 
-                            mini_batch["{}_source_acts".format(config.act_anotation_dataset)].to(device))
+        curr_act_loss, next_act_loss = 0.0, 0.0
+        for i, act_anotation_dataset in enumerate(config.act_anotation_datasets):
+            curr_act_loss += act_loss_fn(
+                            curr_act_logits[i], 
+                            mini_batch["{}_source_acts".format(act_anotation_dataset)].to(device))
 
-        next_act_loss = act_loss_fn(
-                            next_act_logits,
-                            mini_batch["{}_target_acts".format(config.act_anotation_dataset)].to(device))
+            next_act_loss += act_loss_fn(
+                            next_act_logits[i],
+                            mini_batch["{}_target_acts".format(act_anotation_dataset)].to(device))
+
 
         loss = logit_loss + config.curr_act_loss_coeff * curr_act_loss + config.next_act_loss_coeff * next_act_loss
         

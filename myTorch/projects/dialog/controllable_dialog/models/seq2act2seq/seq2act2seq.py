@@ -6,7 +6,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 
 class Seq2Act2Seq(nn.Module):
     def __init__(
-        self, src_emb_dim, src_vocab_size,
+        self, src_emb_dim, src_vocab_size, num_attributes,
         num_acts, act_emb_dim, act_layer_dim,
         src_hidden_dim, tgt_hidden_dim,
         pad_token_src, bidirectional,
@@ -15,6 +15,7 @@ class Seq2Act2Seq(nn.Module):
         super(Seq2Act2Seq, self).__init__()
 
         self._src_vocab_size = src_vocab_size
+        self._num_attributes = num_attributes
         self._num_acts = num_acts
         self._src_emb_dim = src_emb_dim
         self._act_emb_dim = act_emb_dim
@@ -34,10 +35,13 @@ class Seq2Act2Seq(nn.Module):
             self._pad_token_src,
         )
 
-        self._act_embedding = nn.Embedding(
-            self._num_acts,
-            self._act_emb_dim,
-        )
+        self._act_embedding = []
+        for i in range(self._num_attributes):
+            self._act_embedding.append(nn.Embedding(
+                                            self._num_acts,
+                                            self._act_emb_dim))
+
+        self._list_of_modules = nn.ModuleList(self._act_embedding)
         
         # Word Embedding look-up table for the target
         #self._tgt_embedding = nn.Embedding(
@@ -56,7 +60,7 @@ class Seq2Act2Seq(nn.Module):
         )
 
         # Decoder RNN
-        dec_inp_dim = self._src_emb_dim + self._src_hidden_dim + self._act_emb_dim
+        dec_inp_dim = self._src_emb_dim + self._src_hidden_dim + self._act_emb_dim*self._num_attributes
         #dec_inp_dim = self._src_emb_dim
         self._decoder = nn.GRU(
             dec_inp_dim,
@@ -70,17 +74,20 @@ class Seq2Act2Seq(nn.Module):
 
         # Curr act prediction.
         self._l1_curr = nn.Linear(self._src_hidden_dim, self._act_layer_dim)
-        self._l2curr_act = nn.Linear(self._act_layer_dim, self._num_acts)
+        self._l2curr_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
 
         #Next act prediction
-        self._l1_next = nn.Linear(self._src_hidden_dim + self._act_emb_dim, self._act_layer_dim)
-        self._l2next_act = nn.Linear(self._act_layer_dim, self._num_acts)
+        self._l1_next = nn.Linear(self._src_hidden_dim + self._act_emb_dim*self._num_attributes, self._act_layer_dim)
+        self._l2next_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
 
     def forward(self, input_src, src_lengths, input_tgt, input_acts, is_training):
         # Lookup word embeddings in source and target minibatch
         src_emb = F.dropout(self._src_embedding(input_src), self._dropout_rate, is_training)
         tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
-        curr_act_emb  = F.dropout(self._act_embedding(input_acts), self._dropout_rate, is_training)
+        curr_act_emb = []
+        for i, input_act in enumerate(input_acts):
+            curr_act_emb.append(F.dropout(self._act_embedding[i](input_act), self._dropout_rate, is_training))
+        curr_act_emb = torch.cat(curr_act_emb, dim=1)
 
         # Pack padded sequence for length masking in encoder RNN (This requires sorting input sequence by length)
         src_emb = pack_padded_sequence(src_emb, src_lengths, batch_first=True)
@@ -93,10 +100,17 @@ class Seq2Act2Seq(nn.Module):
         h_t = F.dropout(h_t, self._dropout_rate, is_training)
 
         #curr_act prediction
-        curr_act_logits = self._l2curr_act(F.relu(self._l1_curr(h_t)))
+        curr_act_logits = torch.chunk(
+            self._l2curr_act(F.relu(self._l1_curr(h_t))),
+            self._num_attributes,
+            dim=1)
+                                
 
         #next act prediction
-        next_act_logits = self._l2next_act(F.relu(self._l1_next(torch.cat((curr_act_emb, h_t),dim=1))))
+        next_act_logits = torch.chunk(
+            self._l2next_act(F.relu(self._l1_next(torch.cat((curr_act_emb, h_t),dim=1)))),
+            self._num_attributes,
+            dim=1)
 
         #tgt_input = tgt_emb
         tgt_input = torch.cat((

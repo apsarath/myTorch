@@ -24,8 +24,9 @@ class OPUS(object):
     def __init__(self, config):
         self._config = config
         self._load_and_process_data()
-        if config.act_anotation_dataset is not None:
-            self.load_acts(config.act_anotation_dataset)
+        if config.act_anotation_datasets is not None:
+            for act_anotation_dataset in config.act_anotation_datasets:
+                self.load_acts(act_anotation_dataset)
         self._split_train_valid()
         
     def _load_and_process_data(self):
