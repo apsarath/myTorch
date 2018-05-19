@@ -1,9 +1,9 @@
 config_filename: "default.yaml"
 description: "seq2act2seq opus"
 project_name: "seq2act2seq_opus"
-ex_name: "seq2act2seq_2layer_gru_512_swda"
+ex_name: "seq2act2seq_2layer_gru_512_swda_05M"
 base_data_path: "/mnt/data/chinna/data/OpenSubData/"
-num_dialogs: 200000 # valid ones are 100, 1000, 200000, 500000
+num_dialogs: 500000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
 emb_size_src: 512
@@ -46,7 +46,7 @@ curr_act_loss_coeff: 0.2
 next_act_loss_coeff: 0.5
 
 # task specific details
-device: "cuda"
+device: "cuda:1"
 num_epochs: 200
 batch_size: 128
 task: "opus_lm"
