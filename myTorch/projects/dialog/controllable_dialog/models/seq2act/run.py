@@ -16,6 +16,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.seq2act_data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 from myTorch.projects.dialog.controllable_dialog.data_readers.switchboard_corpus import SwitchBoard
+from myTorch.projects.dialog.controllable_dialog.data_readers.frames_corpus import Frames
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2act.seq2act import Seq2Act
 
@@ -32,6 +33,8 @@ def _safe_exp(x):
 def get_dataset(config):
     if config.dataset == "switchboard":
         corpus = SwitchBoard(config)
+    elif config.dataset == "frames":
+        corpus = Frames(config)
     elif config.dataset == "opus":
         hash_string = "{}_{}".format(config.base_data_path, config.num_dialogs)
         fn = 'corpus.{}.data'.format(hashlib.md5(hash_string.encode()).hexdigest())

@@ -16,7 +16,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.seq2act_data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 from myTorch.projects.dialog.controllable_dialog.data_readers.switchboard_corpus import SwitchBoard
-
+from myTorch.projects.dialog.controllable_dialog.data_readers.frames_corpus import Frames
 from myTorch.projects.dialog.controllable_dialog.models.seq2act.seq2act import Seq2Act
 
 parser = argparse.ArgumentParser(description="seq2act")
@@ -33,6 +33,8 @@ def _safe_exp(x):
 def get_dataset(config):
     if config.dataset == "switchboard":
         corpus = SwitchBoard(config)
+    if config.dataset == "frames":
+        corpus = Frames(config)
     elif config.dataset == "opus":
         corpus = OPUS(config)
     return corpus
@@ -97,7 +99,7 @@ def anotate(config, experiment, model, reader, opus_corpus, tr, logger, device):
         acts["target"].append(torch.argmax(output_logits, dim=1).item())
     print("Done targets.. {}".format(time.time()-start_time))
 
-    opus_corpus.save_acts("switchboard", acts)
+    opus_corpus.save_acts(config.dataset, acts)
     
 
 def create_experiment(config, opus_config):
