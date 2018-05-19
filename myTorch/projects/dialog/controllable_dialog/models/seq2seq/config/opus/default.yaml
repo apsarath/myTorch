@@ -12,7 +12,7 @@ hidden_dim_tgt: 512
 bidirectional: False
 nlayers_src: 2
 nlayers_tgt: 2
-dropout_rate: 0.3
+dropout_rate: 0.2
 
 # Dataset specific details
 eou: "<eou>"

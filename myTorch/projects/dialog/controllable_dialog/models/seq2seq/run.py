@@ -72,14 +72,11 @@ def create_experiment(config):
 
     tr = MyContainer()
 
-    tr.mini_batch_id, tr.updates_done, tr.average_loss, tr.inst_loss, tr.loss_per_epoch = {}, {}, {}, {}, {}
+    tr.mini_batch_id, tr.loss_per_epoch = {}, {}
     tr.epoch_id = 0
 
     for mode in ["train", "valid", "test"]:
         tr.mini_batch_id[mode] = 0
-        tr.updates_done[mode] = 0
-        tr.inst_loss[mode] = []
-        tr.average_loss[mode] = []
         tr.loss_per_epoch[mode] = []
 
     experiment.register("train_statistics", tr)
@@ -95,6 +92,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
     start_time = time.time()
     num_batches = 0
+    loss_per_epoch = []
     for mini_batch in itr:
         num_batches = mini_batch["num_batches"]
         model.zero_grad()
@@ -106,15 +104,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
         
-        tr.average_loss[mode].append(loss.item())
-        tr.inst_loss[mode].append(loss.item())
-        running_average = np.mean(np.array(tr.inst_loss[mode]))
-
-        if config.use_tflogger and mode == "train":
-            logger.log_scalar("running_avg_loss", running_average, tr.updates_done[mode] + 1)
-            logger.log_scalar("loss", tr.average_loss[mode][-1], tr.updates_done[mode] + 1)
-            logger.log_scalar("running_perplexity", _safe_exp(running_average), tr.updates_done[mode] + 1)
-            logger.log_scalar("inst_perplexity", _safe_exp(tr.average_loss[mode][-1]), tr.updates_done[mode] + 1)
+        loss_per_epoch.append(loss.item())
 
         if mode == "train":
             model.optimizer.zero_grad()
@@ -123,20 +113,16 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
             model.optimizer.step()
 
         tr.mini_batch_id[mode] += 1
-        tr.updates_done[mode] += 1
 
-        if tr.mini_batch_id[mode] % 100 == 0 and mode == "train":
+        if tr.mini_batch_id[mode] % 1e6 == 0 and mode == "train":
             logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
             logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
 
     if mode == "train":
         experiment.save("current")
 
-    avg_loss = np.mean(np.array(tr.inst_loss[mode]))
+    avg_loss = np.mean(np.array(loss_per_epoch))
     tr.loss_per_epoch[mode].append(avg_loss)
-    if config.use_tflogger:
-        logger.log_scalar("{}_loss_per_epoch".format(mode), tr.loss_per_epoch[mode][-1], epoch_id)
-        logger.log_scalar("{}_perp_per_epoch".format(mode), _safe_exp(tr.loss_per_epoch[mode][-1]), epoch_id)
         
     logging.info("\n*****************************\n")
     logging.info("{}: loss: {},  perp: {}".format(mode, avg_loss, _safe_exp(avg_loss)))
@@ -167,7 +153,6 @@ def run_experiment(args):
     for i in range(tr.epoch_id, config.num_epochs):
         for mode in ["train", "valid"]:
             tr.mini_batch_id[mode] = 0
-            tr.inst_loss[mode] = []
             tr.epoch_id = i
             run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
         
