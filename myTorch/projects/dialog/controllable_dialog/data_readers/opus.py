@@ -23,11 +23,19 @@ def _remove_adjacent(nums):
 class OPUS(object):
     def __init__(self, config):
         self._config = config
+        self._generic_responses()
         self._load_and_process_data()
         if config.act_anotation_datasets is not None:
             for act_anotation_dataset in config.act_anotation_datasets:
                 self.load_acts(act_anotation_dataset)
         self._split_train_valid()
+
+    def pad_sentences(self, sent_list, cut_off):
+            pad_id = self._str_to_id[self._config.pad]
+            for i, sent in enumerate(sent_list):
+                if len(sent) < cut_off:
+                    sent_list[i] += (cut_off - len(sent))*[pad_id]
+            return torch.LongTensor(sent_list)
         
     def _load_and_process_data(self):
         self._data = {}
@@ -71,11 +79,14 @@ class OPUS(object):
             sources.append(source)
             targets.append(target)
 
-        def _pad_sentences(sent_list, cut_off):
-            for i, sent in enumerate(sent_list):
-                if len(sent) < cut_off:
-                    sent_list[i] += (cut_off - len(sent))*[pad_id]
-            return torch.LongTensor(sent_list)
+        # generic responses
+        self._generic_responses = []
+        for response in self._generic_responses_text:
+            self._generic_responses.append([go_id] + [self._str_to_id[word] for word in response.split(" ")] + [eou_id])
+        
+        padded_generic_responses = self.pad_sentences(self._generic_responses, self._config.sentence_len_cut_off+1)
+        self._generic_responses_input = padded_generic_responses[:,:-1]
+        self._generic_responses_output = padded_generic_responses[:,1:]
 
         #sort sent lens
         src_lens = [len(line) for line in sources]
@@ -87,8 +98,8 @@ class OPUS(object):
         self._data["sources_len"] = torch.LongTensor([len(sent) for sent in sources])
         self._data["targets_len"] = torch.LongTensor([len(sent)-1 for sent in targets])
 
-        self._data["sources"] = _pad_sentences(sources, self._config.sentence_len_cut_off)
-        targets = _pad_sentences(targets, self._config.sentence_len_cut_off + 1)
+        self._data["sources"] = self.pad_sentences(sources, self._config.sentence_len_cut_off)
+        targets = self.pad_sentences(targets, self._config.sentence_len_cut_off + 1)
         self._data["targets_input"] = targets[:,:-1]
         self._data["targets_output"] = targets[:,1:]
         self._data["targets"] = targets
@@ -125,6 +136,13 @@ class OPUS(object):
             self._data["{}_source_acts".format(tag)] = torch.LongTensor(acts["source"])
             self._data["{}_target_acts".format(tag)] = torch.LongTensor(acts["target"])
 
+    def _generic_responses(self):
+        self._generic_responses_text = [
+            "oh my god", "i don t know", 
+            "i am not sure",
+            "i don t think that is a good idea",
+            "i am not sure that is a good idea"]
+
     @property
     def data(self):
         return self._processed_data
@@ -143,3 +161,6 @@ class OPUS(object):
 
     def num_acts(self, tag):
         return int(np.max(self._data["{}_source_acts".format(tag)].cpu().numpy()) + 1)
+
+    def padded_generic_responses(self):
+        return (self._generic_responses_input, self._generic_responses_output)

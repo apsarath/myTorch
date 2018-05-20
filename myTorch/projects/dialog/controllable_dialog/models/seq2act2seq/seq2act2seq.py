@@ -175,3 +175,10 @@ class Seq2Act2Seq(nn.Module):
         for p in self.parameters():
             num_params += p.data.view(-1).size(0)
         return num_params
+
+    def rl_parameters(self):
+        rl_params = []
+        for name, param in self.named_parameters():
+            if "_l1_next" in name or "_l2next_act" in name:
+                rl_params.append(param)
+        return rl_params
