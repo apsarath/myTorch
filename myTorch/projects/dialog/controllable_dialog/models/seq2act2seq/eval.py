@@ -16,11 +16,10 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 
-from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
+from myTorch.projects.dialog.controllable_dialog.models.seq2act2seq.seq2act2seq import Seq2Act2Seq
 
-parser = argparse.ArgumentParser(description="seq2seq")
+parser = argparse.ArgumentParser(description="seq2act2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
-parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 
 def _safe_exp(x):
     try:
@@ -59,11 +58,15 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
-                    corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
-                    nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                    dropout_rate=config.dropout_rate).to(device)
+    model = Seq2Act2Seq(config.emb_size_src, len(corpus.str_to_id), len(config.act_anotation_datasets),
+                        corpus.num_acts(tag=config.act_anotation_datasets[0]),
+                        config.act_emb_dim, config.act_layer_dim,
+                        config.hidden_dim_src, config.hidden_dim_tgt,
+                        corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
+                        nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
+                        dropout_rate=config.dropout_rate).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
+    logging.info("Act annotation datasets : {}".format(config.act_anotation_datasets))
 
     experiment.register("model", model)
 
@@ -95,7 +98,6 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     loss_per_epoch = []
     for mini_batch in itr:
         num_batches = mini_batch["num_batches"]
-        model.zero_grad()
         output_logits = model(
                         mini_batch["sources"].to(device), 
                         mini_batch["sources_len"].to(device),
@@ -105,12 +107,6 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
         
         loss_per_epoch.append(loss.item())
-
-        if mode == "train":
-            model.optimizer.zero_grad()
-            loss.backward(retain_graph=False)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip_norm)
-            model.optimizer.step()
 
         tr.mini_batch_id[mode] += 1
 
@@ -122,12 +118,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     tr.loss_per_epoch[mode].append(avg_loss)
         
     logging.info("\n*****************************\n")
-    logging.info("{}: loss: {},  perp: {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss),  time.time()-start_time))
-
-    if mode == "valid" and len(tr.loss_per_epoch[mode]) >= 2:
-        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
+    logging.info("{}: loss: {},  perp: {}".format(mode, avg_loss, _safe_exp(avg_loss)))
+    logging.info("\n*****************************\n")
 
 
 def run_experiment(args):
@@ -139,18 +131,11 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    if not args.force_restart:
-        if experiment.is_resumable("current"):
-            experiment.resume("current")
-    else:
-        experiment.force_restart("current")
-        experiment.force_restart("best_model")
+    experiment.resume("best_model", "model")
 
-    for i in range(tr.epoch_id, config.num_epochs):
-        for mode in ["train", "valid"]:
-            tr.mini_batch_id[mode] = 0
-            tr.epoch_id = i
-            run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
+    for mode in ["valid"]:
+        tr.mini_batch_id[mode] = 0
+        run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
         
 if __name__ == '__main__':
     args = parser.parse_args()

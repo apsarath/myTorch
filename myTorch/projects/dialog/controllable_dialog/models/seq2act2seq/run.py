@@ -146,6 +146,11 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         
     logging.info("{}: loss: {},  perp: {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss), time.time() - start_time))
 
+    if mode == "valid" and epoch_id > 0:                        
+        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
+            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
+            experiment.save("best_model", "model")
+
 
 def run_experiment(args):
     """Runs the experiment."""

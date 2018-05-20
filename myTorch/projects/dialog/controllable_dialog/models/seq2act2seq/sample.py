@@ -16,11 +16,10 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 
-from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
+from myTorch.projects.dialog.controllable_dialog.models.seq2act2seq.seq2act2seq import Seq2Act2Seq
 
-parser = argparse.ArgumentParser(description="seq2seq")
+parser = argparse.ArgumentParser(description="seq2act2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
-parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 
 def _safe_exp(x):
     try:
@@ -59,11 +58,15 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
-                    corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
-                    nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                    dropout_rate=config.dropout_rate).to(device)
+    model = Seq2Act2Seq(config.emb_size_src, len(corpus.str_to_id), len(config.act_anotation_datasets),
+                        corpus.num_acts(tag=config.act_anotation_datasets[0]),
+                        config.act_emb_dim, config.act_layer_dim,
+                        config.hidden_dim_src, config.hidden_dim_tgt,
+                        corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
+                        nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
+                        dropout_rate=config.dropout_rate).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
+    logging.info("Act annotation datasets : {}".format(config.act_anotation_datasets))
 
     experiment.register("model", model)
 
@@ -88,47 +91,66 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     itr = data_reader.itr_generator(mode, tr.mini_batch_id[mode])
     weight_mask = torch.ones(len(data_reader.corpus.str_to_id)).to(device)
     weight_mask[data_reader.corpus.str_to_id[config.pad]] = 0
-    loss_fn = torch.nn.CrossEntropyLoss(weight=weight_mask)
 
     start_time = time.time()
     num_batches = 0
-    loss_per_epoch = []
+    f = open("samples_{}.txt".format(config.ex_name), "w")
+    count = 1
     for mini_batch in itr:
+        print("Count : {}".format(count))
+        count += 1
+        if count > 100:
+            break
         num_batches = mini_batch["num_batches"]
         model.zero_grad()
-        output_logits = model(
+        output_logits, curr_act_logits, next_act_logits = model(
                         mini_batch["sources"].to(device), 
                         mini_batch["sources_len"].to(device),
                         mini_batch["targets_input"].to(device),
+                        [mini_batch["{}_source_acts".format(act_anotation_dataset)].to(device) \
+                        for act_anotation_dataset in config.act_anotation_datasets],
                         is_training=True if mode=="train" else False)
-        loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
-                mini_batch["targets_output"].to(device).contiguous().view(-1))
+
+
+        probs = torch.nn.functional.softmax(output_logits, dim=2)
+        probs, word_ids = probs.topk(20000, dim=2)
+        probs = torch.nn.functional.softmax(probs, dim=2)
+        probs, word_ids = probs.detach().cpu().numpy(), word_ids.detach().cpu().numpy()
         
-        loss_per_epoch.append(loss.item())
+        samples =[]
+        for e_id in range(len(word_ids)):
+            sample = []
+            for t in range(len(word_ids[e_id])):
+                word_id = np.random.choice(word_ids[e_id][t], p=probs[e_id][t])
+                if word_id != data_reader.corpus.str_to_id[config.eou]:
+                    sample.append(data_reader.corpus.id_to_str[word_id])
+                else:
+                    continue
+            samples.append(sample)
 
-        if mode == "train":
-            model.optimizer.zero_grad()
-            loss.backward(retain_graph=False)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip_norm)
-            model.optimizer.step()
+        source_texts = []
+        text = {}
+        for key in ["sources", "targets_output"]:
+            utterances = mini_batch[key].detach().cpu().numpy()
+            text[key] = []
+            for utterance in utterances:
+                utterance_list = []
+                for word_id in utterance:
+                    if word_id == data_reader.corpus.str_to_id[config.eou] or \
+                       word_id == data_reader.corpus.str_to_id[config.pad]:
+                        continue
+                    else:
+                        utterance_list.append(data_reader.corpus.id_to_str[word_id])
+                text[key].append(utterance_list)
 
-        tr.mini_batch_id[mode] += 1
+        for source_text, target_text, sample in zip(text["sources"], text["targets_output"], samples):
+            f.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
+                " ".join(source_text),
+                " ".join(target_text),
+                " ".join(sample)))
 
-        if tr.mini_batch_id[mode] % 1e6 == 0 and mode == "train":
-            logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
-            logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
-
-    avg_loss = np.mean(np.array(loss_per_epoch))
-    tr.loss_per_epoch[mode].append(avg_loss)
-        
-    logging.info("\n*****************************\n")
-    logging.info("{}: loss: {},  perp: {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss),  time.time()-start_time))
-
-    if mode == "valid" and len(tr.loss_per_epoch[mode]) >= 2:
-        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
-
+    f.close()
+                
 
 def run_experiment(args):
     """Runs the experiment."""
@@ -139,18 +161,12 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    if not args.force_restart:
-        if experiment.is_resumable("current"):
-            experiment.resume("current")
-    else:
-        experiment.force_restart("current")
-        experiment.force_restart("best_model")
+    experiment.resume("best_model", "model")
 
-    for i in range(tr.epoch_id, config.num_epochs):
-        for mode in ["train", "valid"]:
-            tr.mini_batch_id[mode] = 0
-            tr.epoch_id = i
-            run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
+    for mode in ["valid"]:
+        tr.mini_batch_id[mode] = 0
+        run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
+
         
 if __name__ == '__main__':
     args = parser.parse_args()

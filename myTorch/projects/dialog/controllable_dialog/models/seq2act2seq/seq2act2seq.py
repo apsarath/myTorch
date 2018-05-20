@@ -124,6 +124,20 @@ class Seq2Act2Seq(nn.Module):
         output_logits = output_logits.view(tgt_h.size(0), tgt_h.size(1), output_logits.size(1))
         return output_logits, curr_act_logits, next_act_logits
 
+
+    def decode_step(self, decoder_input, h_t, k):
+        tgt_emb = F.dropout(self._src_embedding(decoder_input), self._dropout_rate, False)
+        tgt_input = torch.cat((
+                        tgt_emb,
+                        h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
+        tgt_h, _ = self._decoder(tgt_input)
+        output_logits = self._decoder2vocab(tgt_h.contiguous().view(-1,tgt_h.size(2)))
+        output_logits = output_logits.view(tgt_h.size(0), tgt_h.size(1), output_logits.size(1))
+        logprobs = log_softmax(logits, dim=1)
+        logprobs, word_ids = logprobs.topk(k, 1)
+        return tgt_h, logprobs, word_ids
+        
+
     def register_optimizer(self, optimizer):
         self._optimizer = optimizer
 
