@@ -15,6 +15,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
+from myTorch.projects.dialog.controllable_dialog.data_readers.anime import Anime
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
 
@@ -39,6 +40,11 @@ def get_dataset(config):
         corpus = OPUS(config)
         #torch.save(corpus, fn)
 
+    return corpus
+
+def eval_dataset(config):
+    if config.eval_dataset == "anime":
+        corpus = Anime(config)
     return corpus
 
 def create_experiment(config):

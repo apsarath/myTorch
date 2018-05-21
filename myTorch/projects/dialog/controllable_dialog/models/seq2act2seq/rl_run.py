@@ -75,12 +75,13 @@ def create_experiment(config):
 
     tr = MyContainer()
 
-    tr.mini_batch_id, tr.loss_per_epoch = {}, {}
+    tr.mini_batch_id, tr.loss_per_epoch, tr.rewards_avg = {}, {}, {}
     tr.epoch_id = 0
 
     for mode in ["train", "valid", "test"]:
         tr.mini_batch_id[mode] = 0
         tr.loss_per_epoch[mode] = []
+        tr.rewards_avg[mode] = []
 
     experiment.register("train_statistics", tr)
 
@@ -123,7 +124,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
             log_taken_pvals.append(torch.log(torch.gather(pvals[-1], 1, actions[-1])).squeeze(1))
 
         # sample sentence
-        temp = 0.7
+        """
+        temp = 0.4
         probs = torch.nn.functional.softmax(output_logits/temp, dim=2)
         probs = probs.detach().cpu().numpy()
         word_ids = np.arange(len(data_reader.corpus.id_to_str))
@@ -148,9 +150,19 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         samples = data_reader.corpus.pad_sentences(samples, config.sentence_len_cut_off)
         samples_lens = torch.LongTensor(samples_lens)
 
+        """
+        # feed targets directly instead of samples
+        samples_lens = mini_batch["targets_len"].detach().cpu().numpy()
+        sorted_indices = np.argsort(samples_lens)[::-1]
+        samples_lens = [samples_lens[idx] for idx in sorted_indices] 
+        samples = torch.stack([mini_batch["targets_output"][idx] for idx in sorted_indices])
+        samples_lens = torch.LongTensor(samples_lens)
+        
+
         # compute reward for each generic sentence
         rl_loss = []
         generic_response_input, generic_response_output = data_reader.corpus.padded_generic_responses()
+        avg_reward = []
         for i in range(generic_response_input.shape[0]):
 
             output_logits_r, _, _ = model(
@@ -165,13 +177,21 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 output_logits_r.contiguous().view(-1, output_logits_r.size(2)),
                 tgt_logits)
             reward_per_generic_r = torch.mean(reward_per_generic_r.view(samples.shape[0],-1), dim=1).detach()
+            avg_reward.append(torch.mean(reward_per_generic_r))
+            # subtract from baseline
+            if len(tr.rewards_avg[mode]) > 0:
+                avg_so_far = torch.mean(torch.stack(tr.rewards_avg[mode]))
+                reward_per_generic_r = (reward_per_generic_r - avg_so_far)
+
             for i in range(len(log_taken_pvals)):
                 rl_loss.append(torch.mean(reward_per_generic_r * log_taken_pvals[i]))
-           
+
+            
+        tr.rewards_avg[mode].append(torch.mean(torch.stack(avg_reward)))
         rl_loss = -torch.mean(torch.stack(rl_loss))
+        loss_per_epoch.append(rl_loss.item())
 
         # SL loss       
-
         logit_loss = logit_loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
 
@@ -187,6 +207,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
 
         loss = logit_loss + config.curr_act_loss_coeff * curr_act_loss + config.next_act_loss_coeff * next_act_loss
+        loss += rl_loss
         
         
         loss_per_epoch.append(logit_loss.item())
@@ -195,7 +216,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
         if mode == "train":
             model.optimizer.zero_grad()
-            rl_loss.backward(retain_graph=False)
+            loss.backward(retain_graph=False)
             torch.nn.utils.clip_grad_norm_(model.rl_parameters(), config.grad_clip_norm)
             model.optimizer.step()
 
@@ -203,18 +224,13 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
         if 1:#tr.mini_batch_id[mode] % 100 == 0 and mode == "train":
             logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
-            #logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
+            logging.info("Running loss: {}, Reward : {}".format(loss_per_epoch[-1], tr.rewards_avg[mode][-1].item()))
 
     # Epoch level logging
     avg_loss = np.mean(np.array(loss_per_epoch))
     tr.loss_per_epoch[mode].append(avg_loss)
         
-    logging.info("{}: loss: perp : {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss), time.time() - start_time))
-
-    if mode == "valid" and epoch_id > 0:                        
-        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
+    logging.info("{}: loss: , time : {}".format(mode, avg_loss, _safe_exp(avg_loss), time.time() - start_time))
 
 
 def run_experiment(args):
@@ -226,10 +242,11 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
+    experiment.resume("best_model","model")
+
     optimizer = get_optimizer(model.rl_parameters(), config)
     model.register_optimizer(optimizer)
 
-    experiment.resume("best_model")
 
     for i in range(tr.epoch_id, config.num_epochs):
         logging.info("#################### \n Epoch id : {} \n".format(i))
@@ -237,6 +254,7 @@ def run_experiment(args):
             tr.mini_batch_id[mode] = 0
             tr.epoch_id = i
             run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
+        experiment.save("rl_model", "model")
 
     best_valid_loss = np.min(np.array(tr.loss_per_epoch["valid"]))
     logging.info("#################### \n Best Valid loss : {}, perplexity : {} \n".format(best_valid_loss,

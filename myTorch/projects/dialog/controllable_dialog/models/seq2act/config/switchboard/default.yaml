@@ -1,8 +1,8 @@
 config_filename: "default.yaml"
 description: "seq2seq swda"
 project_name: "seq2seq_swda"
-ex_name: "swda_seq2act_2layer_gru_512"
-num_dialogs: 200000 # valid ones are 100, 1000, 200000, 500000
+ex_name: "swda_seq2act_2layer_gru_512_act_cutoff_20"
+num_dialogs: 1000000 # valid ones are 100, 1000, 200000, 500000
 dataset: "switchboard"
 data_dir: "../../data_readers/"
 
@@ -17,7 +17,7 @@ dropout_rate: 0.3
 
 # Dataset specific details
 vocab_cut_off: 10000
-act_cut_off: 10
+act_cut_off: 19
 train_valid_split: 0.85
 sent_cut_off: 5
 pad: "<pad>"
@@ -39,7 +39,7 @@ nesterov: False
 grad_clip_norm: 5.0
 
 # task specific details
-device: "cuda"
+device: "cpu"
 num_epochs: 20
 batch_size: 32
 task: "swda_seq2act"

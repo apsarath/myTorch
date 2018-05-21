@@ -179,6 +179,8 @@ class Seq2Act2Seq(nn.Module):
     def rl_parameters(self):
         rl_params = []
         for name, param in self.named_parameters():
-            if "_l1_next" in name or "_l2next_act" in name:
-                rl_params.append(param)
+            #if "_l1_next" in name or "_l2next_act" in name \
+            #or "_l1_curr" in name or "_l2curr_act" in name:
+            #if "_src_embedding" not in name:
+            rl_params.append(param)
         return rl_params

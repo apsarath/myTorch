@@ -17,6 +17,7 @@ from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
+from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
 
 parser = argparse.ArgumentParser(description="seq2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
@@ -90,7 +91,12 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
     start_time = time.time()
     num_batches = 0
-    f = open("samples_{}.txt".format(config.ex_name), "w")
+    filename_s = "samples_{}.txt".format(config.ex_name)
+    filename_g = "groundtruth_{}.txt".format(config.ex_name)
+    filename_sg = "samplesAndgroundtruth_{}.txt".format(config.ex_name)
+    f_s = open(filename_s, "w")
+    f_g = open(filename_g, "w")
+    f_sg = open(filename_sg, "w")
     count = 1
     for mini_batch in itr:
         print("Count : {}".format(count))
@@ -105,7 +111,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                         mini_batch["targets_input"].to(device),
                         is_training=True if mode=="train" else False)
 
-        temp = 1.0
+        temp = 0.3
         probs = torch.nn.functional.softmax(output_logits/temp, dim=2)
         #probs, word_ids = probs.topk(20000, dim=2)
         #probs = torch.nn.functional.softmax(probs, dim=2)
@@ -140,13 +146,20 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 text[key].append(utterance_list)
 
         for source_text, target_text, sample in zip(text["sources"], text["targets_output"], samples):
-            f.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
+            f_sg.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
                 " ".join(source_text),
                 " ".join(target_text),
                 " ".join(sample)))
+            f_s.write("{}\n".format(" ".join(sample)))
+            f_g.write("{}\n".format(" ".join(target_text)))
 
-    f.close()
-                
+    f_sg.close()
+    f_s.close()
+    f_g.close()
+
+    d1, d2 = eval_metrics.distinct_scores(filename_s)
+    print("Distinct 1 : {}".format(d1))
+    print("Distinct 2 : {}".format(d2))
 
 def run_experiment(args):
     """Runs the experiment."""

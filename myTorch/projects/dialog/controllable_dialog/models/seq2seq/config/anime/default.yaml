@@ -1,10 +1,9 @@
 config_filename: "default.yaml"
-description: "seq2seq opus"
-project_name: "seq2seq_opus"
+description: "seq2seq anuma"
+project_name: "seq2seq_anime"
 ex_name: "opus_seq2seq_2layer_gru_512"
-base_data_path: "/mnt/data/chinna/data/OpenSubData/"
-num_dialogs: 1000000 # valid ones are 100, 1000, 200000, 500000
-
+base_data_path: "/mnt/data/chinna/data/Anime/"
+num_dialogs: 200000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
 emb_size_src: 512
@@ -13,10 +12,9 @@ hidden_dim_tgt: 512
 bidirectional: False
 nlayers_src: 2
 nlayers_tgt: 2
-dropout_rate: 0.3
+dropout_rate: 0.2
 
 # Dataset specific details
-dataset: "opus"
 eou: "<eou>"
 go: "<go>"
 unk: "<unk>"

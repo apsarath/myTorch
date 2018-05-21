@@ -1,13 +1,14 @@
 config_filename: "default.yaml"
-description: "seq2seq opus"
-project_name: "seq2seq_opus"
-ex_name: "opus_seq2seq_2layer_gru_512"
+description: "seq2act2seq opus"
+project_name: "seq2act2seq_opus"
+ex_name: "seq2act2seq_2layer_gru_512_random_05M"
 base_data_path: "/mnt/data/chinna/data/OpenSubData/"
-num_dialogs: 1000000 # valid ones are 100, 1000, 200000, 500000
-
+num_dialogs: 500000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
 emb_size_src: 512
+act_emb_dim: 256
+act_layer_dim: 256
 hidden_dim_src: 512
 hidden_dim_tgt: 512
 bidirectional: False
@@ -16,7 +17,6 @@ nlayers_tgt: 2
 dropout_rate: 0.3
 
 # Dataset specific details
-dataset: "opus"
 eou: "<eou>"
 go: "<go>"
 unk: "<unk>"
@@ -25,6 +25,7 @@ pad: "<pad>"
 sentence_len_cut_off: 15
 min_sent_len: 6
 train_valid_split: 0.85
+act_anotation_datasets: ["random"]
 
 # Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD  
 optim_name: "Adam"
@@ -41,9 +42,11 @@ centered: False
 dampening:  0.0
 nesterov: False
 grad_clip_norm: 5.0
+curr_act_loss_coeff: 0.2
+next_act_loss_coeff: 0.5
 
 # task specific details
-device: "cpu"
+device: "cuda:1"
 num_epochs: 200
 batch_size: 128
 task: "opus_lm"

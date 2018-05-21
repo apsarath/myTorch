@@ -17,6 +17,7 @@ from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2act2seq.seq2act2seq import Seq2Act2Seq
+from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
 
 parser = argparse.ArgumentParser(description="seq2act2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
@@ -94,7 +95,12 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
     start_time = time.time()
     num_batches = 0
-    f = open("samples_{}.txt".format(config.ex_name), "w")
+    filename_s = "samples_{}.txt".format(config.ex_name)
+    filename_g = "groundtruth_{}.txt".format(config.ex_name)
+    filename_sg = "samplesAndgroundtruth_{}.txt".format(config.ex_name)
+    f_s = open(filename_s, "w")
+    f_g = open(filename_g, "w")
+    f_sg = open(filename_sg, "w")
     count = 1
     for mini_batch in itr:
         print("Count : {}".format(count))
@@ -102,26 +108,28 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         if count > 100:
             break
         num_batches = mini_batch["num_batches"]
-        model.zero_grad()
+
         output_logits, curr_act_logits, next_act_logits = model(
-                        mini_batch["sources"].to(device), 
+                        mini_batch["sources"].to(device),
                         mini_batch["sources_len"].to(device),
                         mini_batch["targets_input"].to(device),
                         [mini_batch["{}_source_acts".format(act_anotation_dataset)].to(device) \
                         for act_anotation_dataset in config.act_anotation_datasets],
-                        is_training=True if mode=="train" else False)
+                        False)
 
-
-        probs = torch.nn.functional.softmax(output_logits, dim=2)
-        probs, word_ids = probs.topk(20000, dim=2)
-        probs = torch.nn.functional.softmax(probs, dim=2)
-        probs, word_ids = probs.detach().cpu().numpy(), word_ids.detach().cpu().numpy()
+        temp = 0.3
+        probs = torch.nn.functional.softmax(output_logits/temp, dim=2)
+        #probs, word_ids = probs.topk(20000, dim=2)
+        #probs = torch.nn.functional.softmax(probs, dim=2)
+        #probs, word_ids = probs.detach().cpu().numpy(), word_ids.detach().cpu().numpy()
+        probs = probs.detach().cpu().numpy()
+        word_ids = np.arange(len(data_reader.corpus.id_to_str))
         
         samples =[]
-        for e_id in range(len(word_ids)):
+        for e_id in range(len(probs)):
             sample = []
-            for t in range(len(word_ids[e_id])):
-                word_id = np.random.choice(word_ids[e_id][t], p=probs[e_id][t])
+            for t in range(len(probs[e_id])):
+                word_id = np.random.choice(word_ids, p=probs[e_id][t])
                 if word_id != data_reader.corpus.str_to_id[config.eou]:
                     sample.append(data_reader.corpus.id_to_str[word_id])
                 else:
@@ -144,12 +152,20 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 text[key].append(utterance_list)
 
         for source_text, target_text, sample in zip(text["sources"], text["targets_output"], samples):
-            f.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
+            f_sg.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
                 " ".join(source_text),
                 " ".join(target_text),
                 " ".join(sample)))
+            f_s.write("{}\n".format(" ".join(sample)))
+            f_g.write("{}\n".format(" ".join(target_text)))
 
-    f.close()
+    f_sg.close()
+    f_s.close()
+    f_g.close()
+
+    d1, d2 = eval_metrics.distinct_scores(filename_s)
+    print("Distinct 1 : {}".format(d1))
+    print("Distinct 2 : {}".format(d2))
                 
 
 def run_experiment(args):
@@ -161,7 +177,7 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    experiment.resume("best_model", "model")
+    experiment.resume("rl_model", "model")
 
     for mode in ["valid"]:
         tr.mini_batch_id[mode] = 0

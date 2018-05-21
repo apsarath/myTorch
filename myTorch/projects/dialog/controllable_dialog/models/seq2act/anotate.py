@@ -99,7 +99,7 @@ def anotate(config, experiment, model, reader, opus_corpus, tr, logger, device):
         acts["target"].append(torch.argmax(output_logits, dim=1).item())
     print("Done targets.. {}".format(time.time()-start_time))
 
-    opus_corpus.save_acts(config.dataset, acts)
+    opus_corpus.save_acts("{}_{}".format(config.dataset, len(reader.corpus.act_to_id)), acts)
     
 
 def create_experiment(config, opus_config):

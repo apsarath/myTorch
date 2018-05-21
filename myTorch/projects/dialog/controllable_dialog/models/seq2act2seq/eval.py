@@ -98,11 +98,15 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     loss_per_epoch = []
     for mini_batch in itr:
         num_batches = mini_batch["num_batches"]
-        output_logits = model(
-                        mini_batch["sources"].to(device), 
+
+        output_logits, curr_act_logits, next_act_logits = model(
+                        mini_batch["sources"].to(device),
                         mini_batch["sources_len"].to(device),
                         mini_batch["targets_input"].to(device),
-                        is_training=True if mode=="train" else False)
+                        [mini_batch["{}_source_acts".format(act_anotation_dataset)].to(device) \
+                        for act_anotation_dataset in config.act_anotation_datasets],
+                        False)
+
         loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
                 mini_batch["targets_output"].to(device).contiguous().view(-1))
         

@@ -3,6 +3,8 @@ description: "seq2seq opus"
 project_name: "seq2seq_opus"
 ex_name: "opus_seq2seq_2layer_gru_512"
 base_data_path: "/mnt/data/chinna/data/OpenSubData/"
+eval_dataset: "anime"
+eval_base_data_path: "/mnt/data/chinna/data/Anime/"
 num_dialogs: 200000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
