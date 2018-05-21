@@ -15,6 +15,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
+from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus import Cornell
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
 from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
@@ -29,17 +30,10 @@ def _safe_exp(x):
         return 0.0
 
 def get_dataset(config):
-    hash_string = "{}_{}".format(config.base_data_path, config.num_dialogs)
-    fn = 'corpus.{}.data'.format(hashlib.md5(hash_string.encode()).hexdigest())
-    fn = os.path.join(config.base_data_path, str(config.num_dialogs), fn)
-    if 0:#os.path.exists(fn):
-        print('Loading cached dataset...')
-        corpus = torch.load(fn)
-    else:
-        print('Producing dataset...')
+    if config.dataset == "opus":
         corpus = OPUS(config)
-        #torch.save(corpus, fn)
-
+    elif config.dataset == "cornell":
+        corpus = Cornell(config)
     return corpus
 
 def create_experiment(config):
@@ -172,7 +166,7 @@ def run_experiment(args):
 
     experiment.resume("best_model", "model")
 
-    for mode in ["valid"]:
+    for mode in ["train"]:
         tr.mini_batch_id[mode] = 0
         run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
 
