@@ -1,9 +1,8 @@
-parent_config: "config/default.yaml"
-config_filename: "copying_memory.yaml"
-description: "widen_lstm_copy_task"
+config_filename: "default.yaml"
+description: "Default LSTM model for copy task"
 
-project_name: "copying_memory_task"
-ex_name: "ex05"
+project_name: "copy_task_large"
+ex_name: "ex_large_model"
 
 # model specific details
 
@@ -11,13 +10,13 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [128]
+layer_size: [256]
 activation: "tanh"
 
 # optimization specific details
 
 # Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
-optim_name: "SGD"
+optim_name: "Adam"
 lr: 1.0e-3
 rho: 0.9
 eps:  1.0e-8
@@ -32,7 +31,7 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps:  100000000
+max_steps:  10000000
 rseed:  5
 device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 
@@ -43,20 +42,23 @@ seq_len: 5
 batch_size: 10
 
 # curriculum related details
-min_seq_len:  5
+min_seq_len:  11
 max_seq_len:  101
 step_seq_len: 3
-average_over_last_n: 200
+average_over_last_n: 1000
 evaluate_over_n: 1000
 curriculum_seed: 6
+new_lr: 0.001
 
 # early stopping related details
-time_span: 5000
+# Now it is used to determine when the model should be grown.
+time_span: 10000
 
 # Details related to expanding the rnn
-expanded_layer_size: [256]
-make_optimizer_wider: True
-
+expanded_layer_size: [80]
+make_optimizer_wider: False
+expand_model_weights: True
+use_random_noise: True
 # saving details
 use_tflogger: True
 save_every_n: 1000000000000
