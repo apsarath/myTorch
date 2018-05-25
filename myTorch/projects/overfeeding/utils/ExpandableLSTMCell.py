@@ -4,7 +4,7 @@ import torch
 
 from myTorch.memory.LSTMCell import LSTMCell
 from myTorch.projects.overfeeding.utils.net2net import make_bias_wider, make_weight_wider_at_output, \
-    make_weight_wider_at_input
+    make_weight_wider_at_input, generate_noise_for_input
 
 
 class ExpandableLSTMCell(LSTMCell):
@@ -51,19 +51,22 @@ class ExpandableLSTMCell(LSTMCell):
         for name, param in self.named_parameters():
             if (name in weights_to_widen_in_output_dim):
                 student_w1 = make_weight_wider_at_output(teacher_w=param.data.cpu().numpy(),
-                                                         indices_to_copy=indices_to_copy)
+                                                         indices_to_copy=indices_to_copy,
+                                                         replication_factor=replication_factor)
                 param.data = torch.from_numpy(student_w1)
 
             elif (name in biases_to_widen):
                 student_b = make_bias_wider(teacher_b=param.data.cpu().numpy(),
-                                            indices_to_copy=indices_to_copy)
+                                            indices_to_copy=indices_to_copy,
+                                                         replication_factor=replication_factor)
                 param.data = torch.from_numpy(student_b)
             elif (name in weights_to_widen_in_input_and_output_dim):
                 student_w = make_weight_wider_at_input(teacher_w=param.data.cpu().numpy(),
                                                        indices_to_copy=indices_to_copy,
                                                        replication_factor=replication_factor)
                 student_w = make_weight_wider_at_output(teacher_w=student_w.copy(),
-                                                        indices_to_copy=indices_to_copy)
+                                                        indices_to_copy=indices_to_copy,
+                                                         replication_factor=replication_factor)
                 param.data = torch.from_numpy(student_w)
             else:
                 print("Error! Found a parameter {} for which rules are not defined".format(name))
