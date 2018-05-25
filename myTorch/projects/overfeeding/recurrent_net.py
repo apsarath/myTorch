@@ -11,7 +11,7 @@ from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 from myTorch.memory import RNNCell, GRUCell
 from myTorch.projects.overfeeding.utils.ExpandableLSTMCell import ExpandableLSTMCell
 from myTorch.projects.overfeeding.utils.net2net import make_h_wider, make_weight_wider_at_input, \
-    make_weight_wider_at_output, make_bias_wider
+    make_weight_wider_at_output, make_bias_wider, generate_noise_for_input
 
 
 class Recurrent(nn.Module):
@@ -193,7 +193,8 @@ class Recurrent(nn.Module):
 
             initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
             indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
-            replication_factor = np.bincount(indices_to_copy)
+            replication_factor = np.bincount(indices_to_copy, minlength=initial_hidden_dim)
+            noise = generate_noise_for_input(replication_factor, size=8)
 
             # Growing all the RNN cells
             self._Cells[0].make_cell_wider(new_hidden_dim=new_layer_size[0],
@@ -213,6 +214,16 @@ class Recurrent(nn.Module):
             student_w = make_weight_wider_at_input(teacher_w=self._W_h2o.data.cpu().numpy(),
                                                    indices_to_copy=indices_to_copy,
                                                    replication_factor=replication_factor)
+
+            # for index in indices_to_copy:
+            #     epsilon = noise[index].pop()
+            #     student_w[index+initial_hidden_dim] +=epsilon
+            #
+            # for index in range(initial_hidden_dim):
+            #     if(noise[index]):
+            #         student_w[index] += noise[index]
+
+
             self._W_h2o.data = torch.from_numpy(student_w)
 
             # Growing the hidden state vectors
