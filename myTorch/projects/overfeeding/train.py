@@ -1,8 +1,8 @@
 import argparse
 import logging
+from copy import deepcopy
 
 import numpy
-import numpy as np
 import torch
 import torch.nn.functional as F
 
@@ -10,6 +10,7 @@ from myTorch import Experiment
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
 from myTorch.projects.overfeeding.utils.curriculum import curriculum_generator
 from myTorch.projects.overfeeding.utils.metric import get_metric_registry
+from myTorch.projects.overfeeding.utils.spectral import *
 from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
@@ -18,7 +19,7 @@ from myTorch.utils import MyContainer, get_optimizer, create_config, compute_gra
 from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
-# parser.add_argument("--config", type=str, default="config/shagun/copying_memory.yaml", help="config file path.")
+# parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=True, help="if True start training from scratch.")
 args = parser.parse_args()
@@ -101,19 +102,33 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         for param in model.parameters():
             param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
 
-
         gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
 
-        if config.use_tflogger:
-            logger.log_scalar("train_running_avg_loss_model_idx_" + str(model_idx), running_average_bce, step + 1)
-            logger.log_scalar("train_loss_model_idx_" + str(model_idx), tr.average_bce[-1], step + 1)
-            logger.log_scalar("train_average accuracy_model_idx_" + str(model_idx), average_accuracy, step + 1)
-            logger.log_scalar("train_running_average_accuracy_model_idx_" + str(model_idx), running_average_accuracy,
-                              step + 1)
-            logger.log_scalar("train_gradient_norm_model_idx_" + str(model_idx), gradient_norm,
-                        step + 1)
+        if tr.updates_done % 10 == 0:
+            if config.use_tflogger:
+                for key in ['_W_h2o',
+                            '_list_of_modules.0._W_x2i',
+                            '_list_of_modules.0._W_h2i',
+                            '_list_of_modules.0._W_h2f',
+                            '_list_of_modules.0._W_h2o',
+                            '_list_of_modules.0._W_h2c']:
+                    A = model.state_dict()[key].cpu().numpy()
+                    spectral_metrics = compute_spectral_properties(A)
+                    logger.log_scalar("model_index__{}__condition_number__{}".format(model_idx, key),
+                                      spectral_metrics.condition_number, step + 1)
+                    logger.log_scalar("model_index__{}__spectral_norm__{}".format(model_idx, key) + str(model_idx),
+                                      spectral_metrics.spectral_norm, step + 1)
+                    # logger.log_scalar("spectral_radius_{}_".format(key) + str(model_idx),
+                    #                   spectral_metrics.spectral_radius, step + 1)
 
-
+                logger.log_scalar("train_running_avg_loss_model_idx_" + str(model_idx), running_average_bce, step + 1)
+                logger.log_scalar("train_loss_model_idx_" + str(model_idx), tr.average_bce[-1], step + 1)
+                logger.log_scalar("train_average accuracy_model_idx_" + str(model_idx), average_accuracy, step + 1)
+                logger.log_scalar("train_running_average_accuracy_model_idx_" + str(model_idx),
+                                  running_average_accuracy,
+                                  step + 1)
+                logger.log_scalar("train_gradient_norm_model_idx_" + str(model_idx), gradient_norm,
+                                  step + 1)
 
         model.optimizer.step()
 
@@ -122,7 +137,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
 
         tr.updates_done += 1
         if tr.updates_done % 1 == 0:
-            logging.info("When training model, model_index: {}, examples seen: {}, running average of BCE: {}, "
+            logging.info("When training model, model_index: {}, "
+                         "examples seen: {}, "
+                         "running average of BCE: {}, "
                          "average accuracy for last batch: {}, "
                          "running average of accuracy: {},"
                          "gradient norm: {}".format(model_idx, tr.updates_done * config.batch_size,
@@ -148,50 +165,114 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                 # Lets try to grow:
                 if (model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size)):
                     # Lets expand
-
                     previous_layer_size = model.layer_size
+                    experiment.save(tag="model_before_expanding")
                     model.make_net_wider(expanded_layer_size=config.expanded_layer_size,
                                          can_make_optimizer_wider=config.make_optimizer_wider)
+                    previous_optimizer_state_dict = deepcopy(model.optimizer.state_dict())
                     new_layer_size = model.layer_size
-                    # Now we will reset the counters and continue training
-                    metrics["loss"].reset()
-                    metrics["accuracy"].reset()
 
-                    if config.use_tflogger:
-                        logger.log_text("Widening model", "Model index: {}. Previous size {}. New size {}".format(
-                            model_idx, previous_layer_size, new_layer_size))
-
-                    # I would be happy to discuss why am I creating a new model and not using the previous model
                     wider_model = Recurrent(device, config.input_size, config.output_size,
-                                            num_layers=config.num_layers, layer_size=model.layer_size,
+                                            num_layers=config.num_layers, layer_size=new_layer_size,
                                             cell_name=config.model, activation=config.activation,
                                             output_activation="linear")
 
-                    # load the expanded weights
-                    wider_model.load_state_dict(model.state_dict())
-                    model = wider_model.to(device)
+                    if (config.expand_model_weights):
+                        # load the expanded weights
+                        wider_model.load_state_dict(model.state_dict())
 
-                    if (config.make_optimizer_wider == False):
+                    new_config = deepcopy(config)
+                    new_config.lr = new_config.new_lr
+                    optimizer = get_optimizer(wider_model.parameters(), config)
+
+                    log_message_value = "Model index: {}. " \
+                                        "Previous learning rate {}. " \
+                                        "New learning rate {}," \
+                                        "step: {}".format(
+                        model_idx,
+                        config.lr,
+                        new_config.lr,
+                        step)
+
+                    log_message_tag = "New learning rate for the optimizer"
+
+                    if config.use_tflogger:
+                        logger.log_text(tag=log_message_tag,
+                                        value=log_message_value
+                                        )
+                    logging.info(log_message_tag + ": " + log_message_value)
+
+                    if (config.make_optimizer_wider):
                         # get new optimizer and do the standard bookkeeping tasks
-                        optimizer = get_optimizer(model.parameters(), config)
-                        model.register_optimizer(optimizer)
+                        prev_param_state_values = list(previous_optimizer_state_dict['state'].values())
+                        param_names_in_new_optimizer = optimizer.state_dict()['param_groups'][0]['params']
+                        for index, param in enumerate(optimizer.param_groups[0]['params']):
+                            new_value = prev_param_state_values[index]
+                            new_value['exp_avg'] = new_value['exp_avg'].to(device)
+                            new_value['exp_avg_sq'] = new_value['exp_avg_sq'].to(device)
+                            optimizer.state[0][param_names_in_new_optimizer[index]] = new_value
+                        log_message_value = "Model index: {}. " \
+                                            "Previous size {}. " \
+                                            "New size {}," \
+                                            "step: {}".format(
+                            model_idx,
+                            previous_layer_size,
+                            new_layer_size,
+                            step)
 
+                        log_message_tag = "Widening Optimizer"
+
+                        if config.use_tflogger:
+                            logger.log_text(tag=log_message_tag,
+                                            value=log_message_value
+                                            )
+                        logging.info(log_message_tag + ": " + log_message_value)
+
+                    model = wider_model.to(device)
+                    model.register_optimizer(optimizer)
                     experiment.register_model(model)
-                    logging.info("When training model, model_index: {}, made model wider after {} epochs.".format(
-                        model_idx, step))
+
+                    experiment.save(tag="model_after_expanding")
+
+                    # Now we will reset the counters and continue training
+                    metrics["loss"].reset()
+                    metrics["accuracy"].reset()
+                    metrics["loss"].make_timeless()
+                    metrics["accuracy"].make_timeless()
+
+                    log_message_tag = "Widening model (expand_model_weights = {})" \
+                        .format(config.expand_model_weights)
+                    log_message_value = "Model index: {}, " \
+                                        "Previous size {}, " \
+                                        "New size {}," \
+                                        "step: {}".format(
+                        model_idx,
+                        previous_layer_size,
+                        new_layer_size,
+                        step)
+
+                    if config.use_tflogger:
+                        logger.log_text(tag=log_message_tag,
+                                        value=log_message_value
+                                        )
+                    logging.info(log_message_tag + ": " + log_message_value)
+
                     continue
                 else:
                     # Could neither complete the task nor is there a scope to grow the model.
+                    # No need to check for early stopping anymore
+                    metrics["loss"].make_timeless()
+                    metrics["accuracy"].make_timeless()
                     # Time to meet the creator
                     should_stop_curriculum = True
-                logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
-                    model_idx, step))
-                logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
-                    model_idx, metrics["loss"].get_best_so_far()))
-                logging.info(
-                    "When training model, model_index: {}, accuracy = {} for the best performing model".format
-                    (model_idx, metrics["accuracy"].get_best_so_far()))
-                break
+                # logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
+                #     model_idx, step))
+                # logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
+                #     model_idx, metrics["loss"].get_best_so_far()))
+                # logging.info(
+                #     "When training model, model_index: {}, accuracy = {} for the best performing model".format
+                #     (model_idx, metrics["accuracy"].get_best_so_far()))
+                # break
 
     return should_stop_curriculum, model
 
