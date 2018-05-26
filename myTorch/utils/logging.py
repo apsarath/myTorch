@@ -123,6 +123,24 @@ class Logger(object):
         self.writer.add_summary(summary, step)
         self.writer.flush()
 
+    def log_text(self, tag, value):
+        """Log textual data.
+        Parameter
+        ----------
+        tag : basestring
+            Name of the scalar
+        value
+        step : int
+            training iteration
+        """
+        # This implementation is taken from: https://stackoverflow.com/a/46589493/1353861
+        meta = tf.SummaryMetadata()
+        meta.plugin_data.plugin_name = "text"
+        text_tensor = tf.make_tensor_proto(value, dtype=tf.string)
+        summary = tf.Summary()
+        summary.value.add(tag=tag, metadata=meta, tensor=text_tensor)
+        self.writer.add_summary(summary)
+        
     def _append_to(self, tlist, tr, val):
         tlist[0].append(val)
         tlist[1].append([tr.episodes_done, tr.global_steps_done, tr.iterations_done])
