@@ -69,6 +69,9 @@ class TrackableMetric():
     def get_best_so_far(self):
         return self._value
 
+    def make_timeless(self):
+        self._time_span = 1000000000
+
 def get_metric_registry(time_span):
     """Method to obtain a dict of multiple metrics that we want to track"""
     return{
