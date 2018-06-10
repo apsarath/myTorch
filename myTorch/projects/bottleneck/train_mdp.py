@@ -49,9 +49,7 @@ def train_mdp():
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
-	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
-	if config.use_gpu == True:
-		qnet.cuda()
+	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim).to(config.device)
 
 	optimizer = get_optimizer(qnet.parameters(), config)
 
@@ -101,21 +99,21 @@ def train_mdp():
 	# train data
 	train_indices = shuffled_indices[:int(0.85*data_len)]
 	train_obs = np.take(np.array(obs_list), train_indices, axis=0)
-	train_obs = my_variable(torch.from_numpy(train_obs).type(torch.LongTensor), use_gpu=config.use_gpu).detach()
+	train_obs = torch.from_numpy(train_obs).type(torch.LongTensor).to(config.device).detach()
 	train_actions = np.take(actions, train_indices, axis=0)
-	train_actions = my_variable(torch.from_numpy(train_actions).type(torch.FloatTensor), use_gpu=config.use_gpu)
+	train_actions = torch.from_numpy(train_actions).type(torch.FloatTensor).to(config.device)
 	train_rewards = np.take(rewards, train_indices, axis=0)
-	train_rewards = my_variable(torch.from_numpy(train_rewards).type(torch.FloatTensor), use_gpu=config.use_gpu, requires_grad=False)
+	train_rewards = torch.from_numpy(train_rewards).type(torch.FloatTensor).to(config.device)
 	train_data_len = train_indices.shape[0]
 
 	#valid data
 	valid_indices = shuffled_indices[int(0.85*data_len):]
 	valid_obs = np.take(np.array(obs_list), valid_indices, axis=0)
-	valid_obs = my_variable(torch.from_numpy(valid_obs).type(torch.LongTensor), use_gpu=config.use_gpu).detach()
+	valid_obs = torch.from_numpy(valid_obs).type(torch.LongTensor).to(config.device).detach()
 	valid_actions = np.take(actions, valid_indices, axis=0)
-	valid_actions = my_variable(torch.from_numpy(valid_actions).type(torch.FloatTensor), use_gpu=config.use_gpu)
+	valid_actions = torch.from_numpy(valid_actions).type(torch.FloatTensor).to(config.device)
 	valid_rewards = np.take(rewards, valid_indices, axis=0)
-	valid_rewards = my_variable(torch.from_numpy(valid_rewards).type(torch.FloatTensor), use_gpu=config.use_gpu, requires_grad=False)
+	valid_rewards = torch.from_numpy(valid_rewards).type(torch.FloatTensor).to(config.device)
 	valid_data_len = valid_indices.shape[0]
 	
 	classifier = {}
@@ -128,9 +126,9 @@ def train_mdp():
 		cluster_ids = model.labels_
 		_analyze_clusters(cluster_ids, num_clusters)
 		train_cluster_ids = np.take(cluster_ids, train_indices, axis=0)
-		train_cluster_ids = my_variable(torch.from_numpy(train_cluster_ids).type(torch.LongTensor), use_gpu=config.use_gpu, requires_grad=False)
+		train_cluster_ids = torch.from_numpy(train_cluster_ids).type(torch.LongTensor).to(config.device)
 		valid_cluster_ids = np.take(cluster_ids, valid_indices, axis=0)
-		valid_cluster_ids = my_variable(torch.from_numpy(valid_cluster_ids).type(torch.LongTensor), use_gpu=config.use_gpu, requires_grad=False)
+		valid_cluster_ids = torch.from_numpy(valid_cluster_ids).type(torch.LongTensor).to(config.device)
 
 		#prepare data for the classifier
 		train_minibatches = []
@@ -154,10 +152,9 @@ def train_mdp():
 			valid_minibatches.append(minibatch)
 	
 		# train classifier 
-		classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters, use_gpu=config.use_gpu,
-												grad_clip=[config.grad_clip_min, config.grad_clip_max])
-		if config.use_gpu:
-			classifier[num_clusters].cuda()
+		classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters,
+												grad_clip=[config.grad_clip_min, config.grad_clip_max]).to(config.device)
+
 		mdp_experiment.register("classifier_{}".format(num_clusters), classifier[num_clusters])
 		optimizer = get_optimizer(classifier[num_clusters].parameters(), config)
 		
@@ -212,8 +209,8 @@ def train_mdp():
 
 			# get the cluster_id and reward
 			_, cluster_id, reward = classifier[num_clusters].predict_cluster_id_rewards({
-					"obs" : my_variable(torch.from_numpy(obs[1]).type(torch.LongTensor), use_gpu=config.use_gpu).detach(),
-					"actions": my_variable(torch.from_numpy(transition["actions"]).type(torch.FloatTensor), use_gpu=config.use_gpu)})
+					"obs" : torch.from_numpy(obs[1]).type(torch.LongTensor).to(config.device).detach(),
+					"actions": torch.from_numpy(transition["actions"]).type(torch.FloatTensor).to(config.device)})
 			# sample the next obs from the cluster_id
 			cluster_id = cluster_id.data.cpu().numpy()[0]
 			sampled_obs_id = np.random.choice([i for i,idx in enumerate(cluster_ids) if idx == cluster_id])

@@ -31,7 +31,7 @@ def home_world():
 	config.save_freq = 10
 	config.sliding_wsize = 30
 	config.seed = 1234
-	config.use_gpu = True
+	config.device = "cuda"
 	config.train_dir = "outputs/"
 	config.logger_dir = "logs/"
 	config.use_tflogger = True

@@ -49,10 +49,7 @@ def train_with_state_agg_buf():
     env.seed(seed=config.seed)
     experiment.register_env(env)
 
-    qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, use_gpu=config.use_gpu)
-
-    if config.use_gpu == True:
-        qnet.cuda()
+    qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, config.device)
 
     optimizer = get_optimizer(qnet.parameters(), config)
 

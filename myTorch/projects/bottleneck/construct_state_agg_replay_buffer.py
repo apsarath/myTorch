@@ -69,10 +69,9 @@ def train_mdp():
         print(("Loading classifier with cluster size : ... {}".format(num_clusters)))
 
         # create classifier 
-        classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters, use_gpu=config.use_gpu,
-                                                grad_clip=[config.grad_clip_min, config.grad_clip_max])
-        if config.use_gpu:
-            classifier[num_clusters].cuda()
+        classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters, 
+                                                grad_clip=[config.grad_clip_min, config.grad_clip_max]).to(config.device)
+
         mdp_experiment.register("classifier_{}".format(num_clusters), classifier[num_clusters])
 
         # load best classifier

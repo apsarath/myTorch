@@ -7,10 +7,10 @@ from myTorch.utils import my_variable
 from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
 
 class MDPCLassifier(nn.Module):
-    def __init__(self, action_dim, obs_dim, num_clusters, num_rewards=1, use_gpu=False, rnn_type="LSTM", grad_clip=[None, None]):
+    def __init__(self, device, action_dim, obs_dim, num_clusters, num_rewards=1, use_gpu=False, rnn_type="LSTM", grad_clip=[None, None]):
         super(self.__class__, self).__init__()
     
-        self._use_gpu = use_gpu
+        self._device = device
         self._action_dim = action_dim
         self._obs_dim = obs_dim
         self._num_clusters = num_clusters
@@ -26,7 +26,7 @@ class MDPCLassifier(nn.Module):
 
         self._rnn_type = rnn_type
         rnn_cell = LSTMCell if self._rnn_type== "LSTM" else GRUCell
-        self._obs_cell = rnn_cell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, use_gpu=self._use_gpu)
+        self._obs_cell = rnn_cell(device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
         self._rnn = { "obs" : self._obs_cell }
 
 

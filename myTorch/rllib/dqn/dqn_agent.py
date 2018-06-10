@@ -2,11 +2,9 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
 
 
 import myTorch
-from myTorch.utils import my_variable
 
 class DQNAgent(object):
 
@@ -51,7 +49,7 @@ class DQNAgent(object):
 			return actions[r], None
 
 		# TO DO : check the need to convert to float tensor explictly.
-		obs = my_variable(torch.from_numpy(obs).type(torch.FloatTensor), use_gpu=self._qnet.use_gpu)
+		obs = torch.from_numpy(obs).type(torch.FloatTensor).to(self._qnet.device)
 		qvals = self._qnet.forward(obs).data.cpu().numpy().flatten()
 		qvals = qvals + legal_moves
 		best_action = np.argmax(qvals)
@@ -65,9 +63,9 @@ class DQNAgent(object):
 
 		for key in minibatch:
 			if key in ["observations_tp1", "legal_moves_tp1"]:
-				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._qnet.use_gpu, volatile=True, requires_grad=False)
+				minibatch[key] = torch.from_numpy(minibatch[key]).to(self._qnet.device)
 			else:
-				minibatch[key] = my_variable(torch.from_numpy(minibatch[key]), use_gpu=self._qnet.use_gpu)
+				minibatch[key] = torch.from_numpy(minibatch[key]).to(self._qnet.device)
 
 		predicted_action_values = self._qnet.forward(minibatch["observations"])
 		predicted_action_values *= minibatch["actions"]
