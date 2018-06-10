@@ -84,10 +84,9 @@ def train_mdp():
         mdp_experiment.register("state_agg_replay_buffer_{}".format(num_clusters), state_agg_replay_buffer[num_clusters])
         
         # Copy stuff from the old replay buffer into the new one.
-        for key in replay_buffer.data:
-            state_agg_replay_buffer[num_clusters].data[key] = replay_buffer.data[key]
-    
-        
+        #for key in replay_buffer.data:
+        #    state_agg_replay_buffer[num_clusters].data[key] = replay_buffer.data[key]
+        state_agg_replay_buffer[num_clusters].write_all_data(replay_buffer.get_all_data())
 
         start_time = time.time()
         for d_id in range(len(replay_buffer.data["observations"])):
@@ -113,8 +112,11 @@ def train_mdp():
             state_agg_replay_buffer[num_clusters].data["observations_tp1"][d_id][1][obs_cluster_id] = 1
 
         print(("Done in {} secs".format(time.time()-start_time)))
-
+        import pdb; pdb.set_trace()
         mdp_experiment.save("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(num_clusters))
+        
+        mdp_experiment.resume("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(num_clusters))
+        import pdb; pdb.set_trace()
 
 def format_legal_moves(legal_moves, action_dim):
 

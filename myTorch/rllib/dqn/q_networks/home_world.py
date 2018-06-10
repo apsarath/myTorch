@@ -2,18 +2,17 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from myTorch.utils import my_variable
 from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
 
 
 class HomeWorld(nn.Module):
 
-	def __init__(self, obs_dim, action_dim, use_gpu=False, rnn_type="LSTM"):
+	def __init__(self, device, obs_dim, action_dim, rnn_type="LSTM"):
 		super(self.__class__, self).__init__()
 
 		self._obs_dim = obs_dim
 		self._action_dim = action_dim
-		self._use_gpu = use_gpu
+		self._device = device
 		self._rnn_hidden_size = 256
 		self._embedding_dim = 20
 		self._rnn_input_size = self._embedding_dim
@@ -24,8 +23,8 @@ class HomeWorld(nn.Module):
 
 		self._rnn_type = rnn_type
 		self._rnn_cell = LSTMCell if self._rnn_type== "LSTM" else GRUCell
-		self._quest_cell = self._rnn_cell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, use_gpu=self._use_gpu)
-		self._obs_cell = self._rnn_cell(input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size, use_gpu=self._use_gpu)
+		self._quest_cell = self._rnn_cell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
+		self._obs_cell = self._rnn_cell(self._device, input_size=self._rnn_input_size, hidden_size=self._rnn_hidden_size)
 		self._rnn = { "quest": self._quest_cell, "obs": self._obs_cell}
 
 		self._input_embedding = nn.Embedding(self._max_vocab_size, self._embedding_dim, sparse=False, padding_idx=self._pad)
@@ -38,9 +37,9 @@ class HomeWorld(nn.Module):
 		self._hidden = {}
 		for k in self._rnn: 
 			self._hidden[k] = {}
-			self._hidden[k]["h"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
+			self._hidden[k]["h"] = torch.zeros(batch_size, self._rnn_hidden_size)
 			if self._rnn_type == "LSTM":
-				self._hidden[k]["c"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
+				self._hidden[k]["c"] = torch.zeros(batch_size, self._rnn_hidden_size)
 
 	def _encode(self, input, data_type):
 		hidden_next = self._hidden[data_type]
@@ -72,11 +71,11 @@ class HomeWorld(nn.Module):
 		return self._obs_dim
 
 	@property
-	def use_gpu(self):
-		return self._use_gpu
+	def device(self):
+		return self._device
 
 	def get_attributes(self):
-		return (self._obs_dim, self._action_dim, self._use_gpu, self._rnn_type)
+		return (self._device, self._obs_dim, self._action_dim, self._rnn_type)
 
 	def get_params(self):
 		return self.state_dict()
@@ -85,9 +84,7 @@ class HomeWorld(nn.Module):
 		self.load_state_dict(state_dict)
 
 	def make_target_net(self, qnet):
-		target_net = self.__class__(*qnet.get_attributes())
-		if self._use_gpu == True:
-			target_net.cuda()
+		target_net = self.__class__(*qnet.get_attributes()).to(self._device)
 		return target_net
 
 if __name__=="__main__":

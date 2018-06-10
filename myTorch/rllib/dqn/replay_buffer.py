@@ -41,7 +41,6 @@ class ReplayBuffer(object):
             self._data[key][self._write_index] = np.asarray(data[key], dtype=self._dtype[key])
 
     def sample_minibatch(self, batch_size=32):
-
         if self._n < batch_size:
             raise IndexError("Buffer does not have batch_size=%d transitions yet." % batch_size)
 
@@ -85,3 +84,13 @@ class ReplayBuffer(object):
             full_name = os.path.join(fname, "{}.npy".format(key))
             with open(full_name,"rb") as f:
                 self._data[key] = np.load(f) 
+
+    def get_all_data(self):
+        return (self._size, self._write_index, self._n, self._data)
+    
+    def write_all_data(self, all_data):
+        size, write_index, n, data = all_data
+        self._size = size
+        self._write_index = write_index
+        self._n = n
+        self._data = data
