@@ -8,10 +8,13 @@ Notes:
     explicitly.
 
 """
+from copy import deepcopy
+
 import numpy as np
 
-use_random_noise = True
-use_noise = True
+
+default_val_use_random_noise = None
+default_val_use_noise = None
 
 
 def make_h_wider(teacher_b, indices_to_copy):
@@ -63,8 +66,8 @@ def make_bias_wider(teacher_b, indices_to_copy, replication_factor):
     return student_b
 
 
-def make_weight_wider_at_output(teacher_w, indices_to_copy, replication_factor, use_noise=use_noise,
-                                use_random_noise=use_random_noise):
+def make_weight_wider_at_output(teacher_w, indices_to_copy, replication_factor, use_noise=default_val_use_noise,
+                                use_random_noise=default_val_use_random_noise):
     """
         Method to make weight wider at the output
         Args:
@@ -74,7 +77,7 @@ def make_weight_wider_at_output(teacher_w, indices_to_copy, replication_factor, 
 
     noise = generate_noise_for_output(replication_factor + 1, size=teacher_w.shape[0],
                                       use_noise=use_noise,
-                                      use_random_noise=use_random_noise)
+                                      use_random_noise=use_random_noise, teacher_w=teacher_w)
 
     # print(noise)
     student_w = teacher_w.copy()
@@ -90,8 +93,8 @@ def make_weight_wider_at_output(teacher_w, indices_to_copy, replication_factor, 
     return student_w.astype(np.float32)
 
 
-def generate_noise_for_input(replication_factor, size, use_noise=use_noise,
-                             use_random_noise=use_random_noise):
+def generate_noise_for_input(replication_factor, size, use_noise=default_val_use_noise,
+                             use_random_noise=default_val_use_random_noise):
     """
     Method to generate a list of random matrix where each value if between 0 and 1.
     The size of the matrix is size(replication_factor) x size
@@ -106,7 +109,10 @@ def generate_noise_for_input(replication_factor, size, use_noise=use_noise,
     return noise_matrix
 
 
-def generate_noise_for_output(replication_factor, size, use_noise=use_noise, use_random_noise=use_random_noise):
+def generate_noise_for_output(replication_factor, size,
+                              use_noise=default_val_use_noise,
+                              use_random_noise=default_val_use_random_noise,
+                              teacher_w=None):
     """
     Method to generate a list of random matrix where each value if between 0 and 1.
     The size of the matrix is size(replication_factor) x size
@@ -118,11 +124,11 @@ def generate_noise_for_output(replication_factor, size, use_noise=use_noise, use
     for val in replication_factor:
         noise_matrix.append(generate_noise_matrix_for_output(a=val, b=size,
                                                              use_noise=use_noise,
-                                                             use_random_noise=use_random_noise))
+                                                             use_random_noise=use_random_noise, weights=teacher_w[val]))
     return noise_matrix
 
 
-def generate_noise_vector(vector_size, use_noise, use_random_noise=False):
+def generate_noise_vector(vector_size, use_noise, use_random_noise=default_val_use_random_noise):
     """
     Method to generate a noise vector of size vector_size.
     :param use_noise:
@@ -145,16 +151,16 @@ def generate_noise_vector(vector_size, use_noise, use_random_noise=False):
         return vec
 
 
-def generate_noise_matrix_for_input(a, b, use_noise=use_noise,
-                                    use_random_noise=use_random_noise):
+def generate_noise_matrix_for_input(a, b, use_noise=default_val_use_noise,
+                                    use_random_noise=default_val_use_random_noise):
     tup = []
     for _ in range(b):
         tup.append(generate_noise_vector(a, use_noise, use_random_noise))
     return np.column_stack(tup).tolist()
 
 
-def generate_noise_matrix_for_output(a, b, use_noise=use_noise,
-                                     use_random_noise=use_random_noise):
+def generate_noise_matrix_for_output(a, b, use_noise=default_val_use_noise,
+                                     use_random_noise=default_val_use_random_noise, weights=None):
     tup = []
     for _ in range(b):
         tup.append(generate_noise_vector(a, use_noise, use_random_noise))

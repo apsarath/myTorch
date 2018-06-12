@@ -32,7 +32,10 @@ class ExpandableLSTMCell(LSTMCell):
         hidden["c"] = torch.Tensor(np.random.random((batch_size, self._hidden_size))).to(self._device)
         return hidden
 
-    def make_cell_wider(self, new_hidden_dim, indices_to_copy, replication_factor, is_first_cell=False):
+    def make_cell_wider(self, new_hidden_dim, indices_to_copy, replication_factor,
+                        use_noise,
+                        use_random_noise,
+                        is_first_cell=False):
         """
             Method to make the recurrent net wider by growing the original hidden dim to the
             size new_hidden_dim
@@ -52,7 +55,10 @@ class ExpandableLSTMCell(LSTMCell):
             if (name in weights_to_widen_in_output_dim):
                 student_w1 = make_weight_wider_at_output(teacher_w=param.data.cpu().numpy(),
                                                          indices_to_copy=indices_to_copy,
-                                                         replication_factor=replication_factor)
+                                                         replication_factor=replication_factor,
+                                                         use_noise=use_noise,
+                                                         use_random_noise=use_random_noise
+                                                         )
                 param.data = torch.from_numpy(student_w1)
 
             elif (name in biases_to_widen):
@@ -66,7 +72,10 @@ class ExpandableLSTMCell(LSTMCell):
                                                        replication_factor=replication_factor)
                 student_w = make_weight_wider_at_output(teacher_w=student_w.copy(),
                                                         indices_to_copy=indices_to_copy,
-                                                         replication_factor=replication_factor)
+                                                         replication_factor=replication_factor,
+                                                        use_noise=use_noise,
+                                                        use_random_noise=use_random_noise
+                                                        )
                 param.data = torch.from_numpy(student_w)
             else:
                 print("Error! Found a parameter {} for which rules are not defined".format(name))

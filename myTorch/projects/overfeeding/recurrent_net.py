@@ -175,7 +175,8 @@ class Recurrent(nn.Module):
             flag = True
         return flag
 
-    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider = False):
+    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider = False, use_noise=True,
+                       use_random_noise=True):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
         size new_hidden_dim
@@ -194,18 +195,21 @@ class Recurrent(nn.Module):
             initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
             indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
             replication_factor = np.bincount(indices_to_copy, minlength=initial_hidden_dim)
-            noise = generate_noise_for_input(replication_factor, size=8)
 
             # Growing all the RNN cells
             self._Cells[0].make_cell_wider(new_hidden_dim=new_layer_size[0],
                                            indices_to_copy=indices_to_copy,
                                            replication_factor=replication_factor,
+                                           use_noise=use_noise,
+                                           use_random_noise=use_random_noise,
                                            is_first_cell=True)
 
             for idx, cell in enumerate(self._Cells[1:]):
                 cell.make_cell_wider(new_hidden_dim=new_layer_size[idx],
                                      indices_to_copy=indices_to_copy,
                                      replication_factor=replication_factor,
+                                     use_noise=use_noise,
+                                     use_random_noise=use_random_noise,
                                      is_first_cell=False)
 
             # Growing the parameters of the recurrent net
@@ -240,14 +244,16 @@ class Recurrent(nn.Module):
                     "_".join([str(x) for x in new_layer_size])))
 
                 self.make_optimizer_wider(new_hidden_dim=new_hidden_dim, indices_to_copy=indices_to_copy,
-                                          replication_factor=replication_factor)
+                                          replication_factor=replication_factor,
+                                          use_noise=use_noise,
+                                          use_random_noise=use_random_noise)
 
     @property
     def layer_size(self):
         return self._layer_size
 
     def make_optimizer_wider(self, new_hidden_dim, indices_to_copy,
-                             replication_factor):
+                             replication_factor, use_noise, use_random_noise):
         # Note that this function is written specifically with this network in mind
 
 
@@ -269,7 +275,10 @@ class Recurrent(nn.Module):
                 if index in param_indices_to_widen_in_output_dim:
                     state[key] = torch.from_numpy(
                         make_weight_wider_at_output(teacher_w=state[key].data.cpu().numpy(),
-                                                   indices_to_copy=indices_to_copy)) \
+                                                   indices_to_copy=indices_to_copy,
+                                                    use_noise=use_noise,
+                                                    use_random_noise=use_random_noise
+                                                    )) \
                         .to(self._device)
 
                 if index in param_indices_to_widen_in_bias:

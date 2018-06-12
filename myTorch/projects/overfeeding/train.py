@@ -20,7 +20,7 @@ from myTorch.utils.logging import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="config/config.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=True, help="if True start training from scratch.")
 args = parser.parse_args()
 
@@ -168,7 +168,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                     previous_layer_size = model.layer_size
                     experiment.save(tag="model_before_expanding")
                     model.make_net_wider(expanded_layer_size=config.expanded_layer_size,
-                                         can_make_optimizer_wider=config.make_optimizer_wider)
+                                         can_make_optimizer_wider=config.make_optimizer_wider,
+                                         use_noise=config.use_noise,
+                                         use_random_noise=config.use_random_noise)
                     previous_optimizer_state_dict = deepcopy(model.optimizer.state_dict())
                     new_layer_size = model.layer_size
 

@@ -10,7 +10,7 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [40]
+layer_size: [4]
 activation: "tanh"
 
 # optimization specific details
@@ -53,7 +53,7 @@ new_lr: 0.001
 
 # early stopping related details
 # Now it is used to determine when the model should be grown.
-time_span: 5000
+time_span: 50
 
 # Details related to expanding the rnn
 expanded_layer_size: [80]
