@@ -1,12 +1,14 @@
 """Implementation of a simple experiment class."""
 import logging
 import os
+from copy import deepcopy
+from pathlib import Path
 from shutil import rmtree
 
-from myTorch.utils import create_folder
 import torch
-from pathlib import Path
-from copy import deepcopy
+
+from myTorch.utils import create_folder
+
 
 class Experiment(object):
     """Implementation of a simple experiment class."""
@@ -30,7 +32,6 @@ class Experiment(object):
         self._list_train_statistics = []
         self._data_iterator = None
         self._list_data_iterator = []
-
 
     def register_model(self, model):
         """Registers a model object.
@@ -155,7 +156,6 @@ class Experiment(object):
             with open(file_name, "w") as f:
                 f.write(str(self._device))
 
-
         file = open(flag_file, "w")
         file.close()
 
@@ -229,8 +229,6 @@ class Experiment(object):
                     device_name = f.read().strip()
                 self._device = torch.device(device_name)
 
-
-
     def force_restart(self):
         """Force restarting an experiment from beginning."""
 
@@ -242,3 +240,9 @@ class Experiment(object):
 
         if self._logger is not None:
             self._logger.force_restart()
+
+    def eval_mode(self):
+        self._model.eval()
+
+    def train_mode(self):
+        self._model.train()

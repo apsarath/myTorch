@@ -1,8 +1,9 @@
 config_filename: "default.yaml"
-description: "Default LSTM model for copy task"
+description: "test_new_code"
 
-project_name: "icml_spectral_analysis"
-ex_name: "ex01"
+project_name: "test_new_code"
+ex_name: "testing_app_slash_run"
+
 
 # model specific details
 
@@ -10,7 +11,7 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [4]
+layer_size: [40]
 activation: "tanh"
 
 # optimization specific details
@@ -31,35 +32,37 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps:  10000000
+max_steps:  5
 rseed:  5
-device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copy"
 num_bits: 8
 seq_len: 5
 batch_size: 10
-#block_len:  3
 
 # curriculum related details
-min_seq_len:  9
-max_seq_len:  101
-step_seq_len: 3
-average_over_last_n: 1000
-evaluate_over_n: 1000
+min_seq_len: 5
+max_seq_len:  20
+step_seq_len: 2
+#average_over_last_n: 1000
+#evaluate_over_n: 1000
 curriculum_seed: 6
 new_lr: 0.001
 
 # early stopping related details
 # Now it is used to determine when the model should be grown.
-time_span: 50
+#time_span: 10000
 
 # Details related to expanding the rnn
-expanded_layer_size: [80]
-make_optimizer_wider: False
-expand_model_weights: True
+#expanded_layer_size: [40]
+#make_optimizer_wider: False
+#expand_model_weights: True
+#use_noise: True
+#use_random_noise: True
 
 # saving details
 use_tflogger: True
 save_every_n: 1000000000000
+log_grad_norm: False
