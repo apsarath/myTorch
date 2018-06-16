@@ -4,9 +4,7 @@ from copy import deepcopy
 def curriculum_generator(config):
     """
         Method to generate a sequence of configs in increasing order of difficulty.
-        For now, we generate the curriculum only using the `min_len` and `max_len` attributes
-        I will look into how to extend it for other
-        usecases
+        For now, we generate the curriculum only using the `min_len` and `max_len` attributes.
     """
     min_seq_len = config.min_seq_len
     max_seq_len = config.max_seq_len
