@@ -4,7 +4,9 @@ import os
 from shutil import rmtree
 
 from myTorch.utils import create_folder
-
+import torch
+from pathlib import Path
+from copy import deepcopy
 
 class Experiment(object):
     """Implementation of a simple experiment class."""
@@ -25,7 +27,10 @@ class Experiment(object):
         self._config = None
         self._logger = None
         self._train_statistics = None
+        self._list_train_statistics = []
         self._data_iterator = None
+        self._list_data_iterator = []
+
 
     def register_model(self, model):
         """Registers a model object.
@@ -35,6 +40,15 @@ class Experiment(object):
         """
 
         self._model = model
+
+    def register_device(self, device):
+        """Registers a device object.
+
+        Args:
+            device: a device object.
+        """
+
+        self._device = device
 
     def register_config(self, config):
         """Registers a config dictionary.
@@ -62,6 +76,7 @@ class Experiment(object):
         """
 
         self._train_statistics = train_statistics
+        self._add_to_list_of_train_statistics(train_statistics)
 
     def register_data_iterator(self, data_iterator):
         """Registers a data iterator object.
@@ -71,6 +86,25 @@ class Experiment(object):
         """
 
         self._data_iterator = data_iterator
+        self._add_to_list_of_data_iterator(data_iterator)
+
+    def _add_to_list_of_train_statistics(self, train_statistics):
+        """Adds a training statistics dictionary to list of training statistics dictionaries.
+
+        Args:
+            train_statistics: a train_statistics dictionary.
+        """
+
+        self._list_train_statistics.append(train_statistics)
+
+    def _add_to_list_of_data_iterator(self, data_iterator):
+        """Adds a data iterator object to the list of data iterators.
+
+        Args:
+            data_iterator: a data iterator object.
+        """
+
+        self._list_data_iterator.append(data_iterator)
 
     def save(self, tag="current"):
         """Saves the experiment.
@@ -102,9 +136,25 @@ class Experiment(object):
             file_name = os.path.join(save_dir, "train_statistics.p")
             self._train_statistics.save(file_name)
 
+        if self._list_train_statistics is not None:
+            for idx, train_statistics in enumerate(self._list_train_statistics):
+                file_name = os.path.join(save_dir, "list_train_statistics_{}.p".format(idx))
+                train_statistics.save(file_name)
+
         if self._data_iterator is not None:
             file_name = os.path.join(save_dir, "data_iterator.p")
             self._data_iterator.save(file_name)
+
+        if self._list_data_iterator is not None:
+            for idx, data_iterator in enumerate(self._list_data_iterator):
+                file_name = os.path.join(save_dir, "list_data_iterator_{}.p".format(idx))
+                data_iterator.save(file_name)
+
+        if self._device is not None:
+            file_name = os.path.join(save_dir, "device.txt")
+            with open(file_name, "w") as f:
+                f.write(str(self._device))
+
 
         file = open(flag_file, "w")
         file.close()
@@ -152,10 +202,34 @@ class Experiment(object):
             if self._train_statistics is not None:
                 file_name = os.path.join(save_dir, "train_statistics.p")
                 self._train_statistics.load(file_name)
+                p = Path(save_dir)
+                file_names = list(p.glob("list_train_statistics_*.p"))
+                file_names.sort(key=lambda x: int(str(x).split("_")[-1].split(".")[0]))
+                for file_name in file_names:
+                    train_statistics = deepcopy(self._train_statistics)
+                    self._list_train_statistics.append(
+                        train_statistics.load(file_name)
+                    )
 
             if self._data_iterator is not None:
                 file_name = os.path.join(save_dir, "data_iterator.p")
                 self._data_iterator.load(file_name)
+                p = Path(save_dir)
+                file_names = list(p.glob("list_data_iterator_*.p"))
+                file_names.sort(key=lambda x: int(str(x).split("_")[-1].split(".")[0]))
+                for file_name in file_names:
+                    data_iterator = deepcopy(self._data_iterator)
+                    self._list_data_iterator.append(
+                        data_iterator.load(file_name)
+                    )
+
+            if self._device is not None:
+                file_name = os.path.join(save_dir, "device.txt")
+                with open(file_name) as f:
+                    device_name = f.read().strip()
+                self._device = torch.device(device_name)
+
+
 
     def force_restart(self):
         """Force restarting an experiment from beginning."""
