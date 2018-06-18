@@ -30,7 +30,6 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
     should_stop_curriculum = False
     tr = experiment._train_statistics
     data_iterator = experiment._data_iterator
-    device = experiment._device
     logger = experiment._logger
     model = experiment._model
 
@@ -39,29 +38,9 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
         seqloss = 0
         average_accuracy = 0
         model.reset_hidden(batch_size=config.batch_size)
-        retain_graph = False
-        for i in range(0, data["datalen"]):
+        model.optimizer.zero_grad()
+        seqloss, average_accuracy = model.train_over_one_data_iterate(data, seqloss, average_accuracy, curriculum_idx)
 
-            x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
-            y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
-            mask = float(data["mask"][i])
-            model.optimizer.zero_grad()
-            output = model(x)
-            if config.task == "copying_memory":
-                loss = F.torch.nn.functional.cross_entropy(output, y.squeeze(1))
-            else:
-                loss = F.binary_cross_entropy_with_logits(output, y)
-            seqloss += (loss * mask)
-            predictions = F.softmax(
-                (torch.cat(
-                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
-                    dim=2))
-                , dim=2)
-            predictions = predictions.max(2)[1].float()
-            average_accuracy += ((y == predictions).int().sum().item() * mask)
-
-        seqloss /= sum(data["mask"])
-        average_accuracy /= sum(data["mask"])
         x_shape = data["x"].shape
         average_accuracy /= (x_shape[1] * x_shape[2])
         tr.average_bce.append(seqloss.item())
@@ -69,10 +48,11 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
         running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
         running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
 
-        seqloss.backward(retain_graph=retain_graph)
 
         for param in model.parameters():
             param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
+
+        model.optimizer.step()
 
         # gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
 
@@ -107,9 +87,6 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
                                   step + 1)
                 logger.log_scalar("train_gradient_norm_model_idx_" + str(curriculum_idx), gradient_norm,
                                   step + 1)
-
-        model.optimizer.step()
-
         metrics["loss"].update(tr.average_bce[-1])
         metrics["accuracy"].update(tr.average_accuracy[-1])
 

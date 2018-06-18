@@ -18,7 +18,7 @@ class Recurrent(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation="linear"):
+                 cell_name="LSTM", activation="tanh", output_activation="linear", task=None):
         """Initializes a recurrent network."""
 
         super(Recurrent, self).__init__()
@@ -52,6 +52,12 @@ class Recurrent(nn.Module):
 
         self._reset_parameters()
         self.print_num_parameters()
+        self.use_gem = False
+
+        if task == "copying_memory":
+            self.loss_fn = F.torch.nn.functional.cross_entropy
+        else:
+            self.loss_fn = F.binary_cross_entropy_with_logits
 
     def forward(self, input):
         """Implements forward computation of the model.
@@ -73,6 +79,37 @@ class Recurrent(nn.Module):
             output = self._output_activation_fn(output)
         self._h_prev = h
         return output
+
+    def train_over_one_data_iterate(self, data, seqloss=0, average_accuracy=0, task=None):
+        retain_graph = False
+        seqloss, average_accuracy = self._compute_loss_and_metrics(data,
+                                                                   seqloss,
+                                                                   average_accuracy)
+        seqloss.backward(retain_graph=retain_graph)
+
+        return seqloss, average_accuracy
+
+    def _compute_loss_and_metrics(self, data, seqloss=0, average_accuracy=0):
+        for i in range(0, data["datalen"]):
+            x = torch.from_numpy(np.asarray(data['x'][i])).to(self._device)
+            y = torch.from_numpy(np.asarray(data['y'][i])).to(self._device)
+            mask = float(data["mask"][i])
+            output = self.forward(x)
+            loss = self.loss_fn(output, y)
+            output = self.forward(x)
+            seqloss += (loss * mask)
+            predictions = F.softmax(
+                (torch.cat(
+                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
+                    dim=2))
+                , dim=2)
+            predictions = predictions.max(2)[1].float()
+            average_accuracy += ((y == predictions).int().sum().item() * mask)
+
+        seqloss /= sum(data["mask"])
+        average_accuracy /= sum(data["mask"])
+
+        return seqloss, average_accuracy
 
     def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
@@ -97,8 +134,8 @@ class Recurrent(nn.Module):
     def _reset_parameters(self):
         """Initializes the parameters."""
 
-        nn.init.xavier_normal(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
-        nn.init.constant(self._b_o, 0)
+        nn.init.xavier_normal_(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
+        nn.init.constant_(self._b_o, 0)
 
     def register_optimizer(self, optimizer):
         """Registers an optimizer for the model.

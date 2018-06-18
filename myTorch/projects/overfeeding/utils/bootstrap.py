@@ -10,6 +10,7 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import get_optimizer
 from myTorch.utils.logging import Logger
+from myTorch.projects.overfeeding.gem import GemModel
 
 
 def get_data_iterator(config, seed=None):
@@ -38,15 +39,36 @@ def prepare_experiment(config):
 
     torch.manual_seed(config.rseed)
 
-    model = Recurrent(device, config.input_size, config.output_size,
-                      num_layers=config.num_layers, layer_size=config.layer_size,
-                      cell_name=config.model, activation=config.activation,
-                      output_activation="linear").to(device)
+
+    if config.use_gem:
+        model = GemModel(
+        device,
+        config.input_size,
+        config.output_size,
+        num_layers=config.num_layers,
+        layer_size=config.layer_size,
+        cell_name=config.model,
+        activation=config.activation,
+        output_activation="linear",
+        n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len) + 1,
+        args = {
+            "memory_strength": 0.5,
+            "is_curriculum": True,
+            "num_memories": 256,
+            "task": "A"
+        },
+            task=config.task
+    )
+    else:
+        model = Recurrent(device, config.input_size, config.output_size,
+                          num_layers=config.num_layers, layer_size=config.layer_size,
+                          cell_name=config.model, activation=config.activation,
+                          output_activation="linear", task=config.task)
+
     model = model.to(device)
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
     experiment = Experiment(config.name, config.save_dir)
-    logger = None
     if config.use_tflogger:
         logger = Logger(config.tflog_dir)
         experiment.register_logger(logger)
