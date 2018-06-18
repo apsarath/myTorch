@@ -49,7 +49,7 @@ def train_with_state_agg_buf():
     env.seed(seed=config.seed)
     experiment.register_env(env)
 
-    qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, config.device)
+    qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, config.device, state_agg=True)
 
     optimizer = get_optimizer(qnet.parameters(), config)
 
@@ -118,7 +118,7 @@ def train_with_state_agg_buf():
                 avg_loss = total_loss / config.updates_per_iter
                 append_to(tr.train_loss, tr, avg_loss)
                 logger.log_scalar_rl("train_loss", tr.train_loss[0], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done])
-                print("train_loss : {}".info(avg_loss))
+                print("train_loss : {}".format(avg_loss))
                 if 1:
                     agent.update_target_net()
                     tr.next_target_upd += config.target_net_update_freq

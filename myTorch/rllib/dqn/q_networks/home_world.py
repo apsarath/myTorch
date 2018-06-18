@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
+from myTorch.memory import RNNCell, GRUCell, LSTMCell
 
 
 class HomeWorld(nn.Module):

@@ -94,12 +94,12 @@ def train_mdp():
 
             # get obs_ids
             _, obs_cluster_id, _ = classifier[num_clusters].predict_cluster_id_rewards({
-                    "obs" : torch.from_numpy(replay_buffer.data["observations"][d_id][1]).type(torch.LongTensor).cuda(),
-                    "actions": torch.from_numpy(replay_buffer.data["actions"][d_id]).type(torch.FloatTensor).cuda()})
+                    "obs" : torch.from_numpy(replay_buffer.data["observations"][d_id][1]).type(torch.LongTensor).to(config.device),
+                    "actions": torch.from_numpy(replay_buffer.data["actions"][d_id]).type(torch.FloatTensor).to(config.device)})
 
             _, obs_tp1_cluster_id, _ = classifier[num_clusters].predict_cluster_id_rewards({
-                    "obs" : torch.from_numpy(replay_buffer.data["observations_tp1"][d_id][1]).type(torch.LongTensor).cuda(),
-                    "actions": torch.from_numpy(replay_buffer.data["actions"][d_id]).type(torch.FloatTensor).cuda()})
+                    "obs" : torch.from_numpy(replay_buffer.data["observations_tp1"][d_id][1]).type(torch.LongTensor).to(config.device),
+                    "actions": torch.from_numpy(replay_buffer.data["actions"][d_id]).type(torch.FloatTensor).to(config.device)})
 
 
             obs_cluster_id = obs_cluster_id.cpu().numpy()[0]
@@ -111,11 +111,8 @@ def train_mdp():
             state_agg_replay_buffer[num_clusters].data["observations_tp1"][d_id][1][obs_cluster_id] = 1
 
         print(("Done in {} secs".format(time.time()-start_time)))
-        import pdb; pdb.set_trace()
         mdp_experiment.save("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(num_clusters))
         
-        mdp_experiment.resume("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(num_clusters))
-        import pdb; pdb.set_trace()
 
 def format_legal_moves(legal_moves, action_dim):
 
