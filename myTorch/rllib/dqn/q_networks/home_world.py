@@ -37,9 +37,9 @@ class HomeWorld(nn.Module):
 		self._hidden = {}
 		for k in self._rnn: 
 			self._hidden[k] = {}
-			self._hidden[k]["h"] = torch.zeros(batch_size, self._rnn_hidden_size)
+			self._hidden[k]["h"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
 			if self._rnn_type == "LSTM":
-				self._hidden[k]["c"] = torch.zeros(batch_size, self._rnn_hidden_size)
+				self._hidden[k]["c"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
 
 	def _encode(self, input, data_type):
 		hidden_next = self._hidden[data_type]

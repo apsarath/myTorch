@@ -13,6 +13,7 @@ from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optim
 from myTorch.rllib.dqn.q_networks import *
 
 from myTorch.projects.bottleneck.config import *
+from myTorch.projects.bottleneck.mdp_classifier import MDPCLassifier
 from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
 from myTorch.utils import MyContainer
 from myTorch.utils.logging import Logger
@@ -83,6 +84,17 @@ def train_with_state_agg_buf():
     print("resuming the mdp experiment...")
     mdp_experiment.resume("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(config.cluster_num))
 
+
+    # create classifier 
+    classifier = MDPCLassifier(config.device, env.action_dim, env.obs_dim, config.cluster_num,
+                                                grad_clip=[config.grad_clip_min, config.grad_clip_max]).to(config.device)
+
+    mdp_experiment.register("classifier_{}".format(config.cluster_num), classifier)
+
+    # load best classifier
+    print("Loading Classifier {}".format(config.cluster_num))
+    mdp_experiment.resume("best_model", input_obj_tag="classifier_{}".format(config.cluster_num))
+
     tr = MyContainer()
     tr.train_reward = [[],[]]
     tr.train_episode_len = [[],[]]
@@ -136,7 +148,7 @@ def train_with_state_agg_buf():
                 epi_len = 0.0
                 num_games_finished = 0.0
                 for _ in range(config.test_per_iter):
-                    rewards, first_qval = collect_episode(env, agent, epsilon=0.05, is_training=False)
+                    rewards, first_qval = collect_episode(env, agent, classifier, config.device, epsilon=0.05, is_training=False)
                     epi_reward += sum(rewards)
                     epi_len += len(rewards)
                     num_games_finished += 1.0 if len(rewards) < env.max_episode_len else 0.0
@@ -151,13 +163,23 @@ def train_with_state_agg_buf():
                 logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done])
 
 
-def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
+def collect_episode(env, agent, classifier, device, replay_buffer=None, epsilon=0, is_training=False, step=None):
+
+    def format_state_agg(obs, action=one_hot([0], env.action_dim)[0]):
+        # get obs_ids
+        _, obs_cluster_id, _ = classifier.predict_cluster_id_rewards({
+                    "obs" : torch.from_numpy(obs[1]).type(torch.LongTensor).to(device),
+                    "actions": torch.from_numpy(action).type(torch.FloatTensor).to(device)})
+        obs[1].fill(0)
+        obs[1][obs_cluster_id] = 1
+         
 
     reward_list = []
     first_qval = None
     transitions = []
 
     obs, legal_moves = env.reset()
+    format_state_agg(obs)
     legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
     episode_done = False
@@ -175,24 +197,10 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
         next_obs, next_legal_moves, reward, episode_done = env.step(action)
         next_legal_moves = format_legal_moves(next_legal_moves, agent.action_dim)
 
-        transition = {}
-        transition["observations"] = obs
-        transition["legal_moves"] = legal_moves
-        transition["actions"] =  one_hot([action], env.action_dim)[0]
-        transition["rewards"] = reward
-        transition["observations_tp1"] = next_obs
-        transition["legal_moves_tp1"] = next_legal_moves
-        transition["pcontinues"] = 0.0 if episode_done else 1.0
-        transitions.append(transition)
         reward_list.append(reward)
-
         obs = next_obs
+        format_state_agg(obs, one_hot([action], env.action_dim)[0])
         legal_moves = next_legal_moves
-
-    if is_training:
-        if replay_buffer is not None:
-            for transition in transitions:
-                replay_buffer.add(transition)
 
     return reward_list, first_qval
 

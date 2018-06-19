@@ -3,8 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from myTorch.utils import my_variable
-from myTorch.memory import RNNCell, GRUCell, LSTMCell, TARDISCell
+from myTorch.memory import RNNCell, GRUCell, LSTMCell
 
 class MDPCLassifier(nn.Module):
     def __init__(self, device, action_dim, obs_dim, num_clusters, num_rewards=1, use_gpu=False, rnn_type="LSTM", grad_clip=[None, None]):
@@ -47,9 +46,9 @@ class MDPCLassifier(nn.Module):
         self._hidden = {}
         for k in self._rnn:
             self._hidden[k] = {}
-            self._hidden[k]["h"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
+            self._hidden[k]["h"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
             if self._rnn_type == "LSTM":
-                self._hidden[k]["c"] = my_variable(torch.zeros(batch_size, self._rnn_hidden_size), use_gpu=self._use_gpu)
+                self._hidden[k]["c"] = torch.zeros(batch_size, self._rnn_hidden_size).to(self._device)
 
     def _encode(self, input, data_type):
         self.reset_hidden(input.shape[0])
@@ -79,7 +78,7 @@ class MDPCLassifier(nn.Module):
         #cluster_pvals = torch.nn.functional.softmax(cluster_logits, dim=1)
         cluster_ids = torch.max(cluster_logits, dim=1)[1]
 
-        reward_logits = self._fc5(F.relu(self._fc3(common_repr)))
+        reward_logits = self._fc5(F.relu(self._fc3(common_repr))).squeeze(1)
         #reward_pvals = torch.nn.functional.softmax(reward_logits, dim=1)
         #rewards = torch.max(reward_pvals, dim=1)[1]
         
@@ -107,9 +106,9 @@ class MDPCLassifier(nn.Module):
         total_loss = 10*reward_loss + 10*cluster_loss
 
         cluster_accuracy = torch.mean(torch.eq(cluster_ids, minibatch["cluster_ids"]).type(torch.cuda.FloatTensor))*100
-        cluster_accuracy = cluster_accuracy.data.cpu().numpy()[0]
+        cluster_accuracy = cluster_accuracy.item()
         if not is_training:
-            return cluster_accuracy, total_loss.data.cpu().numpy()[0]
+            return cluster_accuracy, total_loss.item()
             #return total_loss.data.cpu().numpy()[0]
 
         total_loss.backward()

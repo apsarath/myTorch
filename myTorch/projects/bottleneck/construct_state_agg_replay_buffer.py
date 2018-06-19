@@ -64,12 +64,12 @@ def train_mdp():
 
     classifier = {}
     state_agg_replay_buffer = {}
-    for num_clusters in [4,12,16,24,32,8]:
+    for num_clusters in [4,12, 16,24,32,8]:
         # cluster them
         print(("Loading classifier with cluster size : ... {}".format(num_clusters)))
 
         # create classifier 
-        classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters, 
+        classifier[num_clusters] = MDPCLassifier(config.device, env.action_dim, env.obs_dim, num_clusters, 
                                                 grad_clip=[config.grad_clip_min, config.grad_clip_max]).to(config.device)
 
         mdp_experiment.register("classifier_{}".format(num_clusters), classifier[num_clusters])

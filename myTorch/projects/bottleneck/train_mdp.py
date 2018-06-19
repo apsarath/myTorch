@@ -49,7 +49,7 @@ def train_mdp():
 	env.seed(seed=config.seed)
 	experiment.register_env(env)
 
-	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim).to(config.device)
+	qnet = get_qnet(config.env_name, env.obs_dim, env.action_dim, config.device)
 
 	optimizer = get_optimizer(qnet.parameters(), config)
 
@@ -152,7 +152,7 @@ def train_mdp():
 			valid_minibatches.append(minibatch)
 	
 		# train classifier 
-		classifier[num_clusters] = MDPCLassifier(env.action_dim, env.obs_dim, num_clusters,
+		classifier[num_clusters] = MDPCLassifier(config.device, env.action_dim, env.obs_dim, num_clusters,
 												grad_clip=[config.grad_clip_min, config.grad_clip_max]).to(config.device)
 
 		mdp_experiment.register("classifier_{}".format(num_clusters), classifier[num_clusters])
@@ -201,7 +201,6 @@ def train_mdp():
 		start_time = time.time()
 		print(("Collecting {} samples".format(config.num_new_samples))) 
 		for sample_id in range(config.num_new_samples):
-			print("Sample id : {}".format(sample_id))
 			# And predict the action from the agent.
 			action, _ = agent.sample_action(obs, legal_moves=None,
 							epsilon=0, step=None, is_training=False)
@@ -212,14 +211,14 @@ def train_mdp():
 					"obs" : torch.from_numpy(obs[1]).type(torch.LongTensor).to(config.device).detach(),
 					"actions": torch.from_numpy(transition["actions"]).type(torch.FloatTensor).to(config.device)})
 			# sample the next obs from the cluster_id
-			cluster_id = cluster_id.data.cpu().numpy()[0]
+			cluster_id = cluster_id.item()
 			sampled_obs_id = np.random.choice([i for i,idx in enumerate(cluster_ids) if idx == cluster_id])
 			next_obs = raw_obs_list[sampled_obs_id]
 			
 			
 			transition["observations"] = obs
 			transition["actions"] = one_hot([action], env.action_dim)[0]
-			transition["rewards"] = reward.data.cpu().numpy()[0,0]
+			transition["rewards"] = reward.item()
 			transition["observations_tp1"] = next_obs
 			new_replay_buffer[num_clusters].add(transition)
 			obs = next_obs
