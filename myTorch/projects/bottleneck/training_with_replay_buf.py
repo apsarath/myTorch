@@ -26,7 +26,7 @@ parser.add_argument('--run_num', type=int, default=1, help="exp run number")
 args = parser.parse_args()
 
 
-def train_with_mdp():
+def train_with_state_agg_buf():
     assert(args.base_dir)
     config = eval(args.config)()
 
@@ -37,7 +37,7 @@ def train_with_mdp():
         "{}__{}".format("default", args.exp_desc))
 
     logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
-        "{}__{}_mdp_run_{}".format(args.config_params, args.exp_desc, args.run_num))
+        "{}__{}_stored_replay_buf_{}".format(args.config_params, args.exp_desc, args.run_num))
 
     experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
     #experiment.register_config(config)
@@ -65,23 +65,14 @@ def train_with_mdp():
                     epsilon_end=config.epsilon_end, 
                     epsilon_end_t = config.epsilon_end_t, 
                     learn_start=config.learn_start)
-    experiment.register_agent(agent)
-
-    assert(experiment.is_resumable("current"))
-    print("resuming the pre-mdp experiment...")
-    experiment.resume("current")
-
-
-    # mdp experiment stuff
-    mdp_train_dir = os.path.join(train_dir, "mdp_{}".format(args.run_num))
-    mdp_experiment = GenExperiment(config.exp_name, mdp_train_dir, config.backup_logger)
+    #experiment.register_agent(agent)
 
     replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
-    mdp_experiment.register("replay_buffer_{}".format(config.cluster_num), replay_buffer)
+    experiment.register_replay_buffer(replay_buffer)
+    assert (experiment.is_resumable("current"))
+    print("resuming the experiment...")
+    experiment.resume("current")
 
-    assert(mdp_experiment.is_resumable("best_model"))
-    print("resuming the mdp experiment...")
-    mdp_experiment.resume("best_model", input_obj_tag="replay_buffer_{}".format(config.cluster_num))
 
     tr = MyContainer()
     tr.train_reward = [[],[]]
@@ -118,6 +109,7 @@ def train_with_mdp():
                 avg_loss = total_loss / config.updates_per_iter
                 append_to(tr.train_loss, tr, avg_loss)
                 logger.log_scalar_rl("train_loss", tr.train_loss[0], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done])
+                print("train_loss : {}".format(avg_loss))
                 if 1:
                     agent.update_target_net()
                     tr.next_target_upd += config.target_net_update_freq
@@ -135,7 +127,7 @@ def train_with_mdp():
                 epi_len = 0.0
                 num_games_finished = 0.0
                 for _ in range(config.test_per_iter):
-                    rewards, first_qval = collect_episode(env, agent, epsilon=0.05, is_training=False)
+                    rewards, first_qval = collect_episode(env, agent, config.device, epsilon=0.05, is_training=False)
                     epi_reward += sum(rewards)
                     epi_len += len(rewards)
                     num_games_finished += 1.0 if len(rewards) < env.max_episode_len else 0.0
@@ -150,7 +142,9 @@ def train_with_mdp():
                 logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.iterations_done, tr.steps_done, tr.updates_done])
 
 
-def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False, step=None):
+def collect_episode(env, agent, device, replay_buffer=None, epsilon=0, is_training=False, step=None):
+
+         
 
     reward_list = []
     first_qval = None
@@ -174,24 +168,9 @@ def collect_episode(env, agent, replay_buffer=None, epsilon=0, is_training=False
         next_obs, next_legal_moves, reward, episode_done = env.step(action)
         next_legal_moves = format_legal_moves(next_legal_moves, agent.action_dim)
 
-        transition = {}
-        transition["observations"] = obs
-        transition["legal_moves"] = legal_moves
-        transition["actions"] =  one_hot([action], env.action_dim)[0]
-        transition["rewards"] = reward
-        transition["observations_tp1"] = next_obs
-        transition["legal_moves_tp1"] = next_legal_moves
-        transition["pcontinues"] = 0.0 if episode_done else 1.0
-        transitions.append(transition)
         reward_list.append(reward)
-
         obs = next_obs
         legal_moves = next_legal_moves
-
-    if is_training:
-        if replay_buffer is not None:
-            for transition in transitions:
-                replay_buffer.add(transition)
 
     return reward_list, first_qval
 
@@ -208,5 +187,5 @@ def append_to(tlist, tr, val):
 
 
 if __name__=="__main__":
-    train_with_mdp()
+    train_with_state_agg_buf()
 

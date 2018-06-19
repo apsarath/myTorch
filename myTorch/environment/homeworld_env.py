@@ -76,5 +76,6 @@ if __name__=="__main__":
     env.reset()
     env.step(11)
     env.step(20)
+    import pdb; pdb.set_trace()
 
     #import pdb; pdb.set_trace()

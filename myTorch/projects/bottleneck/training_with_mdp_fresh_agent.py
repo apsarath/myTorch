@@ -37,7 +37,7 @@ def train_with_mdp():
         "{}__{}".format("default", args.exp_desc))
 
     logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
-        "{}__{}_mdp_run_{}".format(args.config_params, args.exp_desc, args.run_num))
+        "{}__{}_mdp_fresh_agent_run_{}".format(args.config_params, args.exp_desc, args.run_num))
 
     experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
     #experiment.register_config(config)
@@ -65,11 +65,11 @@ def train_with_mdp():
                     epsilon_end=config.epsilon_end, 
                     epsilon_end_t = config.epsilon_end_t, 
                     learn_start=config.learn_start)
-    experiment.register_agent(agent)
+    #experiment.register_agent(agent)
 
-    assert(experiment.is_resumable("current"))
-    print("resuming the pre-mdp experiment...")
-    experiment.resume("current")
+    #assert(experiment.is_resumable("current"))
+    #print("resuming the pre-mdp experiment...")
+    #experiment.resume("current")
 
 
     # mdp experiment stuff
