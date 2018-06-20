@@ -21,8 +21,8 @@ def home_world():
 
 	config.num_iterations = int(1e5)
 	config.episodes_per_iter = 5
-	config.test_freq = 20#1
-	config.test_per_iter = 5#50
+	config.test_freq = 30#1
+	config.test_per_iter = 20#50
 	config.updates_per_iter = int(50.0/4)
 	config.batch_size = 64
 	config.replay_buffer_size = int(5e3)

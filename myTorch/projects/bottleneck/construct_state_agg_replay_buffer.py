@@ -54,9 +54,13 @@ def train_mdp():
     experiment.resume("current")
 
     # Modify action dtype
-    for d_id in range(len(replay_buffer.data["actions"])):
-        if replay_buffer.data["actions"][d_id] is not None:
-            replay_buffer.data["actions"][d_id] = replay_buffer.data["actions"][d_id].astype(np.uint8)
+    if type( replay_buffer.data["actions"]) == np.ndarray:
+        replay_buffer.data["actions"] = replay_buffer.data["actions"].astype(np.uint8)
+    else:
+        for d_id in range(len(replay_buffer.data["actions"])):
+            if replay_buffer.data["actions"][d_id] is not None:
+                replay_buffer.data["actions"][d_id] = replay_buffer.data["actions"][d_id].astype(np.uint8)
+    
 
     # mdp experiment stuff
     mdp_train_dir = os.path.join(train_dir, "mdp_{}".format(args.run_num))
