@@ -156,15 +156,15 @@ class GemModel(Recurrent):
             #     output[:, offset2:self.n_outputs].data.fill_(-10e10)
         return output
 
-    def train_over_one_data_iterate(self, data, t, seqloss, average_accuracy):
+    def train_over_one_data_iterate(self, data, task):
         # update memory
-        if t != self.old_task:
-            self.observed_tasks.append(t)
-            self.old_task = t
-            self.memory_data[t] = deque(maxlen=self.nc_per_task)
+        if task != self.old_task:
+            self.observed_tasks.append(task)
+            self.old_task = task
+            self.memory_data[task] = deque(maxlen=self.nc_per_task)
 
         # This entire thing can be replaced by saving the data itself
-        self.memory_data[t].append(data)
+        self.memory_data[task].append(data)
 
         # compute gradient on previous tasks
         if len(self.observed_tasks) > 1:
@@ -172,30 +172,29 @@ class GemModel(Recurrent):
                 self.zero_grad()
                 # fwd/bwd on the examples in the memory
                 past_task = self.observed_tasks[tt]
-                ptloss = 0
+                ptloss = 0.0
                 for _data in self.memory_data[past_task]:
-                    ptloss, _ = super()._compute_loss_and_metrics(_data, seqloss=ptloss)
+                    current_ptloss, _ = super()._compute_loss_and_metrics(data=_data)
+                    ptloss+=current_ptloss
+                ptloss/=len(self.memory_data[past_task])
                 ptloss.backward()
                 store_grad(self.parameters, self.grads, self.grad_dims,
                            past_task)
 
-        self.zero_grad()
-        # now compute the grad on the current minibatch
-        seqloss, average_accuracy = super()._compute_loss_and_metrics(data, seqloss, average_accuracy)
-        seqloss.backward(retain_graph=False)
+        seqloss, num_correct, num_total = super().train_over_one_data_iterate(data=data, task=task)
 
         # check if gradient violates constraints
         if len(self.observed_tasks) > 1:
             # copy gradient
-            store_grad(self.parameters, self.grads, self.grad_dims, t)
+            store_grad(self.parameters, self.grads, self.grad_dims, task)
             indx =  torch.LongTensor(self.observed_tasks[:-1]).to(self._device)
-            dotp = torch.mm(self.grads[:, t].unsqueeze(0),
+            dotp = torch.mm(self.grads[:, task].unsqueeze(0),
                             self.grads.index_select(1, indx))
             if (dotp < 0).sum() != 0:
-                project2cone2(self.grads[:, t].unsqueeze(1),
+                project2cone2(self.grads[:, task].unsqueeze(1),
                               self.grads.index_select(1, indx), self.margin)
                 # copy gradients back
-                overwrite_grad(self.parameters, self.grads[:, t],
+                overwrite_grad(self.parameters, self.grads[:, task],
                                self.grad_dims)
 
-        return seqloss, average_accuracy
+        return seqloss, num_total, num_correct

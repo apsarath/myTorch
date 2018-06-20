@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="../config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
-# logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
+logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
 
 
 def train_one_curriculum(experiment, metrics, curriculum_idx):
@@ -35,13 +35,11 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
 
     for step in range(tr.updates_done, config.max_steps):
         data = data_iterator.next()
-        seqloss = 0
-        num_correct = 0.0
-        num_total = 0.0
+        # seqloss = 0
+        # num_correct = 0.0
+        # num_total = 0.0
 
-        seqloss, num_correct, num_total = model.train_over_one_data_iterate(data, task=curriculum_idx,
-                                                                      seqloss=seqloss, num_correct=num_correct,
-                                                                      num_total=0)
+        seqloss, num_correct, num_total = model.train_over_one_data_iterate(data, task=curriculum_idx)
         average_accuracy = num_correct/num_total
         x_shape = data["x"].shape
         average_accuracy /= (x_shape[1] * x_shape[2])
@@ -56,12 +54,10 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
 
         model.optimizer.step()
 
-        # gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
+        gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
 
         if tr.updates_done % 10 == 0:
             if config.use_tflogger:
-
-                gradient_norm = compute_grad_norm(parameters=model.parameters()).item()
 
                 if config.log_grad_norm:
 
@@ -111,8 +107,8 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
-        if (metrics["accuracy"].is_best_so_far()):
-            experiment.save(tag="best")
+        # if (metrics["accuracy"].is_best_so_far()):
+        #     experiment.save(tag="best")
 
         # if (tr.updates_done > config.average_over_last_n):
         #     average_accuracy_array = np.asarray(tr.average_accuracy)[-config.average_over_last_n:]
@@ -274,6 +270,7 @@ def train_curriculums():
             tr_for_eval.updates_done = 0
             tr_for_eval.average_bce = []
             tr_for_eval.average_accuracy = []
+            experiment.register_train_statistics(tr_for_eval)
             data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
             evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
         # model.train()

@@ -54,7 +54,7 @@ def prepare_experiment(config):
         args = {
             "memory_strength": 0.5,
             "is_curriculum": True,
-            "num_memories": 256,
+            "num_memories": 100,
             "task": "A"
         },
             task=config.task

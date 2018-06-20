@@ -32,7 +32,7 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps: 10000
+max_steps: 10
 rseed:  5
 device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
@@ -46,8 +46,8 @@ batch_size: 10
 min_seq_len: 5
 max_seq_len: 15
 step_seq_len: 2
-#average_over_last_n: 1000
-evaluate_over_n: 100
+average_over_last_n: 10
+evaluate_over_n: 10
 curriculum_seed: 6
 new_lr: 0.001
 
@@ -65,7 +65,7 @@ new_lr: 0.001
 # saving details
 use_tflogger: True
 save_every_n: 1000000000000
-log_grad_norm: False
+log_grad_norm: True
 
 # GEM details
 use_gem: False
