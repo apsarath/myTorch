@@ -1,7 +1,7 @@
 import socket, select, string, sys
 
 class TelNet(object):
-	def __init__(self, host="localhost", port=4001):
+	def __init__(self, host="localhost", port=4002):
 		self._host = host
 		self._port = port
 		self._eom = "<EOM>"
