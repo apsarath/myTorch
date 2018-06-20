@@ -197,4 +197,4 @@ class GemModel(Recurrent):
                 overwrite_grad(self.parameters, self.grads[:, task],
                                self.grad_dims)
 
-        return seqloss, num_total, num_correct
+        return seqloss, num_correct, num_total
