@@ -17,7 +17,7 @@ parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="../config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
-logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
+# logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
 
 
 def train_one_curriculum(experiment, metrics, curriculum_idx):
@@ -36,11 +36,13 @@ def train_one_curriculum(experiment, metrics, curriculum_idx):
     for step in range(tr.updates_done, config.max_steps):
         data = data_iterator.next()
         seqloss = 0
-        average_accuracy = 0
-        model.reset_hidden(batch_size=config.batch_size)
-        model.optimizer.zero_grad()
-        seqloss, average_accuracy = model.train_over_one_data_iterate(data, seqloss, average_accuracy, curriculum_idx)
+        num_correct = 0.0
+        num_total = 0.0
 
+        seqloss, num_correct, num_total = model.train_over_one_data_iterate(data, task=curriculum_idx,
+                                                                      seqloss=seqloss, num_correct=num_correct,
+                                                                      num_total=0)
+        average_accuracy = num_correct/num_total
         x_shape = data["x"].shape
         average_accuracy /= (x_shape[1] * x_shape[2])
         tr.average_bce.append(seqloss.item())

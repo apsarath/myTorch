@@ -2,7 +2,7 @@ config_filename: "default.yaml"
 description: "test_new_code"
 
 project_name: "test_new_code"
-ex_name: "testing_app_slash_run"
+ex_name: "testing_app"
 
 
 # model specific details
@@ -32,7 +32,7 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps:  5
+max_steps: 10000
 rseed:  5
 device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
@@ -44,10 +44,10 @@ batch_size: 10
 
 # curriculum related details
 min_seq_len: 5
-max_seq_len:  20
+max_seq_len: 15
 step_seq_len: 2
 #average_over_last_n: 1000
-#evaluate_over_n: 1000
+evaluate_over_n: 100
 curriculum_seed: 6
 new_lr: 0.001
 
@@ -66,3 +66,6 @@ new_lr: 0.001
 use_tflogger: True
 save_every_n: 1000000000000
 log_grad_norm: False
+
+# GEM details
+use_gem: False

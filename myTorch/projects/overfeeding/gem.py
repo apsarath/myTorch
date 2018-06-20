@@ -179,6 +179,7 @@ class GemModel(Recurrent):
                 store_grad(self.parameters, self.grads, self.grad_dims,
                            past_task)
 
+        self.zero_grad()
         # now compute the grad on the current minibatch
         seqloss, average_accuracy = super()._compute_loss_and_metrics(data, seqloss, average_accuracy)
         seqloss.backward(retain_graph=False)

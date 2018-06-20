@@ -11,7 +11,7 @@ from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 from myTorch.memory import RNNCell, GRUCell
 from myTorch.projects.overfeeding.utils.ExpandableLSTMCell import ExpandableLSTMCell
 from myTorch.projects.overfeeding.utils.net2net import make_h_wider, make_weight_wider_at_input, \
-    make_weight_wider_at_output, make_bias_wider, generate_noise_for_input
+    make_weight_wider_at_output, make_bias_wider
 
 
 class Recurrent(nn.Module):
@@ -80,23 +80,32 @@ class Recurrent(nn.Module):
         self._h_prev = h
         return output
 
-    def train_over_one_data_iterate(self, data, seqloss=0, average_accuracy=0, task=None):
+    def train_over_one_data_iterate(self, data, task=None, seqloss=0, num_correct=0, num_total=0):
+        # We have task in the function call to keep the interface same.
         retain_graph = False
-        seqloss, average_accuracy = self._compute_loss_and_metrics(data,
-                                                                   seqloss,
-                                                                   average_accuracy)
+        self.optimizer.zero_grad()
+        currrent_seqloss, current_num_correct = self._compute_loss_and_metrics(data=data)
+        currrent_seqloss /= sum(data["mask"])
+        current_num_total = sum(data["mask"])
+        num_total += current_num_total
+        num_correct +=current_num_correct
+        seqloss+=currrent_seqloss
+
         seqloss.backward(retain_graph=retain_graph)
 
-        return seqloss, average_accuracy
+        return seqloss, num_correct, num_total
 
-    def _compute_loss_and_metrics(self, data, seqloss=0, average_accuracy=0):
+    def _compute_loss_and_metrics(self, data):
+        batch_size = data['y'].shape[1]
+        self.reset_hidden(batch_size=batch_size)
+        seqloss = 0
+        num_correct = 0
         for i in range(0, data["datalen"]):
             x = torch.from_numpy(np.asarray(data['x'][i])).to(self._device)
             y = torch.from_numpy(np.asarray(data['y'][i])).to(self._device)
             mask = float(data["mask"][i])
             output = self.forward(x)
             loss = self.loss_fn(output, y)
-            output = self.forward(x)
             seqloss += (loss * mask)
             predictions = F.softmax(
                 (torch.cat(
@@ -104,12 +113,8 @@ class Recurrent(nn.Module):
                     dim=2))
                 , dim=2)
             predictions = predictions.max(2)[1].float()
-            average_accuracy += ((y == predictions).int().sum().item() * mask)
-
-        seqloss /= sum(data["mask"])
-        average_accuracy /= sum(data["mask"])
-
-        return seqloss, average_accuracy
+            num_correct += ((y == predictions).int().sum().item() * mask)
+        return seqloss, num_correct
 
     def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
@@ -212,7 +217,7 @@ class Recurrent(nn.Module):
             flag = True
         return flag
 
-    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider = False, use_noise=True,
+    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider=False, use_noise=True,
                        use_random_noise=True):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
@@ -264,7 +269,6 @@ class Recurrent(nn.Module):
             #     if(noise[index]):
             #         student_w[index] += noise[index]
 
-
             self._W_h2o.data = torch.from_numpy(student_w)
 
             # Growing the hidden state vectors
@@ -275,7 +279,6 @@ class Recurrent(nn.Module):
                     h[key].data = torch.from_numpy(student_b).to(self._device)
 
             if can_make_optimizer_wider == True:
-
                 logging.info("Making Optimizer wider. Previous width = {}, new width = {}".format(
                     "_".join([str(x) for x in self._layer_size]),
                     "_".join([str(x) for x in new_layer_size])))
@@ -292,8 +295,6 @@ class Recurrent(nn.Module):
     def make_optimizer_wider(self, new_hidden_dim, indices_to_copy,
                              replication_factor, use_noise, use_random_noise):
         # Note that this function is written specifically with this network in mind
-
-
 
         param_indices_to_widen_in_input_dim = [0, 3, 7, 11, 15]
         param_indices_to_widen_in_output_dim = [2, 3, 6, 7, 10, 11, 14, 15]
@@ -312,7 +313,7 @@ class Recurrent(nn.Module):
                 if index in param_indices_to_widen_in_output_dim:
                     state[key] = torch.from_numpy(
                         make_weight_wider_at_output(teacher_w=state[key].data.cpu().numpy(),
-                                                   indices_to_copy=indices_to_copy,
+                                                    indices_to_copy=indices_to_copy,
                                                     use_noise=use_noise,
                                                     use_random_noise=use_random_noise
                                                     )) \
@@ -321,9 +322,8 @@ class Recurrent(nn.Module):
                 if index in param_indices_to_widen_in_bias:
                     state[key] = torch.from_numpy(
                         make_bias_wider(teacher_b=state[key].data.cpu().numpy(),
-                                                   indices_to_copy=indices_to_copy)) \
+                                        indices_to_copy=indices_to_copy)) \
                         .to(self._device)
                 # print(state[key].shape)
 
             # print("=============")
-
