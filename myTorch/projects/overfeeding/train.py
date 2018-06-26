@@ -72,11 +72,11 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
             y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
             mask = float(data["mask"][i])
 
-            # model.optimizer.zero_grad()
-            #
-            if(i==data["datalen"]):
-                retain_graph = False
-            model.observe(x=x, t=model_idx, y=y, mask=mask, retain_graph=retain_graph)
+            model.optimizer.zero_grad()
+
+            # if(i==data["datalen"]):
+            #     retain_graph = False
+            # model.observe(x=x, t=model_idx, y=y, mask=mask, retain_graph=retain_graph)
             #
             output = model(x)
             if config.task == "copying_memory":
@@ -362,29 +362,29 @@ def train_curriculum():
 
     torch.manual_seed(config.rseed)
 
-    # model = Recurrent(device, config.input_size, config.output_size,
-    #                   num_layers=config.num_layers, layer_size=config.layer_size,
-    #                   cell_name=config.model, activation=config.activation,
-    #                   output_activation="linear").to(device)
+    model = Recurrent(device, config.input_size, config.output_size,
+                      num_layers=config.num_layers, layer_size=config.layer_size,
+                      cell_name=config.model, activation=config.activation,
+                      output_activation="linear").to(device)
 
-    gem_model = Gem(
-        device,
-        config.input_size,
-        config.output_size,
-        num_layers=config.num_layers,
-        layer_size=config.layer_size,
-        cell_name=config.model,
-        activation=config.activation,
-        output_activation="linear",
-        n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len),
-        args = {
-            "memory_strength": 0.5,
-            "is_curriculum": True,
-            "num_memories": 256,
-            "task": "A"
-        },
-    )
-    model = gem_model.to(device)
+    # gem_model = Gem(
+    #     device,
+    #     config.input_size,
+    #     config.output_size,
+    #     num_layers=config.num_layers,
+    #     layer_size=config.layer_size,
+    #     cell_name=config.model,
+    #     activation=config.activation,
+    #     output_activation="linear",
+    #     n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len),
+    #     args = {
+    #         "memory_strength": 0.5,
+    #         "is_curriculum": True,
+    #         "num_memories": 256,
+    #         "task": "A"
+    #     },
+    # )
+    # model = gem_model.to(device)
     #
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)

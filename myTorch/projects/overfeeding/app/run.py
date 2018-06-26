@@ -263,7 +263,7 @@ def train_curriculums():
 
 
         for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
-            if curriculum_idx_for_eval > curriculum_idx:
+            if curriculum_idx_for_eval == curriculum_idx:
                 # No forward transfer
                 break
             tr_for_eval = MyContainer()

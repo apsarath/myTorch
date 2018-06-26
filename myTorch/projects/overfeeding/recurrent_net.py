@@ -95,6 +95,16 @@ class Recurrent(nn.Module):
 
         return seqloss, num_correct, num_total
 
+    def evaluate_over_one_data_iterate(self, data, task=None):
+        # We have task in the function call to keep the interface same.
+        retain_graph = False
+        self.optimizer.zero_grad()
+        seqloss, num_correct = self._compute_loss_and_metrics(data=data)
+        seqloss /= sum(data["mask"])
+        num_total = sum(data["mask"])
+
+        return seqloss, num_correct, num_total
+
     def _compute_loss_and_metrics(self, data):
         batch_size = data['y'].shape[1]
         self.reset_hidden(batch_size=batch_size)

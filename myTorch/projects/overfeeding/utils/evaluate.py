@@ -25,40 +25,17 @@ def evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx,
     for step in range(config.evaluate_over_n):
 
         data = data_iterator_for_eval.next()
-        seqloss = 0
-        average_accuracy = 0
-
         model.reset_hidden(batch_size=config.batch_size)
 
-        for i in range(0, data["datalen"]):
-
-            x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
-            y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
-            mask = float(data["mask"][i])
-
-            output = model(x)
-            if config.task == "copying_memory":
-                loss = F.torch.nn.functional.cross_entropy(output, y.squeeze(1))
-            else:
-                loss = F.binary_cross_entropy_with_logits(output, y)
-
-            seqloss += (loss * mask)
-            predictions = F.softmax(
-                (torch.cat(
-                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
-                    dim=2))
-                , dim=2)
-            predictions = predictions.max(2)[1].float()
-            average_accuracy += ((y == predictions).int().sum().item() * mask)
-
-        seqloss /= sum(data["mask"])
-        average_accuracy /= sum(data["mask"])
+        seqloss, num_correct, num_total = model.evaluate_over_one_data_iterate(data, task=curriculum_idx)
+        average_accuracy = num_correct / num_total
         x_shape = data["x"].shape
         average_accuracy /= (x_shape[1] * x_shape[2])
         tr.average_bce.append(seqloss.item())
         tr.average_accuracy.append(average_accuracy)
         running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
         running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
+
         tr.updates_done += 1
         if tr.updates_done % 1 == 0:
             logging.info("When evaluating curriculum index: {}, on curriculum index: {}, "
