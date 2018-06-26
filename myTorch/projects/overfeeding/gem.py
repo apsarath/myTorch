@@ -4,16 +4,14 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.autograd import Variable
+import quadprog
+from collections import deque
 
 import numpy as np
-import quadprog
+import torch
+
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
-import torch.nn.functional as F
-from collections import deque
+
 
 # Auxiliary functions useful for GEM's inner optimization.
 
@@ -105,25 +103,26 @@ class GemModel(Recurrent):
                  activation,
                  output_activation,
                  n_tasks,
-                 args,
+                 memory_strength,
+                 num_memories,
                  task):
 
         super(GemModel, self).__init__(device,
-                 input_size,
-                 output_size,
-                 num_layers,
-                 layer_size,
-                 cell_name,
-                 activation,
-                 output_activation, task)
-        self.margin = args["memory_strength"]
-        self.is_curriculum = args["is_curriculum"]
+                                       input_size,
+                                       output_size,
+                                       num_layers,
+                                       layer_size,
+                                       cell_name,
+                                       activation,
+                                       output_activation, task)
+        self.margin = memory_strength
+        # self.is_curriculum = args["is_curriculum"]
 
         self.n_outputs = output_size
 
         # self.opt = optim.SGD(self.parameters(), args.lr)
 
-        self.num_memories = args["num_memories"]
+        self.num_memories = num_memories
 
         # allocate episodic memory
         self.memory_data = dict()
@@ -139,21 +138,23 @@ class GemModel(Recurrent):
         self.observed_tasks = []
         self.old_task = -1
         self.mem_cnt = 0
-        if self.is_curriculum:
-            self.nc_per_task = int(self.num_memories / n_tasks)
-        else:
-            self.nc_per_task = self.num_memories
+        self.nc_per_task = int(self.num_memories / n_tasks)
+        # if self.is_curriculum:
+        #     self.nc_per_task = int(self.num_memories / n_tasks)
+        # else:
+        #     self.nc_per_task = self.num_memories
 
+    #
     def forward(self, x, t=0):
         output = super().forward(x)
         # if self.is_curriculum:
-            # make sure we predict classes within the current task
-            # offset1 = int(t * self.nc_per_task)
-            # offset2 = int((t + 1) * self.nc_per_task)
-            # if offset1 > 0:
-            #     output[:, :offset1].data.fill_(-10e10)
-            # if offset2 < self.n_outputs:
-            #     output[:, offset2:self.n_outputs].data.fill_(-10e10)
+        # make sure we predict classes within the current task
+        # offset1 = int(t * self.nc_per_task)
+        # offset2 = int((t + 1) * self.nc_per_task)
+        # if offset1 > 0:
+        #     output[:, :offset1].data.fill_(-10e10)
+        # if offset2 < self.n_outputs:
+        #     output[:, offset2:self.n_outputs].data.fill_(-10e10)
         return output
 
     def train_over_one_data_iterate(self, data, task):
@@ -175,8 +176,8 @@ class GemModel(Recurrent):
                 ptloss = 0.0
                 for _data in self.memory_data[past_task]:
                     current_ptloss, _ = super()._compute_loss_and_metrics(data=_data)
-                    ptloss+=current_ptloss
-                ptloss/=len(self.memory_data[past_task])
+                    ptloss += current_ptloss
+                ptloss /= len(self.memory_data[past_task])
                 ptloss.backward()
                 store_grad(self.parameters, self.grads, self.grad_dims,
                            past_task)
@@ -187,7 +188,7 @@ class GemModel(Recurrent):
         if len(self.observed_tasks) > 1:
             # copy gradient
             store_grad(self.parameters, self.grads, self.grad_dims, task)
-            indx =  torch.LongTensor(self.observed_tasks[:-1]).to(self._device)
+            indx = torch.LongTensor(self.observed_tasks[:-1]).to(self._device)
             dotp = torch.mm(self.grads[:, task].unsqueeze(0),
                             self.grads.index_select(1, indx))
             if (dotp < 0).sum() != 0:

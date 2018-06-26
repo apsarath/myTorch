@@ -51,13 +51,9 @@ def prepare_experiment(config):
         activation=config.activation,
         output_activation="linear",
         n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len) + 1,
-        args = {
-            "memory_strength": 0.5,
-            "is_curriculum": True,
-            "num_memories": 100,
-            "task": "A"
-        },
-            task=config.task
+        memory_strength = config.memory_strength,
+        num_memories = config.num_memories,
+        task=config.task
     )
     else:
         model = Recurrent(device, config.input_size, config.output_size,
