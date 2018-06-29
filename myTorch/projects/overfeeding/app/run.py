@@ -6,7 +6,8 @@ import torch
 import torch.nn.functional as F
 
 from myTorch.projects.overfeeding.curriculum.curriculum import curriculum_generator
-from myTorch.projects.overfeeding.utils.bootstrap import prepare_experiment, try_to_restart_experiment, get_data_iterator
+from myTorch.projects.overfeeding.utils.bootstrap import prepare_experiment, \
+    try_to_restart_experiment, get_data_iterator, expand_model
 from myTorch.projects.overfeeding.utils.metric import get_metric_registry
 from myTorch.projects.overfeeding.utils.evaluate import evaluate_over_curriculum
 from myTorch.utils import MyContainer, create_config, compute_grad_norm
@@ -246,6 +247,7 @@ def train_curriculums():
     experiment = prepare_experiment(config)
     try_to_restart_experiment(experiment, force_restart=args.force_restart)
     should_stop_curriculum = False
+    is_expansion_successful = True
 
     for curriculum_idx, curriculum_config in enumerate(curriculum_generator(config)):
         logging.info("Starting curriculum index:{}, having sequence length: {}".format(curriculum_idx,
@@ -273,6 +275,12 @@ def train_curriculums():
             experiment.register_train_statistics(tr_for_eval)
             data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
             evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
+
+        if config.expand_model:
+            experiment, is_expansion_successful = expand_model(experiment,
+                                                                    config,
+                                                                    step=0)
+            print(is_expansion_successful)
         # model.train()
 
         # if (should_stop_curriculum):

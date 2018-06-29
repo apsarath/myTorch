@@ -26,12 +26,14 @@ class Experiment(object):
         create_folder(self._dir_name)
 
         self._model = None
+        self.current_model_index = -1
         self._config = None
         self._logger = None
         self._train_statistics = None
         self._list_train_statistics = []
         self._data_iterator = None
         self._list_data_iterator = []
+        self.current_curriculum_index = -1
 
     def register_model(self, model):
         """Registers a model object.
@@ -41,6 +43,7 @@ class Experiment(object):
         """
 
         self._model = model
+        self.current_model_index+=1
 
     def register_device(self, device):
         """Registers a device object.
@@ -88,6 +91,7 @@ class Experiment(object):
 
         self._data_iterator = data_iterator
         self._add_to_list_of_data_iterator(data_iterator)
+        self.current_curriculum_index+=1
 
     def _add_to_list_of_train_statistics(self, train_statistics):
         """Adds a training statistics dictionary to list of training statistics dictionaries.
@@ -155,6 +159,16 @@ class Experiment(object):
             file_name = os.path.join(save_dir, "device.txt")
             with open(file_name, "w") as f:
                 f.write(str(self._device))
+
+        if self.current_curriculum_index is not None:
+            file_name = os.path.join(save_dir, "current_curriculum_index.txt")
+            with open(file_name, "w") as f:
+                f.write(str(self.current_curriculum_index))
+
+        if self.current_model_index is not None:
+            file_name = os.path.join(save_dir, "current_model_index.txt")
+            with open(file_name, "w") as f:
+                f.write(str(self.current_model_index))
 
         file = open(flag_file, "w")
         file.close()
@@ -228,6 +242,20 @@ class Experiment(object):
                 with open(file_name) as f:
                     device_name = f.read().strip()
                 self._device = torch.device(device_name)
+
+            if self.current_curriculum_index is not None:
+                file_name = os.path.join(save_dir, "current_curriculum_index.txt")
+                with open(file_name) as f:
+                    current_curriculum_index = f.read().strip()
+                self.current_curriculum_index = current_curriculum_index
+
+            if self.current_model_index is not None:
+                file_name = os.path.join(save_dir, "current_model_index.txt")
+                with open(file_name) as f:
+                    current_model_index = f.read().strip()
+                self.current_model_index = current_model_index
+
+
 
     def force_restart(self):
         """Force restarting an experiment from beginning."""

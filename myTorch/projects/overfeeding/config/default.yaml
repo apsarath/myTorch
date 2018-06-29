@@ -2,7 +2,7 @@ config_filename: "default.yaml"
 description: "Model to evaluate the performance in presence of the GEM model"
 
 project_name: "GEMAnalysis"
-ex_name: "gem_128_mem_10"
+ex_name: "gem_128_mem_10_net2net"
 
 
 # model specific details
@@ -32,7 +32,7 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps: 10000
+max_steps: 10
 rseed:  5
 device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
@@ -56,11 +56,14 @@ new_lr: 0.001
 #time_span: 10000
 
 # Details related to expanding the rnn
-#expanded_layer_size: [40]
-#make_optimizer_wider: False
-#expand_model_weights: True
-#use_noise: True
-#use_random_noise: True
+expand_model: True
+# This is the amount by which we expand the model
+expansion_offset: 10
+expanded_layer_size: [40]
+make_optimizer_wider: False
+expand_model_weights: True
+use_noise: True
+use_random_noise: True
 
 # saving details
 use_tflogger: True

@@ -211,7 +211,7 @@ class Recurrent(nn.Module):
         print("Num_params : {} ".format(num_params))
         return num_params
 
-    def can_make_net_wider(self, expanded_layer_size):
+    def can_make_net_wider(self, expanded_layer_size, expansion_offset):
         """
         Method to check if the recurrent net can be made wider. The net can be made wider only if
         new_hidden_dim > self._layer_size[0] (ie current hidden dim)
@@ -224,9 +224,11 @@ class Recurrent(nn.Module):
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
         if (candidate_layers):
             flag = True
+        if(expansion_offset>0):
+            flag = True
         return flag
 
-    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider=False, use_noise=True,
+    def make_net_wider(self, expanded_layer_size, expansion_offset, can_make_optimizer_wider=False, use_noise=True,
                        use_random_noise=True):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
@@ -236,8 +238,11 @@ class Recurrent(nn.Module):
         """
 
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
-        if (candidate_layers):
-            new_hidden_dim = candidate_layers[0]
+        if (candidate_layers or (expansion_offset>0)):
+            if(expansion_offset>0):
+                new_hidden_dim = self._layer_size[0]+expansion_offset
+            else:
+                new_hidden_dim = candidate_layers[0]
             new_layer_size = [new_hidden_dim] * len(self._layer_size)
             logging.info("Making RNN wider. Previous width = {}, new width = {}".format(
                 "_".join([str(x) for x in self._layer_size]),

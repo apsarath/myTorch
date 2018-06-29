@@ -11,6 +11,7 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import get_optimizer
 from myTorch.utils.logging import Logger
+from copy import deepcopy
 
 
 def get_data_iterator(config, seed=None):
@@ -85,3 +86,130 @@ def try_to_restart_experiment(experiment, force_restart):
     else:
         experiment.force_restart()
         logging.info("Forced to restart the experiment")
+
+
+def expand_model(experiment, config, step):
+    model = experiment._model
+    device = experiment._device
+    logger = experiment._logger
+    is_expansion_successful = False
+
+    if(model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size, expansion_offset=config.expansion_offset)):
+        # Lets expand
+        previous_layer_size = model.layer_size
+        experiment.save(tag="model_before_expanding")
+        previous_optimizer_state_dict = deepcopy(model.optimizer.state_dict())
+        model.make_net_wider(expanded_layer_size=config.expanded_layer_size,
+                             expansion_offset=config.expansion_offset,
+                             can_make_optimizer_wider=config.make_optimizer_wider,
+                             use_noise=config.use_noise,
+                             use_random_noise=config.use_random_noise)
+
+        new_layer_size = model.layer_size
+        wider_model = Recurrent(device, config.input_size, config.output_size,
+                                num_layers=config.num_layers, layer_size=new_layer_size,
+                                cell_name=config.model, activation=config.activation,
+                                output_activation="linear")
+
+        if (config.expand_model_weights):
+            # load the expanded weights
+            wider_model.load_state_dict(model.state_dict())
+
+        new_config = deepcopy(config)
+        new_config.lr = new_config.new_lr
+        optimizer = get_optimizer(wider_model.parameters(), config)
+
+        log_message_value = "Model index: {}. " \
+                            "Curriculum index: {}. " \
+                            "Previous learning rate {}. " \
+                            "New learning rate {}," \
+                            "step: {}".format(
+            experiment.current_model_index,
+            experiment.current_curriculum_index,
+            config.lr,
+            new_config.lr,
+            step)
+
+        log_message_tag = "New learning rate for the optimizer"
+
+        if config.use_tflogger:
+            logger.log_text(tag=log_message_tag,
+                            value=log_message_value
+                            )
+        logging.info(log_message_tag + ": " + log_message_value)
+
+        if (config.make_optimizer_wider):
+            # get new optimizer and do the standard bookkeeping tasks
+            prev_param_state_values = list(previous_optimizer_state_dict['state'].values())
+            param_names_in_new_optimizer = optimizer.state_dict()['param_groups'][0]['params']
+            for index, param in enumerate(optimizer.param_groups[0]['params']):
+                new_value = prev_param_state_values[index]
+                new_value['exp_avg'] = new_value['exp_avg'].to(device)
+                new_value['exp_avg_sq'] = new_value['exp_avg_sq'].to(device)
+                optimizer.state[0][param_names_in_new_optimizer[index]] = new_value
+            log_message_value = "Model index: {}. " \
+                                "Curriculum index: {}. " \
+                                "Previous learning rate {}. " \
+                                "New learning rate {}," \
+                                "step: {}".format(
+                experiment.current_model_index,
+                experiment.current_curriculum_index,
+                config.lr,
+                new_config.lr,
+                step)
+
+            log_message_tag = "Widening Optimizer"
+
+            if config.use_tflogger:
+                logger.log_text(tag=log_message_tag,
+                                value=log_message_value
+                                )
+            logging.info(log_message_tag + ": " + log_message_value)
+
+        model = wider_model.to(device)
+        model.register_optimizer(optimizer)
+        experiment.register_model(model)
+
+        experiment.save(tag="model_after_expanding")
+
+        # Now we will reset the counters and continue training
+        # metrics["loss"].reset()
+        # metrics["accuracy"].reset()
+        # metrics["loss"].make_timeless()
+        # metrics["accuracy"].make_timeless()
+
+        log_message_tag = "Widening model (expand_model_weights = {})" \
+            .format(config.expand_model_weights)
+        log_message_value = "Model index: {}. " \
+                            "Curriculum index: {}. " \
+                            "Previous learning rate {}. " \
+                            "New learning rate {}," \
+                            "step: {}".format(
+            experiment.current_model_index,
+            experiment.current_curriculum_index,
+            config.lr,
+            new_config.lr,
+            step)
+
+        if config.use_tflogger:
+            logger.log_text(tag=log_message_tag,
+                            value=log_message_value
+                            )
+        logging.info(log_message_tag + ": " + log_message_value)
+        is_expansion_successful = True
+
+    # else:
+        # There is no scope to grow the model
+        # metrics["loss"].make_timeless()
+        # metrics["accuracy"].make_timeless()
+        # Time to meet the creator
+        # should_stop_curriculum = True
+        # logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
+        #     experiment.current_model_index, step))
+        # logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
+        #     experiment.current_model_index, metrics["loss"].get_best_so_far()))
+        # logging.info(
+        #     "When training model, model_index: {}, accuracy = {} for the best performing model".format
+        #     (experiment.current_model_index, metrics["accuracy"].get_best_so_far()))
+
+    return  experiment, is_expansion_successful
