@@ -105,7 +105,9 @@ class GemModel(Recurrent):
                  n_tasks,
                  memory_strength,
                  num_memories,
-                 task):
+                 task,
+                 use_regularisation,
+                 regularisation_constant):
 
         super(GemModel, self).__init__(device,
                                        input_size,
@@ -143,6 +145,8 @@ class GemModel(Recurrent):
         #     self.nc_per_task = int(self.num_memories / n_tasks)
         # else:
         #     self.nc_per_task = self.num_memories
+        self.use_regularisation = use_regularisation
+        self.regularisation_constant = regularisation_constant
 
     #
     def forward(self, x, t=0):
@@ -157,7 +161,7 @@ class GemModel(Recurrent):
         #     output[:, offset2:self.n_outputs].data.fill_(-10e10)
         return output
 
-    def train_over_one_data_iterate(self, data, task):
+    def train_over_one_data_iterate(self, data, task, retain_graph=True):
         # update memory
         if task != self.old_task:
             self.observed_tasks.append(task)
@@ -182,20 +186,36 @@ class GemModel(Recurrent):
                 store_grad(self.parameters, self.grads, self.grad_dims,
                            past_task)
 
-        seqloss, num_correct, num_total = super().train_over_one_data_iterate(data=data, task=task)
+        if self.use_regularisation:
+            _retain_graph = True
+        else:
+            _retain_graph = retain_graph
+        seqloss, num_correct, num_total = super().train_over_one_data_iterate(data=data,
+                                                                              task=task, retain_graph=_retain_graph)
+        regularisation_loss = torch.zeros_like(seqloss)
 
         # check if gradient violates constraints
         if len(self.observed_tasks) > 1:
             # copy gradient
             store_grad(self.parameters, self.grads, self.grad_dims, task)
             indx = torch.LongTensor(self.observed_tasks[:-1]).to(self._device)
-            dotp = torch.mm(self.grads[:, task].unsqueeze(0),
-                            self.grads.index_select(1, indx))
-            if (dotp < 0).sum() != 0:
-                project2cone2(self.grads[:, task].unsqueeze(1),
-                              self.grads.index_select(1, indx), self.margin)
-                # copy gradients back
-                overwrite_grad(self.parameters, self.grads[:, task],
-                               self.grad_dims)
-
+            curr_grad = self.grads[:, task].unsqueeze(0)
+            prev_grad = self.grads.index_select(1, indx)
+            dotp = torch.mm(curr_grad, prev_grad)
+            if self.use_regularisation:
+                cosine_similarity = dotp / (torch.norm(prev_grad, 2) * torch.norm(curr_grad))
+                cosine_loss = torch.sum(torch.min(
+                    torch.zeros_like(cosine_similarity), cosine_similarity)[0])
+                regularisation_loss = regularisation_loss - \
+                                      self.regularisation_constant * cosine_loss
+            else:
+                if (dotp < 0).sum() != 0:
+                    project2cone2(self.grads[:, task].unsqueeze(1),
+                                  self.grads.index_select(1, indx), self.margin)
+                    # copy gradients back
+                    overwrite_grad(self.parameters, self.grads[:, task],
+                                   self.grad_dims)
+        if (self.use_regularisation):
+            self.zero_grad()
+            (seqloss + regularisation_loss).backward(retain_graph=retain_graph)
         return seqloss, num_correct, num_total

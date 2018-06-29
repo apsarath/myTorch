@@ -80,9 +80,8 @@ class Recurrent(nn.Module):
         self._h_prev = h
         return output
 
-    def train_over_one_data_iterate(self, data, task=None):
+    def train_over_one_data_iterate(self, data, task=None, retain_graph=False):
         # We have task in the function call to keep the interface same.
-        retain_graph = False
         self.optimizer.zero_grad()
         seqloss, num_correct = self._compute_loss_and_metrics(data=data)
         seqloss /= sum(data["mask"])

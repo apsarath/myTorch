@@ -1,8 +1,8 @@
 config_filename: "default.yaml"
-description: "test_new_code"
+description: "Model to evaluate the performance in presence of the GEM model"
 
-project_name: "test_new_code"
-ex_name: "testing_app_have_gem"
+project_name: "GEMAnalysis"
+ex_name: "gem_128_mem_10"
 
 
 # model specific details
@@ -11,7 +11,7 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [40]
+layer_size: [128]
 activation: "tanh"
 
 # optimization specific details
@@ -32,9 +32,9 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps: 10
+max_steps: 10000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copy"
@@ -44,10 +44,10 @@ batch_size: 10
 
 # curriculum related details
 min_seq_len: 5
-max_seq_len: 15
+max_seq_len: 45
 step_seq_len: 3
-average_over_last_n: 100
-evaluate_over_n: 100
+average_over_last_n: 50
+evaluate_over_n: 50
 curriculum_seed: 6
 new_lr: 0.001
 
@@ -65,9 +65,11 @@ new_lr: 0.001
 # saving details
 use_tflogger: True
 save_every_n: 1000000000000
-log_grad_norm: True
+log_grad_norm: False
 
 # GEM details
 use_gem: True
 memory_strength: 0.5
-num_memories: 10
+num_memories: 40
+use_regularisation: True
+regularisation_constant: 0.0

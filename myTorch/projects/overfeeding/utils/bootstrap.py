@@ -3,6 +3,7 @@ import logging
 import torch
 
 from myTorch import Experiment
+from myTorch.projects.overfeeding.gem import GemModel
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
 from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copy_task import CopyData
@@ -10,7 +11,6 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import get_optimizer
 from myTorch.utils.logging import Logger
-from myTorch.projects.overfeeding.gem import GemModel
 
 
 def get_data_iterator(config, seed=None):
@@ -39,22 +39,23 @@ def prepare_experiment(config):
 
     torch.manual_seed(config.rseed)
 
-
     if config.use_gem:
         model = GemModel(
-        device,
-        config.input_size,
-        config.output_size,
-        num_layers=config.num_layers,
-        layer_size=config.layer_size,
-        cell_name=config.model,
-        activation=config.activation,
-        output_activation="linear",
-        n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len) + 1,
-        memory_strength = config.memory_strength,
-        num_memories = config.num_memories,
-        task=config.task
-    )
+            device,
+            config.input_size,
+            config.output_size,
+            num_layers=config.num_layers,
+            layer_size=config.layer_size,
+            cell_name=config.model,
+            activation=config.activation,
+            output_activation="linear",
+            n_tasks=int((config.max_seq_len - config.min_seq_len) / config.step_seq_len) + 1,
+            memory_strength=config.memory_strength,
+            num_memories=config.num_memories,
+            task=config.task,
+            use_regularisation=config.use_regularisation,
+            regularisation_constant=config.regularisation_constant
+        )
     else:
         model = Recurrent(device, config.input_size, config.output_size,
                           num_layers=config.num_layers, layer_size=config.layer_size,
@@ -72,6 +73,7 @@ def prepare_experiment(config):
     experiment.register_config(config)
     experiment.register_device(device)
     return experiment
+
 
 def try_to_restart_experiment(experiment, force_restart):
     if not force_restart:
