@@ -302,6 +302,13 @@ class Recurrent(nn.Module):
                                           use_noise=use_noise,
                                           use_random_noise=use_random_noise)
 
+    def load_metadata_from_another_model(self, other_model):
+        """
+        Method to load some useful metadata from another model
+        :return:
+        """
+        pass
+
     @property
     def layer_size(self):
         return self._layer_size

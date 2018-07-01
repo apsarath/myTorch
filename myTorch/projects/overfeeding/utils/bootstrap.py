@@ -92,6 +92,8 @@ def expand_model(experiment, config, step):
 
         wider_model = choose_model(new_config, device)
 
+        wider_model.load_metadata_from_another_model(model)
+
         if (config.expand_model_weights):
             # load the expanded weights
             wider_model.load_state_dict(model.state_dict())

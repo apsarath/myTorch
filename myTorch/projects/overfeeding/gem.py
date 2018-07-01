@@ -148,7 +148,36 @@ class GemModel(Recurrent):
         self.use_regularisation = use_regularisation
         self.regularisation_constant = regularisation_constant
 
-    #
+    def make_net_wider(self, expanded_layer_size, expansion_offset, can_make_optimizer_wider=False, use_noise=True,
+                       use_random_noise=True):
+        """
+        Method to make the recurrent net wider by growing the original hidden dim to the
+        size new_hidden_dim
+        Args:
+             new_hidden_dim: Size of the hidden dim of the recurrent net after making it wider
+        """
+
+        super().make_net_wider(expanded_layer_size, expansion_offset, can_make_optimizer_wider, use_noise,
+                       use_random_noise)
+
+    def load_metadata_from_another_model(self, other_model):
+        """
+        Method to load some useful metadata from another model
+        :return:
+        """
+        self.memory_data = other_model.memory_data
+
+        self.margin = other_model.margin
+
+        self.num_memories = other_model.num_memories
+
+        self.observed_tasks = other_model.observed_tasks
+        self.old_task = other_model.old_task
+        self.mem_cnt = other_model.mem_cnt
+        self.nc_per_task = other_model.nc_per_task
+        super().load_metadata_from_another_model(other_model)
+
+
     def forward(self, x, t=0):
         output = super().forward(x)
         # if self.is_curriculum:
