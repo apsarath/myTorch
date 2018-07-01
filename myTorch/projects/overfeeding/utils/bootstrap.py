@@ -40,28 +40,7 @@ def prepare_experiment(config):
 
     torch.manual_seed(config.rseed)
 
-    if config.use_gem:
-        model = GemModel(
-            device,
-            config.input_size,
-            config.output_size,
-            num_layers=config.num_layers,
-            layer_size=config.layer_size,
-            cell_name=config.model,
-            activation=config.activation,
-            output_activation="linear",
-            n_tasks=int((config.max_seq_len - config.min_seq_len) / config.step_seq_len) + 1,
-            memory_strength=config.memory_strength,
-            num_memories=config.num_memories,
-            task=config.task,
-            use_regularisation=config.use_regularisation,
-            regularisation_constant=config.regularisation_constant
-        )
-    else:
-        model = Recurrent(device, config.input_size, config.output_size,
-                          num_layers=config.num_layers, layer_size=config.layer_size,
-                          cell_name=config.model, activation=config.activation,
-                          output_activation="linear", task=config.task)
+    model = choose_model(config, device)
 
     model = model.to(device)
     optimizer = get_optimizer(model.parameters(), config)
@@ -93,6 +72,7 @@ def expand_model(experiment, config, step):
     device = experiment._device
     logger = experiment._logger
     is_expansion_successful = False
+    old_config = experiment._config
 
     if(model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size, expansion_offset=config.expansion_offset)):
         # Lets expand
@@ -106,17 +86,16 @@ def expand_model(experiment, config, step):
                              use_random_noise=config.use_random_noise)
 
         new_layer_size = model.layer_size
-        wider_model = Recurrent(device, config.input_size, config.output_size,
-                                num_layers=config.num_layers, layer_size=new_layer_size,
-                                cell_name=config.model, activation=config.activation,
-                                output_activation="linear")
+        new_config = deepcopy(config)
+        new_config.lr = new_config.new_lr
+        new_config.layer_size = new_layer_size
+
+        wider_model = choose_model(new_config, device)
 
         if (config.expand_model_weights):
             # load the expanded weights
             wider_model.load_state_dict(model.state_dict())
 
-        new_config = deepcopy(config)
-        new_config.lr = new_config.new_lr
         optimizer = get_optimizer(wider_model.parameters(), config)
 
         log_message_value = "Model index: {}. " \
@@ -213,3 +192,29 @@ def expand_model(experiment, config, step):
         #     (experiment.current_model_index, metrics["accuracy"].get_best_so_far()))
 
     return  experiment, is_expansion_successful
+
+def choose_model(config, device):
+    if config.use_gem:
+        model = GemModel(
+            device,
+            config.input_size,
+            config.output_size,
+            num_layers=config.num_layers,
+            layer_size=config.layer_size,
+            cell_name=config.model,
+            activation=config.activation,
+            output_activation="linear",
+            n_tasks=int((config.max_seq_len - config.min_seq_len) / config.step_seq_len) + 1,
+            memory_strength=config.memory_strength,
+            num_memories=config.num_memories,
+            task=config.task,
+            use_regularisation=config.use_regularisation,
+            regularisation_constant=config.regularisation_constant
+        )
+    else:
+        model = Recurrent(device, config.input_size, config.output_size,
+                          num_layers=config.num_layers, layer_size=config.layer_size,
+                          cell_name=config.model, activation=config.activation,
+                          output_activation="linear", task=config.task)
+
+    return model
