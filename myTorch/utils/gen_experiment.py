@@ -36,10 +36,12 @@ class GenExperiment(object):
                 folder_name = os.path.join(savedir, obj_tag)
                 create_folder(folder_name)
                 obj.save(folder_name)
+                print("Saved at {}".format(folder_name))
         else:
             folder_name = os.path.join(savedir, input_obj_tag)
             create_folder(folder_name)
             self._data[input_obj_tag].save(folder_name)
+            print("Saved at {}".format(folder_name))
 
         f = open(flagfile, "w")
         f.close()

@@ -19,10 +19,10 @@ def home_world():
 	config.target_net_update_freq = 1
 	config.target_net_update_fraction = 1.0
 
-	config.num_iterations = int(1e5)
+	config.num_iterations = int(1500)
 	config.episodes_per_iter = 5
 	config.test_freq = 30#1
-	config.test_per_iter = 20#50
+	config.test_per_iter = 5#50
 	config.updates_per_iter = int(50.0/4)
 	config.batch_size = 64
 	config.replay_buffer_size = int(5e3)
@@ -58,7 +58,7 @@ def home_world():
 	# w2v location
 	config.embedding_loc = "/mnt/data/chinna/data/glove/glove.6B.50d.txt"
 	config.patience = 5
-	config.num_new_samples = 5000
+	config.num_new_samples = 2000
 	config.cluster_num = 4
 	return config
 

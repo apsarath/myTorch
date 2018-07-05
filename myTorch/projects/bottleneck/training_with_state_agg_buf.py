@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 
 import torch
+from shutil import rmtree
 
 import myTorch
 from myTorch.environment import make_environment
@@ -39,6 +40,10 @@ def train_with_state_agg_buf():
 
     logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
         "{}__{}_state_agg_{}".format(args.config_params, args.exp_desc, args.run_num))
+
+    if os.path.exists(logger_dir):
+        print("Starting fresh logger")
+        rmtree(logger_dir)
 
     experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
     #experiment.register_config(config)
@@ -78,12 +83,11 @@ def train_with_state_agg_buf():
     mdp_experiment = GenExperiment(config.exp_name, mdp_train_dir, config.backup_logger)
 
     replay_buffer = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
-    mdp_experiment.register("state_agg_replay_buffer_{}".format(config.cluster_num), replay_buffer)
+    mdp_experiment.register("state_agg_replay_buffer_modified_{}".format(config.cluster_num), replay_buffer)
 
     assert(mdp_experiment.is_resumable("best_model"))
     print("resuming the mdp experiment...")
-    mdp_experiment.resume("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(config.cluster_num))
-
+    mdp_experiment.resume("best_model", input_obj_tag="state_agg_replay_buffer_modified_{}".format(config.cluster_num))
 
     # create classifier 
     classifier = MDPCLassifier(config.device, env.action_dim, env.obs_dim, config.cluster_num,
@@ -170,8 +174,10 @@ def collect_episode(env, agent, classifier, device, replay_buffer=None, epsilon=
         _, obs_cluster_id, _ = classifier.predict_cluster_id_rewards({
                     "obs" : torch.from_numpy(obs[1]).type(torch.LongTensor).to(device),
                     "actions": torch.from_numpy(action).type(torch.FloatTensor).to(device)})
+        obs = np.append(obs, [[0]*2,[0]*2], axis=1)
         obs[1].fill(0)
         obs[1][obs_cluster_id] = 1
+        return obs
          
 
     reward_list = []
@@ -179,7 +185,7 @@ def collect_episode(env, agent, classifier, device, replay_buffer=None, epsilon=
     transitions = []
 
     obs, legal_moves = env.reset()
-    format_state_agg(obs)
+    obs = format_state_agg(obs)
     legal_moves = format_legal_moves(legal_moves, agent.action_dim)
 
     episode_done = False
@@ -199,7 +205,7 @@ def collect_episode(env, agent, classifier, device, replay_buffer=None, epsilon=
 
         reward_list.append(reward)
         obs = next_obs
-        format_state_agg(obs, one_hot([action], env.action_dim)[0])
+        obs = format_state_agg(obs, one_hot([action], env.action_dim)[0])
         legal_moves = next_legal_moves
 
     return reward_list, first_qval

@@ -118,7 +118,7 @@ def train_mdp():
 	
 	classifier = {}
 	new_replay_buffer = {}
-	for num_clusters in [4,12,16,24,32,8]:
+	for num_clusters in [4, 16, 24, 32]:
 		# cluster them
 		print(("Clustering ... {}".format(num_clusters)))
 		model = KMeans(n_clusters=num_clusters, random_state=1)

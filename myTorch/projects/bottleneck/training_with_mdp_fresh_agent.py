@@ -4,6 +4,7 @@ import os
 import math
 import numpy as np
 import argparse
+from shutil import rmtree
 
 import torch
 
@@ -38,6 +39,10 @@ def train_with_mdp():
 
     logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
         "{}__{}_mdp_fresh_agent_run_{}".format(args.config_params, args.exp_desc, args.run_num))
+
+    if os.path.exists(logger_dir):
+        print("Starting fresh logger")
+        rmtree(logger_dir)
 
     experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
     #experiment.register_config(config)
@@ -82,6 +87,7 @@ def train_with_mdp():
     assert(mdp_experiment.is_resumable("best_model"))
     print("resuming the mdp experiment...")
     mdp_experiment.resume("best_model", input_obj_tag="replay_buffer_{}".format(config.cluster_num))
+    print("Num samples in replay buffer : {}".format(replay_buffer._n))
 
     tr = MyContainer()
     tr.train_reward = [[],[]]

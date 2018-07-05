@@ -156,7 +156,7 @@ def train_dqn_agent():
                 logger.log_scalar_rl("test_reward", tr.test_reward[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
                 logger.log_scalar_rl("test_episode_len", tr.test_episode_len[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
                 logger.log_scalar_rl("test_num_games_finished", tr.test_num_games_finished[0], config.sliding_wsize, [tr.episodes_done, tr.steps_done, tr.updates_done])
-                if num_games_finished > 0.5:
+                if num_games_finished > 0.41:
                     print("num_games_finished reached {}".format(num_games_finished))
                     experiment.save("current")
                     sys.exit()

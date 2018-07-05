@@ -11,6 +11,7 @@ import myTorch
 from myTorch.environment import make_environment
 from myTorch.utils import modify_config_params, one_hot, RLExperiment, get_optimizer
 from myTorch.rllib.dqn.q_networks import *
+from shutil import rmtree
 
 from myTorch.projects.bottleneck.config import *
 from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
@@ -38,6 +39,10 @@ def train_with_mdp():
 
     logger_dir = os.path.join(args.base_dir, config.logger_dir, config.exp_name, config.env_name,
         "{}__{}_mdp_run_{}".format(args.config_params, args.exp_desc, args.run_num))
+
+    if os.path.exists(logger_dir):
+        print("Starting fresh logger")
+        rmtree(logger_dir)
 
     experiment = RLExperiment(config.exp_name, train_dir, config.backup_logger)
     #experiment.register_config(config)

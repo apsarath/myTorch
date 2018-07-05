@@ -18,7 +18,7 @@ class HomeWorldStateAgg(nn.Module):
         self._rnn_input_size = self._embedding_dim
         self._max_vocab_size = 100
         #self._embedding_dropout = 0.6
-        self._max_num_steps = 30
+        self._max_num_steps = 32
         self._pad = 0
 
         self._rnn_type = rnn_type

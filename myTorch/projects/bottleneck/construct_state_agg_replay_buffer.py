@@ -54,7 +54,7 @@ def train_mdp():
     experiment.resume("current")
 
     # Modify action dtype
-    if type( replay_buffer.data["actions"]) == np.ndarray:
+    if len(replay_buffer.data["actions"].shape) > 1:
         replay_buffer.data["actions"] = replay_buffer.data["actions"].astype(np.uint8)
     else:
         for d_id in range(len(replay_buffer.data["actions"])):
@@ -68,7 +68,7 @@ def train_mdp():
 
     classifier = {}
     state_agg_replay_buffer = {}
-    for num_clusters in [4,12, 16,24,32,8]:
+    for num_clusters in [32]:
         # cluster them
         print(("Loading classifier with cluster size : ... {}".format(num_clusters)))
 
@@ -84,7 +84,7 @@ def train_mdp():
 
         # Create new samples and create a new replay buffer.
         state_agg_replay_buffer[num_clusters] = ReplayBuffer(numpy_rng, size=config.replay_buffer_size, compress=config.replay_compress)
-        mdp_experiment.register("state_agg_replay_buffer_{}".format(num_clusters), state_agg_replay_buffer[num_clusters])
+        mdp_experiment.register("state_agg_replay_buffer_modified_{}".format(num_clusters), state_agg_replay_buffer[num_clusters])
         
         # Copy stuff from the old replay buffer into the new one.
         #for key in replay_buffer.data:
@@ -108,15 +108,19 @@ def train_mdp():
 
             obs_cluster_id = obs_cluster_id.cpu().numpy()[0]
             obs_tp1_cluster_id = obs_tp1_cluster_id.cpu().numpy()[0]
+            state_agg_replay_buffer[num_clusters].data["observations"][d_id] = \
+                np.append(replay_buffer.data["observations"][d_id], [[0]*2,[0]*2], axis=1)
             state_agg_replay_buffer[num_clusters].data["observations"][d_id][1].fill(0)
             state_agg_replay_buffer[num_clusters].data["observations"][d_id][1][obs_cluster_id] = 1
 
+            state_agg_replay_buffer[num_clusters].data["observations_tp1"][d_id] = \
+                np.append(replay_buffer.data["observations_tp1"][d_id], [[0]*2,[0]*2], axis=1)
             state_agg_replay_buffer[num_clusters].data["observations_tp1"][d_id][1].fill(0)
             state_agg_replay_buffer[num_clusters].data["observations_tp1"][d_id][1][obs_cluster_id] = 1
 
         print(("Done in {} secs".format(time.time()-start_time)))
-        mdp_experiment.save("best_model", input_obj_tag="state_agg_replay_buffer_{}".format(num_clusters))
-        
+        mdp_experiment.save("best_model", input_obj_tag="state_agg_replay_buffer_modified_{}".format(num_clusters))
+
 
 def format_legal_moves(legal_moves, action_dim):
 
