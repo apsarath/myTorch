@@ -107,7 +107,9 @@ class GemModel(Recurrent):
                  num_memories,
                  task,
                  use_regularisation,
-                 regularisation_constant):
+                 regularisation_constant,
+                 use_projection,
+                 add_gradients):
 
         super(GemModel, self).__init__(device,
                                        input_size,
@@ -140,13 +142,16 @@ class GemModel(Recurrent):
         self.observed_tasks = []
         self.old_task = -1
         self.mem_cnt = 0
-        self.nc_per_task = int(self.num_memories / n_tasks)
+        self.nc_per_task = int(self.num_memories)
+        # self.nc_per_task = int(self.num_memories / n_tasks)
         # if self.is_curriculum:
         #     self.nc_per_task = int(self.num_memories / n_tasks)
         # else:
         #     self.nc_per_task = self.num_memories
         self.use_regularisation = use_regularisation
         self.regularisation_constant = regularisation_constant
+        self.use_projection = use_projection
+        self.add_gradients = add_gradients
 
     def make_net_wider(self, expanded_layer_size, expansion_offset, can_make_optimizer_wider=False, use_noise=True,
                        use_random_noise=True):
@@ -237,13 +242,23 @@ class GemModel(Recurrent):
                     torch.zeros_like(cosine_similarity), cosine_similarity)[0])
                 regularisation_loss = regularisation_loss - \
                                       self.regularisation_constant * cosine_loss
+            elif self.use_projection:
+                projections_on_memory = (dotp * prev_grad) / (torch.norm(prev_grad, 2))
+                projections_on_memory = torch.transpose(projections_on_memory, 0, 1)
+                projected_gradient = curr_grad - projections_on_memory + \
+                torch.max(torch.zeros_like(projections_on_memory), projections_on_memory)[0]
+                projected_gradient = torch.mean(projected_gradient, dim=0)
+                self.grads[:, task].copy_(projected_gradient)
+            elif self.add_gradients:
+                gradient_sum = torch.mean(prev_grad, dim=1) + torch.mean(curr_grad, dim=0)
+                self.grads[:, task].copy_(gradient_sum)
             else:
                 if (dotp < 0).sum() != 0:
                     project2cone2(self.grads[:, task].unsqueeze(1),
                                   self.grads.index_select(1, indx), self.margin)
-                    # copy gradients back
-                    overwrite_grad(self.parameters, self.grads[:, task],
-                                   self.grad_dims)
+            # copy gradients back
+            overwrite_grad(self.parameters, self.grads[:, task],
+                           self.grad_dims)
         if (self.use_regularisation):
             self.zero_grad()
             (seqloss + regularisation_loss).backward(retain_graph=retain_graph)

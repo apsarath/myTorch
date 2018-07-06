@@ -211,7 +211,9 @@ def choose_model(config, device):
             num_memories=config.num_memories,
             task=config.task,
             use_regularisation=config.use_regularisation,
-            regularisation_constant=config.regularisation_constant
+            regularisation_constant=config.regularisation_constant,
+            use_projection=config.use_projection,
+            add_gradients=config.add_gradients
         )
     else:
         model = Recurrent(device, config.input_size, config.output_size,
