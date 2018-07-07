@@ -78,7 +78,7 @@ class Seq2Seq(nn.Module):
         return h_t
 
     def forward(self, input_src, src_lengths, input_tgt, is_training):
-        h_t = self.encode(input_src, src_lengths)
+        h_t = self.encode(input_src, src_lengths, is_training)
         tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
 
         tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
@@ -101,7 +101,7 @@ class Seq2Seq(nn.Module):
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()
         
         all_t, tgt_h = self._decoder(tgt_input, decoder_state if decoder_states else h_t)
-        output_logits = self._decoder2vocab(tgt_h[0].contiguous())
+        output_logits = self._decoder2vocab(all_t.contiguous().view(-1,tgt_h.size(2)))
 
         logprobs = F.log_softmax(output_logits, dim=1)
         logprobs, words = logprobs.topk(k, 1)

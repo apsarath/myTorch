@@ -19,7 +19,7 @@ from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus imp
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
 from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
-from myTorch.projects.dialog.controllable_dialog.models.beam_search import SequenceGenerator
+from myTorch.projects.dialog.controllable_dialog.models.seq2seq.beam_search import SequenceGenerator
 
 parser = argparse.ArgumentParser(description="seq2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
@@ -97,10 +97,10 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     SeqGen = SequenceGenerator(
             model.decode_step,
             data_reader.corpus.str_to_id[config.eou],
-            beam_size=5,
-            max_sequence_length=10,
+            beam_size=10,
+            max_sequence_length=20,
             get_attention=False,
-            length_normalization_factor=0.0,
+            length_normalization_factor=1.0,
             length_normalization_const=5.)
     go_id = data_reader.corpus.str_to_id[config.go]
     initial_decoder_input = [[go_id] for _ in range(config.batch_size)]
@@ -108,7 +108,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     for mini_batch in itr:
         print("Count : {}".format(count))
         count += 1
-        if count > 100:
+        if count > 1000:
             break
         num_batches = mini_batch["num_batches"]
         model.zero_grad()

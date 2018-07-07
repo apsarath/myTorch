@@ -56,7 +56,7 @@ def create_experiment(config):
     model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
                     corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
                     nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                    dropout_rate=config.dropout_rate).to(device)
+                    dropout_rate=config.dropout_rate, device=device).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
 
     experiment.register("model", model)
@@ -122,7 +122,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
             logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
             experiment.save("best_model", "model")
-
+    
 
 def run_experiment(args):
     """Runs the experiment."""
