@@ -9,7 +9,8 @@ class Seq2Seq(nn.Module):
         self, src_emb_dim, src_vocab_size,
         src_hidden_dim, tgt_hidden_dim,
         pad_token_src, bidirectional,
-        nlayers_src, nlayers_tgt, dropout_rate):
+        nlayers_src, nlayers_tgt, dropout_rate,
+        device):
         """Initialize Language Model."""
         super(Seq2Seq, self).__init__()
 
@@ -22,6 +23,7 @@ class Seq2Seq(nn.Module):
         self._nlayers_tgt = nlayers_tgt
         self._pad_token_src = pad_token_src
         self._dropout_rate = dropout_rate
+        self._device = device
         
         # Word Embedding look-up table for the soruce
         self._src_embedding = nn.Embedding(
@@ -59,21 +61,26 @@ class Seq2Seq(nn.Module):
         # Projection layer from decoder hidden states to target language vocabulary
         self._decoder2vocab = nn.Linear(self._tgt_hidden_dim, self._src_vocab_size)
 
-    def forward(self, input_src, src_lengths, input_tgt, is_training):
+    def encode(self, input_src, src_lengths, is_training):
         # Lookup word embeddings in source and target minibatch
         src_emb = F.dropout(self._src_embedding(input_src), self._dropout_rate, is_training)
-        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
 
         # Pack padded sequence for length masking in encoder RNN (This requires sorting input sequence by length)
         src_emb = pack_padded_sequence(src_emb, src_lengths, batch_first=True)
-        
+
         # Run sequence of embeddings through the encoder GRU
         _, src_h_t = self._encoder(src_emb)
 
         # extract the last hidden of encoder
         h_t = torch.cat((src_h_t[-1], src_h_t[-2]), 1) if self._bidirectional else src_h_t[-1]
         h_t = F.dropout(h_t, self._dropout_rate, is_training)
-        #tgt_input = tgt_emb
+
+        return h_t
+
+    def forward(self, input_src, src_lengths, input_tgt, is_training):
+        h_t = self.encode(input_src, src_lengths)
+        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
+
         tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()
 
@@ -81,6 +88,28 @@ class Seq2Seq(nn.Module):
         output_logits = self._decoder2vocab(tgt_h.contiguous().view(-1,tgt_h.size(2)))
         output_logits = output_logits.view(tgt_h.size(0), tgt_h.size(1), output_logits.size(1))
         return output_logits
+
+    def decode_step(self, inputs_list, encoder_states, k, decoder_states=None):
+        h_t = torch.stack(encoder_states)
+        if decoder_states:
+            decoder_state = torch.stack([state for state in decoder_states], dim=1)
+
+        input_tgt = torch.stack([torch.LongTensor([ipt[-1]]).to(self._device) for ipt in inputs_list]).squeeze(1)
+        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, False)
+
+        tgt_input = torch.cat((tgt_emb, h_t), dim=1).unsqueeze(1)
+        h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()
+        
+        all_t, tgt_h = self._decoder(tgt_input, decoder_state if decoder_states else h_t)
+        output_logits = self._decoder2vocab(tgt_h[0].contiguous())
+
+        logprobs = F.log_softmax(output_logits, dim=1)
+        logprobs, words = logprobs.topk(k, 1)
+
+        new_decoder_states = [tgt_h[:,i,:] for i in range(len(inputs_list))]
+
+        return words.detach().cpu().numpy(), logprobs.detach().cpu().numpy(), encoder_states, new_decoder_states
+        
 
     def register_optimizer(self, optimizer):
         self._optimizer = optimizer

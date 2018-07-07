@@ -18,6 +18,8 @@ from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus import Cornell
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
+from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
+from myTorch.projects.dialog.controllable_dialog.models.beam_search import SequenceGenerator
 
 parser = argparse.ArgumentParser(description="seq2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
@@ -29,22 +31,10 @@ def _safe_exp(x):
         return 0.0
 
 def get_dataset(config):
-    hash_string = "{}_{}".format(config.base_data_path, config.num_dialogs)
-    fn = 'corpus.{}.data'.format(hashlib.md5(hash_string.encode()).hexdigest())
-    fn = os.path.join(config.base_data_path, str(config.num_dialogs), fn)
-    if 0:#os.path.exists(fn):
-        print('Loading cached dataset...')
-        corpus = torch.load(fn)
-    else:
-        print('Producing dataset...')
+    if config.dataset == "opus":
         corpus = OPUS(config)
-        #torch.save(corpus, fn)
-
-    return corpus
-
-def eval_dataset(config):
-    if config.eval_dataset == "anime":
-        corpus = Anime(config)
+    elif config.dataset == "cornell":
+        corpus = Cornell(config)
     return corpus
 
 def create_experiment(config):
@@ -67,7 +57,7 @@ def create_experiment(config):
     model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
                     corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
                     nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                    dropout_rate=config.dropout_rate).to(device)
+                    dropout_rate=config.dropout_rate, device=device).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
 
     experiment.register("model", model)
@@ -93,36 +83,79 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     itr = data_reader.itr_generator(mode, tr.mini_batch_id[mode])
     weight_mask = torch.ones(len(data_reader.corpus.str_to_id)).to(device)
     weight_mask[data_reader.corpus.str_to_id[config.pad]] = 0
-    loss_fn = torch.nn.CrossEntropyLoss(weight=weight_mask)
 
     start_time = time.time()
     num_batches = 0
-    loss_per_epoch = []
+    filename_s = "samples_{}.txt".format(config.ex_name)
+    filename_g = "groundtruth_{}.txt".format(config.ex_name)
+    filename_sg = "samplesAndgroundtruth_{}.txt".format(config.ex_name)
+    f_s = open(filename_s, "w")
+    f_g = open(filename_g, "w")
+    f_sg = open(filename_sg, "w")
+    count = 1
+
+    SeqGen = SequenceGenerator(
+            model.decode_step,
+            data_reader.corpus.str_to_id[config.eou],
+            beam_size=5,
+            max_sequence_length=10,
+            get_attention=False,
+            length_normalization_factor=0.0,
+            length_normalization_const=5.)
+    go_id = data_reader.corpus.str_to_id[config.go]
+    initial_decoder_input = [[go_id] for _ in range(config.batch_size)]
+
     for mini_batch in itr:
+        print("Count : {}".format(count))
+        count += 1
+        if count > 100:
+            break
         num_batches = mini_batch["num_batches"]
-        output_logits = model(
-                        mini_batch["sources"].to(device), 
-                        mini_batch["sources_len"].to(device),
-                        mini_batch["targets_input"].to(device),
-                        is_training=True if mode=="train" else False)
-        loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
-                mini_batch["targets_output"].to(device).contiguous().view(-1))
+        model.zero_grad()
+        encoder_state = model.encode(
+                            mini_batch["sources"].to(device),
+                            mini_batch["sources_len"].to(device),
+                            False)
+
+        seqs = SeqGen.beam_search(initial_input=initial_decoder_input, encoder_state=[st for st in encoder_state])
         
-        loss_per_epoch.append(loss.item())
+        samples = []
+        for seq in seqs:
+            sample = []
+            for w_id in seq.output:
+                sample.append(data_reader.corpus.id_to_str[w_id])
+            samples.append(sample)
 
-        tr.mini_batch_id[mode] += 1
+        source_texts = []
+        text = {}
+        for key in ["sources", "targets_output"]:
+            utterances = mini_batch[key].detach().cpu().numpy()
+            text[key] = []
+            for utterance in utterances:
+                utterance_list = []
+                for word_id in utterance:
+                    if word_id == data_reader.corpus.str_to_id[config.eou] or \
+                       word_id == data_reader.corpus.str_to_id[config.pad]:
+                        continue
+                    else:
+                        utterance_list.append(data_reader.corpus.id_to_str[word_id])
+                text[key].append(utterance_list)
 
-        if tr.mini_batch_id[mode] % 1e6 == 0 and mode == "train":
-            logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
-            logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
+        for source_text, target_text, sample in zip(text["sources"], text["targets_output"], samples):
+            f_sg.write("Source : {} \n GroundTruth : {} \n Sample : {}\n\n".format(
+                " ".join(source_text),
+                " ".join(target_text),
+                " ".join(sample)))
+            f_s.write("{}\n".format(" ".join(sample)))
+            f_g.write("{}\n".format(" ".join(target_text)))
 
-    avg_loss = np.mean(np.array(loss_per_epoch))
-    tr.loss_per_epoch[mode].append(avg_loss)
-        
-    logging.info("\n*****************************\n")
-    logging.info("{}: loss: {},  perp: {}".format(mode, avg_loss, _safe_exp(avg_loss)))
-    logging.info("\n*****************************\n")
+    f_sg.close()
+    f_s.close()
+    f_g.close()
 
+    d1, d2 = eval_metrics.distinct_scores(filename_s)
+    print("Distinct 1 : {}".format(d1))
+    print("Distinct 2 : {}".format(d2))
 
 def run_experiment(args):
     """Runs the experiment."""
@@ -135,9 +168,10 @@ def run_experiment(args):
 
     experiment.resume("best_model", "model")
 
-    for mode in ["valid"]:
+    for mode in ["train"]:
         tr.mini_batch_id[mode] = 0
         run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
+
         
 if __name__ == '__main__':
     args = parser.parse_args()
