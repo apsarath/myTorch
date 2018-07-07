@@ -109,7 +109,8 @@ class GemModel(Recurrent):
                  use_regularisation,
                  regularisation_constant,
                  use_projection,
-                 add_gradients):
+                 add_gradients,
+                 normalise_gradient_before_adding):
 
         super(GemModel, self).__init__(device,
                                        input_size,
@@ -152,6 +153,7 @@ class GemModel(Recurrent):
         self.regularisation_constant = regularisation_constant
         self.use_projection = use_projection
         self.add_gradients = add_gradients
+        self.normalise_gradient_before_adding = normalise_gradient_before_adding
 
     def make_net_wider(self, expanded_layer_size, expansion_offset, can_make_optimizer_wider=False, use_noise=True,
                        use_random_noise=True):
@@ -250,7 +252,17 @@ class GemModel(Recurrent):
                 projected_gradient = torch.mean(projected_gradient, dim=0)
                 self.grads[:, task].copy_(projected_gradient)
             elif self.add_gradients:
-                gradient_sum = torch.mean(prev_grad, dim=1) + torch.mean(curr_grad, dim=0)
+                mean_curr_grad = torch.mean(curr_grad, dim=0)
+                mean_prev_grad = torch.mean(prev_grad, dim=1)
+                if(self.normalise_gradient_before_adding):
+                    def _normalise_grad(grad):
+                        return grad/torch.norm(grad, p=2)
+                    normalised_mean_prev_grad = _normalise_grad(mean_prev_grad)
+                    normalised_mean_curr_grad = _normalise_grad(mean_curr_grad)
+                    gradient_sum = normalised_mean_prev_grad + normalised_mean_curr_grad
+                    gradient_sum = _normalise_grad(gradient_sum)
+                else:
+                    gradient_sum = mean_prev_grad + mean_curr_grad
                 self.grads[:, task].copy_(gradient_sum)
             else:
                 if (dotp < 0).sum() != 0:

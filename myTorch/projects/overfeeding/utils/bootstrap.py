@@ -213,7 +213,8 @@ def choose_model(config, device):
             use_regularisation=config.use_regularisation,
             regularisation_constant=config.regularisation_constant,
             use_projection=config.use_projection,
-            add_gradients=config.add_gradients
+            add_gradients=config.add_gradients,
+            normalise_gradient_before_adding = config.normalise_gradient_before_adding
         )
     else:
         model = Recurrent(device, config.input_size, config.output_size,
