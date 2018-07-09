@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 import torch
 
@@ -11,8 +12,10 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import get_optimizer
 from myTorch.utils.logging import Logger
-from copy import deepcopy
 
+from myTorch.projects.overfeeding.utils.metric import get_metric_registry
+from myTorch.projects.overfeeding.utils.spectral import compute_spectral_properties
+from myTorch.utils import MyContainer, create_config, compute_grad_norm
 
 def get_data_iterator(config, seed=None):
     if not seed:
@@ -68,13 +71,14 @@ def try_to_restart_experiment(experiment, force_restart):
 
 
 def expand_model(experiment, config, step):
+    # Note that there is some confusion in terms of config and new config. Ideally we could do away with using just config.
     model = experiment._model
     device = experiment._device
     logger = experiment._logger
     is_expansion_successful = False
-    old_config = experiment._config
 
-    if(model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size, expansion_offset=config.expansion_offset)):
+    if (
+    model.can_make_net_wider(expanded_layer_size=config.expanded_layer_size, expansion_offset=config.expansion_offset)):
         # Lets expand
         previous_layer_size = model.layer_size
         experiment.save(tag="model_before_expanding")
@@ -104,11 +108,15 @@ def expand_model(experiment, config, step):
                             "Curriculum index: {}. " \
                             "Previous learning rate {}. " \
                             "New learning rate {}," \
+                            "Previous size {}, " \
+                            "New size {}," \
                             "step: {}".format(
             experiment.current_model_index,
             experiment.current_curriculum_index,
             config.lr,
             new_config.lr,
+            previous_layer_size,
+            new_layer_size,
             step)
 
         log_message_tag = "New learning rate for the optimizer"
@@ -132,11 +140,15 @@ def expand_model(experiment, config, step):
                                 "Curriculum index: {}. " \
                                 "Previous learning rate {}. " \
                                 "New learning rate {}," \
+                                "Previous size {}, " \
+                                "New size {}," \
                                 "step: {}".format(
                 experiment.current_model_index,
                 experiment.current_curriculum_index,
                 config.lr,
                 new_config.lr,
+                previous_layer_size,
+                new_layer_size,
                 step)
 
             log_message_tag = "Widening Optimizer"
@@ -150,26 +162,23 @@ def expand_model(experiment, config, step):
         model = wider_model.to(device)
         model.register_optimizer(optimizer)
         experiment.register_model(model)
+        experiment.register_config(new_config)
 
         experiment.save(tag="model_after_expanding")
 
-        # Now we will reset the counters and continue training
-        # metrics["loss"].reset()
-        # metrics["accuracy"].reset()
-        # metrics["loss"].make_timeless()
-        # metrics["accuracy"].make_timeless()
-
-        log_message_tag = "Widening model (expand_model_weights = {})" \
-            .format(config.expand_model_weights)
         log_message_value = "Model index: {}. " \
                             "Curriculum index: {}. " \
                             "Previous learning rate {}. " \
                             "New learning rate {}," \
+                            "Previous size {}, " \
+                            "New size {}," \
                             "step: {}".format(
             experiment.current_model_index,
             experiment.current_curriculum_index,
             config.lr,
             new_config.lr,
+            previous_layer_size,
+            new_layer_size,
             step)
 
         if config.use_tflogger:
@@ -180,20 +189,21 @@ def expand_model(experiment, config, step):
         is_expansion_successful = True
 
     # else:
-        # There is no scope to grow the model
-        # metrics["loss"].make_timeless()
-        # metrics["accuracy"].make_timeless()
-        # Time to meet the creator
-        # should_stop_curriculum = True
-        # logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
-        #     experiment.current_model_index, step))
-        # logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
-        #     experiment.current_model_index, metrics["loss"].get_best_so_far()))
-        # logging.info(
-        #     "When training model, model_index: {}, accuracy = {} for the best performing model".format
-        #     (experiment.current_model_index, metrics["accuracy"].get_best_so_far()))
+    # There is no scope to grow the model
+    # metrics["loss"].make_timeless()
+    # metrics["accuracy"].make_timeless()
+    # Time to meet the creator
+    # should_stop_curriculum = True
+    # logging.info("When training model, model_index: {}, early stopping after {} epochs".format(
+    #     experiment.current_model_index, step))
+    # logging.info("When training model, model_index: {}, loss = {} for the best performing model".format(
+    #     experiment.current_model_index, metrics["loss"].get_best_so_far()))
+    # logging.info(
+    #     "When training model, model_index: {}, accuracy = {} for the best performing model".format
+    #     (experiment.current_model_index, metrics["accuracy"].get_best_so_far()))
 
-    return  experiment, is_expansion_successful
+    return experiment, is_expansion_successful
+
 
 def choose_model(config, device):
     if config.use_gem:
@@ -214,7 +224,7 @@ def choose_model(config, device):
             regularisation_constant=config.regularisation_constant,
             use_projection=config.use_projection,
             add_gradients=config.add_gradients,
-            normalise_gradient_before_adding = config.normalise_gradient_before_adding
+            normalise_gradient_before_adding=config.normalise_gradient_before_adding
         )
     else:
         model = Recurrent(device, config.input_size, config.output_size,
@@ -223,3 +233,15 @@ def choose_model(config, device):
                           output_activation="linear", task=config.task)
 
     return model
+
+def prepare_one_curriculum(experiment, curriculum_config):
+    data_iterator = get_data_iterator(curriculum_config)
+    experiment.register_data_iterator(data_iterator)
+
+    tr = MyContainer()
+    tr.updates_done = 0
+    tr.average_bce = []
+    tr.average_accuracy = []
+    experiment.register_train_statistics(tr)
+    metrics = get_metric_registry(time_span=curriculum_config.wait_time_before_expanding)
+    return metrics
