@@ -84,6 +84,7 @@ def project2cone2(gradient, memories, margin=0.5):
     t = memories_np.shape[0]
     P = np.dot(memories_np, memories_np.transpose())
     P = 0.5 * (P + P.transpose())
+    P = P + np.finfo(np.float32).eps * np.eye(P.shape[0])
     q = np.dot(memories_np, gradient_np) * -1
     G = np.eye(t)
     h = np.zeros(t) + margin
