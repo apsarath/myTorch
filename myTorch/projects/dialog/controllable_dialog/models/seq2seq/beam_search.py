@@ -209,6 +209,6 @@ class SequenceGenerator(object):
         for b in range(batch_size):
             if not complete_sequences[b].size():
                 complete_sequences[b] = partial_sequences[b]
-        seqs = [complete.extract(sort=True)[0]
+        seqs = [complete.extract(sort=True)
                 for complete in complete_sequences]
         return seqs

@@ -1,10 +1,9 @@
-config_filename: "default.yaml"
+config_filename: "toy.yaml"
 description: "seq2seq opus"
 project_name: "seq2seq_opus"
-ex_name: "opus_seq2seq_2layer_gru_512"
+ex_name: "opus_seq2seq_2layer_gru_512_toy"
 base_data_path: "/mnt/data/chinna/data/OpenSubData/"
-num_dialogs: 10000000 # valid ones are 100, 1000, 200000, 500000
-
+num_dialogs: 1000 # valid ones are 100, 1000, 200000, 500000
 
 # Model details
 emb_size_src: 512
@@ -16,7 +15,6 @@ nlayers_tgt: 2
 dropout_rate: 0.3
 
 # Dataset specific details
-dataset: "opus"
 eou: "<eou>"
 go: "<go>"
 unk: "<unk>"
@@ -43,7 +41,7 @@ nesterov: False
 grad_clip_norm: 5.0
 
 # task specific details
-device: "cpu"
+device: "cuda"
 num_epochs: 200
 batch_size: 128
 task: "opus_lm"

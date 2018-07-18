@@ -72,7 +72,7 @@ class MyContainer():
             tparams[p] = v
 
     def add_from_dict(self, src_dict):
-        for key in src_dict.keys():
+        for key in list(src_dict.keys()):
             self.__setattr__(key, src_dict[key])
 
     def __enter__(self):
@@ -105,10 +105,10 @@ def create_config(file_name):
 
     config = MyContainer()
 
-    assert("project_name" in config_dict.keys())
-    assert("ex_name" in config_dict.keys())
+    assert("project_name" in list(config_dict.keys()))
+    assert("ex_name" in list(config_dict.keys()))
 
-    if "parent_config" in config_dict.keys():
+    if "parent_config" in list(config_dict.keys()):
         with open(config_dict["parent_config"], "r") as f:
             parent_config_dict = yaml.load(f)
             config.add_from_dict(parent_config_dict)
@@ -217,10 +217,35 @@ def add_config_params(config, config_flag):
 
     for flag, value in config_flag_values:
         if flag in config.__dict__:
-            print("Setting {} with value {}".format(flag, value))
+            print(("Setting {} with value {}".format(flag, value)))
             if isinstance(config.__dict__[flag], str):
                 config.__dict__[flag] = value
             else:
                 config.__dict__[flag] = eval(value)
         else:
             assert("Flag {} not present in config !".format(flag))
+
+def load_w2v_vectors(loc):
+    class Word2VecModel(object):
+        def __init__(self, w2v, size):
+            self.w2v = w2v
+            self.layer1_size = size
+
+        def __getitem__(self, word):
+            return self.w2v[word]
+
+        def __contains__(self, word):
+            return word in self.w2v
+
+    vector = {}
+    word2vecloc = loc
+    print(("Loading vector_file ", word2vecloc))
+    f = open(word2vecloc, 'r')
+    #line = f.readline().rstrip().split()
+    #vocab_size, embd_size = int(line[0]),int(line[1])
+    for line in f:
+        text = line.strip().split()
+        vector[text[0]] = np.array([float(i) for i in text[1:]])
+    embd_size = vector[list(vector.keys())[0]].size
+    print(("vocab size:%d, embd_size :%d" % (len(vector), embd_size)))
+    return Word2VecModel(vector, embd_size)

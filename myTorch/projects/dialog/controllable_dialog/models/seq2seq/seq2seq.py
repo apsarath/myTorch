@@ -10,7 +10,7 @@ class Seq2Seq(nn.Module):
         src_hidden_dim, tgt_hidden_dim,
         pad_token_src, bidirectional,
         nlayers_src, nlayers_tgt, dropout_rate,
-        device):
+        device, pretrained_embeddings=None):
         """Initialize Language Model."""
         super(Seq2Seq, self).__init__()
 
@@ -24,21 +24,30 @@ class Seq2Seq(nn.Module):
         self._pad_token_src = pad_token_src
         self._dropout_rate = dropout_rate
         self._device = device
+        self._pretrained_embeddings = pretrained_embeddings
         
         # Word Embedding look-up table for the soruce
-        self._src_embedding = nn.Embedding(
-            self._src_vocab_size,
-            self._src_emb_dim,
-            self._pad_token_src,
-        )
-        
-        # Word Embedding look-up table for the target
-        #self._tgt_embedding = nn.Embedding(
-        #    self._src_vocab_size,
-        #    self._src_emb_dim,
-        #    self._pad_token_src,
-        #)
-
+        if self._pretrained_embeddings is None:
+            self._src_embedding = nn.Embedding(
+                self._src_vocab_size,
+                self._src_emb_dim,
+                self._pad_token_src,
+            )
+            self._tgt_embedding = self._src_embedding
+            #self._src_emb_proj_layer = nn.Linear(self._src_emb_dim, self._src_emb_dim)
+        else:
+            print("Loading pretrainined embeddings into the model...")
+            self._pretrained_emb_size = self._pretrained_embeddings.shape[1]
+            #self._src_emb_proj_layer = nn.Linear(self._pretrained_emb_size, self._src_emb_dim)
+            self._src_embedding = nn.Embedding.from_pretrained(
+                torch.FloatTensor(self._pretrained_embeddings), freeze=False)
+            #self._tgt_embedding = self._src_
+            self._tgt_embedding = nn.Embedding(
+                self._src_vocab_size,
+                self._src_emb_dim,
+                self._pad_token_src,
+            )
+            
         # Encoder GRU
         self._encoder = nn.GRU(
             self._src_emb_dim,
@@ -63,7 +72,9 @@ class Seq2Seq(nn.Module):
 
     def encode(self, input_src, src_lengths, is_training):
         # Lookup word embeddings in source and target minibatch
-        src_emb = F.dropout(self._src_embedding(input_src), self._dropout_rate, is_training)
+        
+        src_emb = self._src_embedding(input_src)
+        src_emb = F.dropout(src_emb, self._dropout_rate, is_training)
 
         # Pack padded sequence for length masking in encoder RNN (This requires sorting input sequence by length)
         src_emb = pack_padded_sequence(src_emb, src_lengths, batch_first=True)
@@ -79,9 +90,11 @@ class Seq2Seq(nn.Module):
 
     def forward(self, input_src, src_lengths, input_tgt, is_training):
         h_t = self.encode(input_src, src_lengths, is_training)
-        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
+        tgt_emb = F.dropout(self._tgt_embedding(input_tgt), self._dropout_rate, is_training)
 
         tgt_input = torch.cat((tgt_emb, h_t.unsqueeze(1).expand(h_t.size(0), tgt_emb.size(1), h_t.size(1))), dim=2)
+        #tgt_input = F.dropout(tgt_input, self._dropout_rate, is_training)
+
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()
 
         tgt_h, _ = self._decoder(tgt_input, h_t)
@@ -95,7 +108,7 @@ class Seq2Seq(nn.Module):
             decoder_state = torch.stack([state for state in decoder_states], dim=1)
 
         input_tgt = torch.stack([torch.LongTensor([ipt[-1]]).to(self._device) for ipt in inputs_list]).squeeze(1)
-        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, False)
+        tgt_emb = F.dropout(self._tgt_embedding(input_tgt), self._dropout_rate, False)
 
         tgt_input = torch.cat((tgt_emb, h_t), dim=1).unsqueeze(1)
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()

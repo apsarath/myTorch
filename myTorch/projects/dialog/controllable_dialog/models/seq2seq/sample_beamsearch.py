@@ -16,6 +16,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus import Cornell
+from myTorch.projects.dialog.controllable_dialog.data_readers.twitter_corpus import Twitter
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
 from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
@@ -35,6 +36,8 @@ def get_dataset(config):
         corpus = OPUS(config)
     elif config.dataset == "cornell":
         corpus = Cornell(config)
+    elif config.dataset == "twitter":
+        corpus = Twitter(config)
     return corpus
 
 def create_experiment(config):
@@ -57,7 +60,7 @@ def create_experiment(config):
     model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
                     corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
                     nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                    dropout_rate=config.dropout_rate, device=device).to(device)
+                    dropout_rate=config.dropout_rate, device=device, pretrained_embeddings=corpus.pretrained_embeddings).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
 
     experiment.register("model", model)
@@ -100,8 +103,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
             beam_size=10,
             max_sequence_length=20,
             get_attention=False,
-            length_normalization_factor=1.0,
-            length_normalization_const=5.)
+            length_normalization_factor=5.0,
+            length_normalization_const=20.0)
     go_id = data_reader.corpus.str_to_id[config.go]
     initial_decoder_input = [[go_id] for _ in range(config.batch_size)]
 
@@ -120,10 +123,12 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         seqs = SeqGen.beam_search(initial_input=initial_decoder_input, encoder_state=[st for st in encoder_state])
         
         samples = []
-        for seq in seqs:
+        for seq_list in seqs:
             sample = []
-            for w_id in seq.output:
-                sample.append(data_reader.corpus.id_to_str[w_id])
+            for seq in seq_list:
+                for w_id in seq.output:
+                    sample.append(data_reader.corpus.id_to_str[w_id])
+                sample.append("--- | ---")
             samples.append(sample)
 
         source_texts = []
@@ -168,7 +173,7 @@ def run_experiment(args):
 
     experiment.resume("best_model", "model")
 
-    for mode in ["train"]:
+    for mode in ["valid"]:
         tr.mini_batch_id[mode] = 0
         run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
 
