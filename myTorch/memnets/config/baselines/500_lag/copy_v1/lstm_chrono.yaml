@@ -1,0 +1,54 @@
+parent_config: "config/default.yaml"
+config_filename: "lstm_chrono.yaml"
+description: "copying memory task"
+
+project_name: "copy_v1_lag_500"
+ex_name: "lstm_chrono"
+
+# model specific details
+
+model:  "LSTM"
+num_layers: 1
+layer_size: [70]
+activation: "relu"
+layer_norm: False
+chrono_init: True
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm: 1.0
+amsgrad: False
+
+
+max_steps: 200000
+rseed:  5
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "copying_memory"
+batch_size: 10
+seed: 5
+time_lag_min: 500
+time_lag_max: 500
+seq_len: 10
+num_noise_digits: 1
+num_digits: 8
+
+# saving details
+use_tflogger: True
+save_every_n: 1000
+inter_saving: [0, 1000, 2000, 3000, 4000, 5000]
