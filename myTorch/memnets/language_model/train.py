@@ -25,6 +25,7 @@ import torch.nn.functional as F
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
+parser.add_argument("--device", type=str, default="cuda")
 
 def _safe_exp(x):
     try:
@@ -214,6 +215,7 @@ def run_experiment(args):
     """Runs the experiment."""
 
     config = create_config(args.config)
+    config.device = args.device
 
     logging.info(config.get())
 
