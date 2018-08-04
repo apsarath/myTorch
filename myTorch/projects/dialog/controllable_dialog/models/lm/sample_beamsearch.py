@@ -19,10 +19,11 @@ from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus imp
 from myTorch.projects.dialog.controllable_dialog.data_readers.twitter_corpus import Twitter
 
 from myTorch.projects.dialog.controllable_dialog.models.lm.lm import LM
+from myTorch.projects.dialog.controllable_dialog.models import eval_metrics
+from myTorch.projects.dialog.controllable_dialog.models.lm.beam_search import SequenceGenerator
 
 parser = argparse.ArgumentParser(description="lm")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
-parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 
 def _safe_exp(x):
     try:
@@ -56,11 +57,10 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = LM(
-        config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src,
-        corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
-        nlayers_src=config.nlayers_src, dropout_rate=config.dropout_rate, 
-        device=device, pretrained_embeddings = corpus.pretrained_embeddings).to(device)
+    model = LM(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, 
+                    corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
+                    nlayers_src=config.nlayers_src, dropout_rate=config.dropout_rate, 
+                    device=device, pretrained_embeddings=corpus.pretrained_embeddings).to(device)
 
     logging.info("Num params : {}".format(model.num_parameters))
 
@@ -82,55 +82,53 @@ def create_experiment(config):
 
     return experiment, model, reader, tr, logger, device
 
-def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger, device):
+def run_epoch(experiment, model, config, data_reader, tr, logger, device):
     
-    itr = data_reader.itr_generator(mode, tr.mini_batch_id[mode])
     weight_mask = torch.ones(len(data_reader.corpus.str_to_id)).to(device)
     weight_mask[data_reader.corpus.str_to_id[config.pad]] = 0
-    loss_fn = torch.nn.CrossEntropyLoss(weight=weight_mask)
 
     start_time = time.time()
     num_batches = 0
-    loss_per_epoch = []
-    for mini_batch in itr:
-        num_batches = mini_batch["num_batches"]
+    filename_s = "samples_{}.txt".format(config.ex_name)
+    f_s = open(filename_s, "w")
+    count = 1
+
+    SeqGen = SequenceGenerator(
+            model.decode_step,
+            data_reader.corpus.str_to_id[config.eou],
+            beam_size=10,
+            max_sequence_length=20,
+            get_attention=False,
+            length_normalization_factor=5.0,
+            length_normalization_const=1.0)
+    go_id = data_reader.corpus.str_to_id[config.go]
+    initial_decoder_input = [[go_id] for _ in range(config.batch_size)]
+
+    while True:
+        print("Count : {}".format(count))
+        count += 1
+        if count > 10:
+            break
         model.zero_grad()
-        output_logits = model(
-                        mini_batch["uttr_input"].to(device), 
-                        mini_batch["uttr_len"].to(device),
-                        is_training=True if mode=="train" else False)
-
-        loss = loss_fn( output_logits, mini_batch["uttr_output"].to(device).contiguous().view(-1))
-            
+        seqs = SeqGen.beam_search(initial_input=initial_decoder_input)
         
-        loss_per_epoch.append(loss.item())
+        samples = []
+        for seq_list in seqs:
+            sample = []
+            for seq in seq_list:
+                for w_id in seq.output:
+                    sample.append(data_reader.corpus.id_to_str[w_id])
+                sample.append("--- | ---")
+            samples.append(sample)
 
-        if mode == "train":
-            model.optimizer.zero_grad()
-            loss.backward(retain_graph=False)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip_norm)
-            model.optimizer.step()
+        for sample in samples:
+            f_s.write("{}\n".format(" ".join(sample)))
 
-        tr.mini_batch_id[mode] += 1
+    f_s.close()
 
-        if tr.mini_batch_id[mode] % 1e6 == 0 and mode == "train":
-            logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
-
-    avg_loss = np.mean(np.array(loss_per_epoch))
-    tr.loss_per_epoch[mode].append(avg_loss)
-        
-    logging.info("\n*****************************\n")
-    logging.info("{}: loss: {},  perp: {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss),  time.time()-start_time))
-
-    if mode == "valid" and len(tr.loss_per_epoch[mode]) >= 2:
-        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
-
-    if  _safe_exp(avg_loss) < 5:
-        experiment.save("best_model", "model")
-        import sys; sys.exit()
-
+    d1, d2 = eval_metrics.distinct_scores(filename_s)
+    print("Distinct 1 : {}".format(d1))
+    print("Distinct 2 : {}".format(d2))
 
 def run_experiment(args):
     """Runs the experiment."""
@@ -141,18 +139,10 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    if not args.force_restart:
-        if experiment.is_resumable("current"):
-            experiment.resume("current")
-    else:
-        experiment.force_restart("current")
-        experiment.force_restart("best_model")
+    experiment.resume("best_model", "model")
 
-    for i in range(tr.epoch_id, config.num_epochs):
-        for mode in ["train", "valid"]:
-            tr.mini_batch_id[mode] = 0
-            tr.epoch_id = i
-            run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
+    run_epoch(experiment, model, config, data_reader, tr, logger, device)
+
         
 if __name__ == '__main__':
     args = parser.parse_args()

@@ -4,14 +4,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence
 
-class LanguageModel(nn.Module):
+class LM(nn.Module):
     def __init__(
         self, src_emb_dim, src_vocab_size,
         src_hidden_dim,
-        pad_token_src, bidirectional=False,
-        nlayers_src=1):
+        pad_token_src, bidirectional,
+        nlayers_src, dropout_rate,
+        device, pretrained_embeddings=None):
         """Initialize Language Model."""
-        super(LanguageModel, self).__init__()
+        super(LM, self).__init__()
 
         self._src_vocab_size = src_vocab_size
         self._src_emb_dim = src_emb_dim
@@ -19,40 +20,75 @@ class LanguageModel(nn.Module):
         self._bidirectional = bidirectional
         self._nlayers_src = nlayers_src
         self._pad_token_src = pad_token_src
+        self._dropout_rate = dropout_rate
+        self._device = device
+        self._pretrained_embeddings = pretrained_embeddings
         
-        # Word Embedding look-up table for the soruce language
-        self._src_embedding = nn.Embedding(
-            self._src_vocab_size,
-            self._src_emb_dim,
-            self._pad_token_src,
-        )
-
+        # Word Embedding look-up table for the soruce
+        if self._pretrained_embeddings is None:
+            self._src_embedding = nn.Embedding(
+                self._src_vocab_size,
+                self._src_emb_dim,
+                self._pad_token_src,
+            )
+            #self._src_emb_proj_layer = nn.Linear(self._src_emb_dim, self._src_emb_dim)
+        else:
+            print("Loading pretrainined embeddings into the model...")
+            self._pretrained_emb_size = self._pretrained_embeddings.shape[1]
+            #self._src_emb_proj_layer = nn.Linear(self._pretrained_emb_size, self._src_emb_dim)
+            self._src_embedding = nn.Embedding.from_pretrained(
+                torch.FloatTensor(self._pretrained_embeddings), freeze=False)
+            
         # Encoder GRU
         self._encoder = nn.GRU(
-            self._src_emb_dim // 2 if self._bidirectional else self._src_emb_dim,
-            self._src_hidden_dim,
+            self._src_emb_dim,
+            self._src_hidden_dim //2 if self._bidirectional else self._src_hidden_dim,
             self._nlayers_src,
             bidirectional=bidirectional,
             batch_first=True,
         )
 
         # Projection layer from decoder hidden states to target language vocabulary
-        self._decoder2vocab = nn.Linear(src_hidden_dim, src_vocab_size)
+        self._encoder2vocab = nn.Linear(self._src_hidden_dim, self._src_vocab_size)
 
-    def forward(self, input_src, src_lengths):
+    def encode(self, input_src, src_lengths, is_training):
         # Lookup word embeddings in source and target minibatch
+        
         src_emb = self._src_embedding(input_src)
+        src_emb = F.dropout(src_emb, self._dropout_rate, is_training)
 
         # Pack padded sequence for length masking in encoder RNN (This requires sorting input sequence by length)
         #src_emb = pack_padded_sequence(src_emb, src_lengths, batch_first=True)
-        
+
         # Run sequence of embeddings through the encoder GRU
-        all_h, src_h_t = self._encoder(src_emb)
+        all_t, src_h_t = self._encoder(src_emb)
+        return all_t
 
-        output_logits = F.relu(self._decoder2vocab(all_h.contiguous().view(-1,all_h.size(2))))
+    def forward(self, input_src, src_lengths, is_training):
+        h_t = self.encode(input_src, src_lengths, is_training)
 
-        output_logits = output_logits.view(all_h.size(0), all_h.size(1), output_logits.size(1))
+        output_logits = self._encoder2vocab(h_t.contiguous().view(-1,h_t.size(2)))
         return output_logits
+
+    def decode_step(self, inputs_list, k, decoder_states=None):
+        if decoder_states:
+            decoder_state = torch.stack([state for state in decoder_states], dim=1)
+        else:
+            decoder_state = None
+
+        input_src = torch.stack([torch.LongTensor([ipt[-1]]).to(self._device) for ipt in inputs_list])
+        src_input = F.dropout(self._src_embedding(input_src), self._dropout_rate, False)
+
+        all_t, src_h = self._encoder(src_input, decoder_state)
+        output_logits = self._encoder2vocab(all_t.contiguous().view(-1,src_h.size(2)))
+
+        logprobs = F.log_softmax(output_logits, dim=1)
+        logprobs, words = logprobs.topk(k, 1)
+
+        new_decoder_states = [src_h[:,i,:] for i in range(len(inputs_list))]
+
+        return words.detach().cpu().numpy(), logprobs.detach().cpu().numpy(), new_decoder_states
+        
 
     def register_optimizer(self, optimizer):
         self._optimizer = optimizer

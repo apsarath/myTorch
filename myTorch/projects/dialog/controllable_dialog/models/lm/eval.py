@@ -16,13 +16,11 @@ from myTorch.utils.gen_experiment import GenExperiment
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
 from myTorch.projects.dialog.controllable_dialog.data_readers.cornell_corpus import Cornell
-from myTorch.projects.dialog.controllable_dialog.data_readers.twitter_corpus import Twitter
 
-from myTorch.projects.dialog.controllable_dialog.models.lm.lm import LM
+from myTorch.projects.dialog.controllable_dialog.models.seq2seq.seq2seq import Seq2Seq
 
-parser = argparse.ArgumentParser(description="lm")
+parser = argparse.ArgumentParser(description="seq2seq")
 parser.add_argument("--config", type=str, default="config/opus/default.yaml", help="config file path.")
-parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 
 def _safe_exp(x):
     try:
@@ -31,12 +29,22 @@ def _safe_exp(x):
         return 0.0
 
 def get_dataset(config):
-    if config.dataset == "opus":
+    hash_string = "{}_{}".format(config.base_data_path, config.num_dialogs)
+    fn = 'corpus.{}.data'.format(hashlib.md5(hash_string.encode()).hexdigest())
+    fn = os.path.join(config.base_data_path, str(config.num_dialogs), fn)
+    if 0:#os.path.exists(fn):
+        print('Loading cached dataset...')
+        corpus = torch.load(fn)
+    else:
+        print('Producing dataset...')
         corpus = OPUS(config)
-    elif config.dataset == "cornell":
-        corpus = Cornell(config)
-    elif config.dataset == "twitter":
-        corpus = Twitter(config)
+        #torch.save(corpus, fn)
+
+    return corpus
+
+def eval_dataset(config):
+    if config.eval_dataset == "anime":
+        corpus = Anime(config)
     return corpus
 
 def create_experiment(config):
@@ -56,12 +64,10 @@ def create_experiment(config):
     corpus = get_dataset(config)
     reader = Reader(config, corpus)
 
-    model = LM(
-        config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src,
-        corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
-        nlayers_src=config.nlayers_src, dropout_rate=config.dropout_rate, 
-        device=device, pretrained_embeddings = corpus.pretrained_embeddings).to(device)
-
+    model = Seq2Seq(config.emb_size_src, len(corpus.str_to_id), config.hidden_dim_src, config.hidden_dim_tgt,
+                    corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
+                    nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
+                    dropout_rate=config.dropout_rate).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
 
     experiment.register("model", model)
@@ -94,42 +100,28 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     loss_per_epoch = []
     for mini_batch in itr:
         num_batches = mini_batch["num_batches"]
-        model.zero_grad()
         output_logits = model(
-                        mini_batch["uttr_input"].to(device), 
-                        mini_batch["uttr_len"].to(device),
+                        mini_batch["sources"].to(device), 
+                        mini_batch["sources_len"].to(device),
+                        mini_batch["targets_input"].to(device),
                         is_training=True if mode=="train" else False)
-
-        loss = loss_fn( output_logits, mini_batch["uttr_output"].to(device).contiguous().view(-1))
-            
+        loss = loss_fn( output_logits.contiguous().view(-1, output_logits.size(2)), 
+                mini_batch["targets_output"].to(device).contiguous().view(-1))
         
         loss_per_epoch.append(loss.item())
-
-        if mode == "train":
-            model.optimizer.zero_grad()
-            loss.backward(retain_graph=False)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), config.grad_clip_norm)
-            model.optimizer.step()
 
         tr.mini_batch_id[mode] += 1
 
         if tr.mini_batch_id[mode] % 1e6 == 0 and mode == "train":
             logging.info("Epoch : {}, {} %: {}, time : {}".format(epoch_id, mode, (100.0*tr.mini_batch_id[mode]/num_batches), time.time()-start_time))
+            logging.info("Running loss: {}, perp: {}".format(running_average, _safe_exp(running_average)))
 
     avg_loss = np.mean(np.array(loss_per_epoch))
     tr.loss_per_epoch[mode].append(avg_loss)
         
     logging.info("\n*****************************\n")
-    logging.info("{}: loss: {},  perp: {}, time : {}".format(mode, avg_loss, _safe_exp(avg_loss),  time.time()-start_time))
-
-    if mode == "valid" and len(tr.loss_per_epoch[mode]) >= 2:
-        if tr.loss_per_epoch[mode][-1] < np.min(np.array(tr.loss_per_epoch[mode][:-1])):
-            logging.info("Saving Best model : loss : {}".format(tr.loss_per_epoch[mode][-1]))
-            experiment.save("best_model", "model")
-
-    if  _safe_exp(avg_loss) < 5:
-        experiment.save("best_model", "model")
-        import sys; sys.exit()
+    logging.info("{}: loss: {},  perp: {}".format(mode, avg_loss, _safe_exp(avg_loss)))
+    logging.info("\n*****************************\n")
 
 
 def run_experiment(args):
@@ -141,18 +133,11 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    if not args.force_restart:
-        if experiment.is_resumable("current"):
-            experiment.resume("current")
-    else:
-        experiment.force_restart("current")
-        experiment.force_restart("best_model")
+    experiment.resume("best_model", "model")
 
-    for i in range(tr.epoch_id, config.num_epochs):
-        for mode in ["train", "valid"]:
-            tr.mini_batch_id[mode] = 0
-            tr.epoch_id = i
-            run_epoch(i, mode, experiment, model, config, data_reader, tr, logger, device)
+    for mode in ["valid"]:
+        tr.mini_batch_id[mode] = 0
+        run_epoch(0, mode, experiment, model, config, data_reader, tr, logger, device)
         
 if __name__ == '__main__':
     args = parser.parse_args()
