@@ -64,6 +64,8 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         logger: logger object.
     """
 
+    model.reset_hidden(batch_size=config.batch_size)
+
     for step in range(tr.updates_done, config.max_steps):
 
         if config.inter_saving is not None:
@@ -73,7 +75,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         data = data_iterator.next()
         seqloss = 0
 
-        model.reset_hidden(batch_size=config.batch_size)
+        model.reset_hidden(batch_size=config.batch_size, copy_prev_hidden=False)
 
         for i in range(0, data["datalen"]):
 
@@ -84,6 +86,13 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             model.optimizer.zero_grad()
 
             output = model(x)
+
+            if i < 10:
+                print("t: {}, f_norm :{}, a_norm: {}, mem_norm : {}".format(i,
+                    model._h_prev[0]["forget_norm"],
+                    model._h_prev[0]["add_norm"],
+                    model._h_prev[0]["mem_norm"]))
+
             if config.task == "copying_memory" or config.task == "denoising_copy":
                 loss = F.cross_entropy(output, y.squeeze(1))
             elif config.task == "adding":
@@ -101,7 +110,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             logger.log_scalar("running_avg_loss", running_average, step + 1)
             logger.log_scalar("loss", tr.average_bce[-1], step + 1)
 
-        seqloss.backward(retain_graph=False)
+        seqloss.backward(retain_graph=True)
 
         total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
         tr.grad_norm.append(total_norm)

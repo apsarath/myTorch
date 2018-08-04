@@ -79,12 +79,20 @@ class FlatMemoryCell(nn.Module):
 
         hidden["memory"] = last_hidden["memory"] + torch.mean(add_memory-forget_memory, dim=1)
         hidden["h"] = h
+        hidden["forget_norm"] = torch.norm(torch.mean(forget_memory, dim=1)).detach().cpu().item()
+        hidden["add_norm"] = torch.norm(torch.mean(add_memory, dim=1)).detach().cpu().item()
+        hidden["mem_norm"] = torch.norm(last_hidden["memory"]).detach().cpu().item()
         return hidden
 
-    def reset_hidden(self, batch_size):
+    def reset_hidden(self, batch_size, input_hidden_to_clone=None):
         hidden = {}
-        hidden["h"] = torch.Tensor(np.zeros((batch_size, self.hidden_size))).to(self._device)
-        hidden["memory"] = torch.Tensor(np.zeros((batch_size, self.memory_size))).to(self._device)
-        #hidden["lstm_cell_h"] = (torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device), 
-        #                        torch.Tensor(np.zeros((1, batch_size, self.hidden_size))).to(self._device))
+        if input_hidden_to_clone is None:
+            hidden["h"] = torch.Tensor(np.zeros((batch_size, self.hidden_size))).to(self._device)
+            hidden["memory"] = torch.Tensor(np.zeros((batch_size, self.memory_size))).to(self._device)
+        else:
+            #for k in ["h", "memory"]:
+            #    hidden[k] = torch.Tensor(input_hidden_to_clone[k].detach().data.cpu().numpy()).to(self._device)
+            hidden["h"] = torch.Tensor(np.ones((batch_size, self.hidden_size))*1.0).to(self._device)
+            hidden["memory"] = torch.Tensor(np.ones((batch_size, self.memory_size))*1.0).to(self._device)
+
         return hidden

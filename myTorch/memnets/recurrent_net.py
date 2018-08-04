@@ -58,6 +58,7 @@ class Recurrent(nn.Module):
 
         self._reset_parameters()
         self.print_num_parameters()
+        self._h_prev = None
 
     def forward(self, input):
         """Implements forward computation of the model.
@@ -80,12 +81,16 @@ class Recurrent(nn.Module):
         self._h_prev = h
         return output
 
-    def reset_hidden(self, batch_size):
+    def reset_hidden(self, batch_size, copy_prev_hidden=False):
         """Resets the hidden state for truncating the dependency."""
 
-        self._h_prev = []
-        for cell in self._Cells:
-            self._h_prev.append(cell.reset_hidden(batch_size))
+        if copy_prev_hidden is False:
+            self._h_prev = []
+            for cell in self._Cells:
+                self._h_prev.append(cell.reset_hidden(batch_size))
+        else:
+            for idx, cell in enumerate(self._Cells):
+                self._h_prev[idx] = cell.reset_hidden(batch_size, input_hidden_to_clone=self._h_prev[idx])
 
     def _reset_parameters(self):
         """Initializes the parameters."""

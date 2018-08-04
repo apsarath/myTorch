@@ -44,12 +44,18 @@ class CopyData(object):
         mask = np.zeros(2*(seq_len+1), dtype="float32")
 
         data = self._state.rng.binomial(1, 0.5, size=(seq_len+1, batch_size, self._state.num_bits))
+        data_random = self._state.rng.binomial(1, 0.5, size=(seq_len+1, batch_size, self._state.num_bits))
+
         data[:, :, -1] = 0
         data[seq_len, :, :] = 0
         data[seq_len, :, -1] = 1
 
+        data_random[:, :, -1] = 0
+        data_random[seq_len, :, :] = 0
+        data_random[seq_len, :, -1] = 1
+
         x[0:seq_len+1] = data
-        y[seq_len+1:] = data
+        y[seq_len+1:] = data_random
         mask[seq_len+1:] = 1
 
         output = {}
