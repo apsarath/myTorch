@@ -10,6 +10,7 @@ import torch
 from collections import Counter
 import json
 from myTorch.utils import load_w2v_vectors
+import _pickle
 
 class Twitter(object):
     def __init__(self, config):
@@ -22,6 +23,9 @@ class Twitter(object):
         self._read_dialogs()
         self._contruct_vocab(config.vocab_cut_off)
         self._preprocess_data(config.sent_cut_off)
+        if config.act_anotation_datasets is not None:
+            for act_anotation_dataset in config.act_anotation_datasets:
+                self.load_acts(act_anotation_dataset)
         self._split_train_valid()
         self._pretrained_embeddings(config.embedding_loc)
 
@@ -86,10 +90,10 @@ class Twitter(object):
 
         self._utterances = [ [go_id] + text_ids for text_ids in self._utterances]
 
-        self._sources, self._targets = [], []
+        sources, targets = [], []
         for i in range(0, len(self._utterances), 2):
-                self._sources.append(self._utterances[i][1:])
-                self._targets.append(self._utterances[i+1])
+                sources.append(self._utterances[i][1:])
+                targets.append(self._utterances[i+1])
 
         def _sent_len(text_ids):
             sent_len = 0
@@ -98,6 +102,15 @@ class Twitter(object):
                     sent_len += 1
             return sent_len
         
+        sources_len = [_sent_len(text_ids) for text_ids in sources]
+        targets_lens = [_sent_len(text_ids) for text_ids in targets]
+
+        self._sources, self._targets = [],[]
+        for idx in range(len(sources_len)):
+            if sources_len[idx] > self._config.min_sent_len and targets_lens[idx] > self._config.min_sent_len:
+                self._sources.append(sources[idx])
+                self._targets.append(targets[idx])
+
         self._sources_len = [_sent_len(text_ids) for text_ids in self._sources]
 
         #sorted_indices = np.argsort(sources_lens)[::-1]
@@ -109,6 +122,7 @@ class Twitter(object):
 
         self._data = {}
         self._data["sources"] = self._sources
+        self._data["sources_target"] = [source[1:] + [pad_id] for source in self._sources]
         self._data["targets_input"] = self._targets[:,:-1]
         self._data["targets_output"] = self._targets[:,1:]
         self._data["sources_len"] = self._sources_len
@@ -137,6 +151,9 @@ class Twitter(object):
         _sort_data(self._processed_data["valid"])
 
     def _pretrained_embeddings(self, loc):
+        if loc == 'None':
+            self._embeddings = None
+            return
         w2v = load_w2v_vectors(loc)
         self._embeddings = np.zeros((len(self._str_to_id), w2v.layer1_size), dtype=np.float32)
         num_avail = 0
@@ -145,6 +162,24 @@ class Twitter(object):
                 num_avail += 1
                 self._embeddings[word_id] = w2v[word]
         print("Num loaded from pretrained : {} out of {}".format(num_avail, len(self._str_to_id)))
+
+    def save_acts(self, tag, acts):
+        with open(os.path.join(self._config.base_data_path,"{}_acts.txt".format(tag)), "wb") as f:
+            _pickle.dump(acts, f)
+        print("Done saving acts !")
+
+    def load_acts(self, tag):
+        with open(os.path.join(self._config.base_data_path, "{}_acts.txt".format(tag)), "rb") as f:
+            acts = _pickle.load(f)
+            self._data["{}_source_acts".format(tag)] = acts["source"]
+            self._data["{}_target_acts".format(tag)] = acts["target"]
+
+    def _generic_responses(self):
+        self._generic_responses_text = [
+            "oh my god", "i don t know",
+            "i am not sure",
+            "i don t think that is a good idea",
+            "i am not sure that is a good idea"]
 
     @property
     def data(self):
@@ -165,7 +200,13 @@ class Twitter(object):
     @property
     def pretrained_embeddings(self):
         return self._embeddings
-                
+
+    def num_acts(self, tag):
+        return int(np.max(np.array(self._data["{}_source_acts".format(tag)])) + 1)
+    
+    def padded_generic_responses(self):
+        return (self._generic_responses_input, self._generic_responses_output)
+
 
 if __name__=="__main__":
     corpus = SwitchBoard()

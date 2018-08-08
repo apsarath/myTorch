@@ -1,10 +1,13 @@
+"""Class for generating sequences
+Adapted from https://github.com/eladhoffer/seq2seq.pytorch/blob/master/seq2seq/tools/beam_search.py
+"""
 import heapq
 
 
 class Sequence(object):
     """Represents a complete or partial sequence."""
 
-    def __init__(self, output, state, logprob, score, attention=None):
+    def __init__(self, output, state, encoder_state, logprob, score, attention=None):
         """Initializes the Sequence.
         Args:
           output: List of word ids in the sequence.
@@ -14,6 +17,7 @@ class Sequence(object):
         """
         self.output = output
         self.state = state
+        self.encoder_state = encoder_state
         self.logprob = logprob
         self.score = score
         self.attention = attention
@@ -110,7 +114,7 @@ class SequenceGenerator(object):
         self.length_normalization_const = length_normalization_const
         self.get_attention = get_attention
 
-    def beam_search(self, initial_input, initial_state=None):
+    def beam_search(self, initial_input, encoder_state=None):
         """Runs beam search sequence generation on a single image.
         Args:
           initial_input: An initial input for the model -
@@ -124,11 +128,9 @@ class SequenceGenerator(object):
         partial_sequences = [TopN(self.beam_size) for _ in range(batch_size)]
         complete_sequences = [TopN(self.beam_size) for _ in range(batch_size)]
 
-        words, logprobs, new_state = self.decode_step(
-            initial_input, initial_state,
-            k=self.beam_size,
-            feed_all_timesteps=True,
-            get_attention=self.get_attention)
+        words, logprobs, new_encoder_state, new_state = self.decode_step(
+            initial_input, encoder_state, k=self.beam_size)
+
         for b in range(batch_size):
             # Create first beam_size candidate hypotheses for each entry in
             # batch
@@ -136,9 +138,9 @@ class SequenceGenerator(object):
                 seq = Sequence(
                     output=initial_input[b] + [words[b][k]],
                     state=new_state[b],
+                    encoder_state = new_encoder_state[b],
                     logprob=logprobs[b][k],
-                    score=logprobs[b][k],
-                    attention=None if not self.get_attention else [new_state[b].attention_score])
+                    score=logprobs[b][k])
                 partial_sequences[b].push(seq)
 
         # Run beam search.
@@ -154,6 +156,7 @@ class SequenceGenerator(object):
 
             input_feed = [c.output for c in flattened_partial]
             state_feed = [c.state for c in flattened_partial]
+            encoder_state_feed = [c.encoder_state for c in flattened_partial]
             if len(input_feed) == 0:
                 # We have run out of partial candidates; happens when
                 # beam_size=1
@@ -161,10 +164,10 @@ class SequenceGenerator(object):
 
             # Feed current hypotheses through the model, and recieve new outputs and states
             # logprobs are needed to rank hypotheses
-            words, logprobs, new_states \
+            words, logprobs, new_encoder_states, new_states \
                 = self.decode_step(
-                    input_feed, state_feed,
-                    k=self.beam_size + 1, get_attention=self.get_attention)
+                    input_feed, encoder_state_feed, 
+                    k=self.beam_size + 1, decoder_states=state_feed)
 
             idx = 0
             for b in range(batch_size):
@@ -172,11 +175,8 @@ class SequenceGenerator(object):
                 # beam_size hypotheses
                 for partial in partial_sequences_list[b]:
                     state = new_states[idx]
-                    if self.get_attention:
-                        attention = partial.attention + \
-                            [new_states[idx].attention_score]
-                    else:
-                        attention = None
+                    new_encoder_state = encoder_state[b]
+                    attention = None
                     k = 0
                     num_hyp = 0
                     while num_hyp < self.beam_size:
@@ -192,12 +192,12 @@ class SequenceGenerator(object):
                                 L = self.length_normalization_const
                                 length_penalty = (L + len(output)) / (L + 1)
                                 score /= length_penalty ** self.length_normalization_factor
-                            beam = Sequence(output, state,
+                            beam = Sequence(output, state, new_encoder_state,
                                             logprob, score, attention)
                             complete_sequences[b].push(beam)
                             num_hyp -= 1  # we can fit another hypotheses as this one is over
                         else:
-                            beam = Sequence(output, state,
+                            beam = Sequence(output, state, new_encoder_state,
                                             logprob, score, attention)
                             partial_sequences[b].push(beam)
                     idx += 1
@@ -209,6 +209,6 @@ class SequenceGenerator(object):
         for b in range(batch_size):
             if not complete_sequences[b].size():
                 complete_sequences[b] = partial_sequences[b]
-        seqs = [complete.extract(sort=True)[0]
+        seqs = [complete.extract(sort=True)
                 for complete in complete_sequences]
         return seqs
