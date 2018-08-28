@@ -1,17 +1,17 @@
 config_filename: "default.yaml"
-description: "Model to evaluate the performance in presence of the GEM model"
+description: "Models for AAAI"
 
-project_name: "GEMAnalysis"
-ex_name: "128"
+project_name: "AAAI/ssmnist"
+ex_name: "256_gem"
 
 
 # model specific details
 
 model:  "LSTM"
-input_size: 8
-output_size:  8
+input_size: 5
+output_size: 11
 num_layers: 1
-layer_size: [128]
+layer_size: [256]
 activation: "tanh"
 
 # optimization specific details
@@ -32,34 +32,38 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps: 40000
+max_steps: 20000
 rseed:  5
-device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "copy"
+task: "ssmnist"
 num_bits: 8
 seq_len: 5
 batch_size: 10
+data_folder: "/mnt/data/shagun/data/ssmnist/data"
 
 # curriculum related details
-min_seq_len: 5
-max_seq_len: 62
-step_seq_len: 5
-average_over_last_n: 50
-evaluate_over_n: 50
+min_seq_len: 1
+max_seq_len: 20
+step_seq_len: 1
+average_over_last_n: 100
+evaluate_over_n: 100
 curriculum_seed: 6
 new_lr: 0.001
+stop_if_curriculum_failed: True
+threshold_accuracy_for_passing_curriculum: 0.75
+
 
 # early stopping related details
 # Now it is used to determine when the model should be grown.
-#time_span: 10000
+#wait_time_before_expanding: 10000
 
 # Details related to expanding the rnn
 expand_model: False
 # This is the amount by which we expand the model
-expansion_offset: 50
-expanded_layer_size: [40]
+expansion_offset: -1
+expanded_layer_size: [80]
 make_optimizer_wider: False
 expand_model_weights: True
 use_noise: True
@@ -67,13 +71,15 @@ use_random_noise: True
 
 # saving details
 use_tflogger: True
-save_every_n: 1000000000000
-log_grad_norm: True
+save_every_n: 100000
+log_grad_norm: False
 
 # GEM details
-use_gem: False
+use_gem: True
 memory_strength: 0.5
 num_memories: 1
 use_regularisation: False
 regularisation_constant: 0.0
-use_projection: True
+use_projection: False
+add_gradients: False
+normalise_gradient_before_adding: False
