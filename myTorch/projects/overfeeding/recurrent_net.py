@@ -54,10 +54,15 @@ class Recurrent(nn.Module):
         self.print_num_parameters()
         self.use_gem = False
 
-        if task == "copying_memory":
+        if task in ["copying_memory", "ssmnist"]:
             self.loss_fn = F.torch.nn.functional.cross_entropy
         else:
             self.loss_fn = F.binary_cross_entropy_with_logits
+
+        if task == "ssmnist":
+            self.is_ssmnist = True
+        else:
+            self.is_ssmnist = False
 
     def forward(self, input):
         """Implements forward computation of the model.
@@ -81,30 +86,108 @@ class Recurrent(nn.Module):
         return output
 
     def train_over_one_data_iterate(self, data, task=None, retain_graph=False):
+        if (self.is_ssmnist):
+            return self.train_over_one_data_iterate_ssmnist(data, task, retain_graph)
+        else:
+            return self.train_over_one_data_iterate_regular(data, task, retain_graph)
+
+
+    def train_over_one_data_iterate_ssmnist(self, data, task=None, retain_graph=False):
         # We have task in the function call to keep the interface same.
         self.optimizer.zero_grad()
-        seqloss, num_correct = self._compute_loss_and_metrics(data=data)
+        seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = self._compute_loss_and_metrics_ssmnist(data=data)
+        seqloss /= float(data["mask"].sum())
+        # num_total = sum(data["mask"])
+        # Verify this later.
+        seqloss.backward(retain_graph=retain_graph)
+        return seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct
+
+    def train_over_one_data_iterate_regular(self, data, task=None, retain_graph=False):
+        # We have task in the function call to keep the interface same.
+        self.optimizer.zero_grad()
+        seqloss, num_correct = self._compute_loss_and_metrics_regular(data=data)
         seqloss /= sum(data["mask"])
         num_total = sum(data["mask"])
-        # num_total += current_num_total
-        # num_correct +=current_num_correct
-        # seqloss+=currrent_seqloss
-
         seqloss.backward(retain_graph=retain_graph)
-
         return seqloss, num_correct, num_total
+
 
     def evaluate_over_one_data_iterate(self, data, task=None):
         # We have task in the function call to keep the interface same.
+        if(self.is_ssmnist):
+            return self.evaluate_over_one_data_iterate_ssmnist(data, task)
+        else:
+            return self.evaluate_over_one_data_iterate_regular( data, task)
+
+    def evaluate_over_one_data_iterate_ssmnist(self, data, task=None):
+        # We have task in the function call to keep the interface same.
         retain_graph = False
         self.optimizer.zero_grad()
-        seqloss, num_correct = self._compute_loss_and_metrics(data=data)
+        seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = self._compute_loss_and_metrics_ssmnist(data=data)
+        seqloss /= float(data["mask"].sum())
+        # num_total = sum(data["mask"])
+
+        return seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct
+
+    def evaluate_over_one_data_iterate_regular(self, data, task=None):
+        # We have task in the function call to keep the interface same.
+        retain_graph = False
+        self.optimizer.zero_grad()
+        seqloss, num_correct = self._compute_loss_and_metrics_regular(data=data)
         seqloss /= sum(data["mask"])
         num_total = sum(data["mask"])
 
         return seqloss, num_correct, num_total
 
     def _compute_loss_and_metrics(self, data):
+        if(self.is_ssmnist):
+            self._compute_loss_and_metrics_ssmnist(data)
+        else:
+            self._compute_loss_and_metrics_regular(data)
+
+    def _compute_loss_and_metrics_ssmnist(self, data):
+
+        batch_size = data['y'].shape[1]
+        self.reset_hidden(batch_size=batch_size)
+        seqloss = 0
+
+        correct = 0.0
+        num_examples = 0.0
+        self.reset_hidden(batch_size=batch_size)
+
+        accuracy = torch.zeros(batch_size).to(self._device)
+        num_outputs = torch.zeros(batch_size).to(self._device)
+
+        for i in range(0, data["datalen"]):
+            x = torch.from_numpy(np.asarray(data['x'][i])).to(self._device)
+            y = torch.from_numpy(np.asarray(data['y'][i])).to(self._device)
+            mask = torch.from_numpy(np.asarray(data['mask'][i])).to(self._device)
+
+            output = self.forward(x)
+
+            loss = self.loss_fn(output, y, reduce=False)
+
+            loss = (loss * mask).sum()
+
+            values, indices = torch.max(output, 1)
+
+            accuracy += (indices == y).to(self._device, dtype=torch.float32) * mask
+            # if(torch.sum(torch.abs(mask)).item() > 0):
+            #     a = "yay"
+            # if (torch.sum(torch.abs(accuracy)).item() > 0):
+            #     print("shit")
+            num_outputs += mask
+            seqloss+=loss
+
+        correct = (accuracy == num_outputs).sum()
+        # if(correct>0):
+        #     print("yay")
+        num_examples = len(data['x'][0])
+
+        return seqloss, correct, num_examples, accuracy.sum(), num_outputs.sum()
+
+
+    def _compute_loss_and_metrics_regular(self, data):
         batch_size = data['y'].shape[1]
         self.reset_hidden(batch_size=batch_size)
         seqloss = 0

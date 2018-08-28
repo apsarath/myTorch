@@ -9,6 +9,7 @@ from myTorch.projects.overfeeding.recurrent_net import Recurrent
 from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
+from myTorch.task.ssmnist_task import SSMNISTData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import get_optimizer
 from myTorch.utils.logging import Logger
@@ -34,6 +35,11 @@ def get_data_iterator(config, seed=None):
     elif config.task == "copying_memory":
         data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag=config.time_lag,
                                           batch_size=config.batch_size, seed=config.seed)
+
+    elif config.task == "ssmnist":
+        data_iterator = SSMNISTData(data_folder=config.data_folder,
+                                    num_digits=config.seq_len,
+                                    batch_size=config.batch_size, seed=seed)
     return data_iterator
 
 
@@ -242,6 +248,7 @@ def prepare_one_curriculum(experiment, curriculum_config):
     tr.updates_done = 0
     tr.average_bce = []
     tr.average_accuracy = []
+    tr.average_accuracy_element_wise = []
     experiment.register_train_statistics(tr)
     metrics = get_metric_registry(time_span=curriculum_config.wait_time_before_expanding)
     return metrics

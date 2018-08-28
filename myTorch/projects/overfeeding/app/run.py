@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 
 import numpy as np
 
@@ -7,16 +8,17 @@ from myTorch.projects.overfeeding.curriculum.curriculum import curriculum_genera
 from myTorch.projects.overfeeding.utils.bootstrap import prepare_experiment, \
     try_to_restart_experiment, get_data_iterator, expand_model, prepare_one_curriculum
 from myTorch.projects.overfeeding.utils.evaluate import evaluate_over_curriculum
-from myTorch.projects.overfeeding.utils.metric import get_metric_registry
 from myTorch.projects.overfeeding.utils.spectral import compute_spectral_properties
 from myTorch.utils import MyContainer, create_config, compute_grad_norm
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="../config/default.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
-logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
+
+
+# logging.basicConfig(level=logging.INFO, filename="log.txt", filemode="w")
 
 
 def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
@@ -32,6 +34,7 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
     data_iterator = experiment._data_iterator
     logger = experiment._logger
     model = experiment._model
+    print(experiment._device)
 
     model_expansion_steps_offset = 0
     # Number of extra training steps to be given to the model because it expanded
@@ -39,16 +42,33 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
 
     while not is_curriculum_level_completed:
         for step in range(tr.updates_done, config.max_steps + model_expansion_steps_offset):
-            data = data_iterator.next()
 
-            seqloss, num_correct, num_total = model.train_over_one_data_iterate(data, task=curriculum_idx)
-            average_accuracy = num_correct / num_total
-            x_shape = data["x"].shape
-            average_accuracy /= (x_shape[1] * x_shape[2])
-            tr.average_bce.append(seqloss.item())
-            tr.average_accuracy.append(average_accuracy)
-            running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
-            running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
+            if (config.task == "ssmnist"):
+                data = data_iterator.next(tag="train")
+            else:
+                data = data_iterator.next()
+
+            result = model.train_over_one_data_iterate(data, task=curriculum_idx)
+            if (config.task == "ssmnist"):
+                seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = result
+                average_accuracy = num_correct.float() / num_total
+                average_accuracy_element_wise = num_elementwise_correct / num_total_correct
+                tr.average_bce.append(seqloss.item())
+                tr.average_accuracy.append(average_accuracy)
+                tr.average_accuracy_element_wise.append(average_accuracy_element_wise)
+                running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
+                running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
+                running_average_accuracy_element_wise = sum(tr.average_accuracy_element_wise) / len(tr.average_accuracy)
+
+            else:
+                seqloss, num_correct, num_total = result
+                average_accuracy = num_correct / num_total
+                x_shape = data["x"].shape
+                average_accuracy /= (x_shape[1] * x_shape[2])
+                tr.average_bce.append(seqloss.item())
+                tr.average_accuracy.append(average_accuracy)
+                running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
+                running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
 
             for param in model.parameters():
                 param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
@@ -81,12 +101,19 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
                     logger.log_scalar("train_running_avg_loss_model_idx_" + str(curriculum_idx), running_average_bce,
                                       step + 1)
                     logger.log_scalar("train_loss_model_idx_" + str(curriculum_idx), tr.average_bce[-1], step + 1)
-                    logger.log_scalar("train_average accuracy_model_idx_" + str(curriculum_idx), average_accuracy, step + 1)
+                    logger.log_scalar("train_average accuracy_model_idx_" + str(curriculum_idx), average_accuracy,
+                                      step + 1)
                     logger.log_scalar("train_running_average_accuracy_model_idx_" + str(curriculum_idx),
                                       running_average_accuracy,
                                       step + 1)
                     logger.log_scalar("train_gradient_norm_model_idx_" + str(curriculum_idx), gradient_norm,
                                       step + 1)
+                    logger.log_scalar("train_average_element_accuracy_model_idx_" + str(curriculum_idx),
+                                      average_accuracy_element_wise, step + 1)
+                    logger.log_scalar("train_running_element_average_accuracy_model_idx_" + str(curriculum_idx),
+                                      running_average_accuracy_element_wise,
+                                      step + 1)
+
             metrics["loss"].update(tr.average_bce[-1])
             metrics["accuracy"].update(tr.average_accuracy[-1])
 
@@ -97,11 +124,15 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
                              "examples seen: {}, " \
                              "running average of BCE: {}, " \
                              "average accuracy for last batch: {}, " \
-                             "running average of accuracy: {},".format(curriculum_idx,
-                                                                       tr.updates_done * config.batch_size,
-                                                                       running_average_bce,
-                                                                       average_accuracy,
-                                                                       running_average_accuracy)
+                             "running average of accuracy: {}," \
+                             "average elementwise accuracy for last batch: {}, " \
+                             "running average of elemenetwise accuracy".format(curriculum_idx,
+                                                                               tr.updates_done * config.batch_size,
+                                                                               running_average_bce,
+                                                                               average_accuracy,
+                                                                               running_average_accuracy,
+                                                                               average_accuracy_element_wise,
+                                                                               running_average_accuracy_element_wise)
                 if config.log_grad_norm:
                     str_to_log = str_to_log + "gradient norm: {}".format(gradient_norm)
                 logging.info(str_to_log)
@@ -135,7 +166,6 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
             #     This step seems to be necessary to ensure that model.optimizer is updated. I am not sure why such a
             # dependence exists and would look into later.
 
-
             else:
                 # Could neither complete the task nor is there a scope to grow the model.
                 # Time to meet the creator
@@ -149,6 +179,9 @@ def train_curriculums():
     """Runs the experiment."""
 
     config = create_config(args.config)
+    filename = os.path.join("logs", config.project_name, "{}__{}".format(config.ex_name, "log.txt"))
+    # filename = "log.txt"
+    logging.basicConfig(level=logging.INFO, filename=filename, filemode="w")
     logging.info(config.get())
     experiment = prepare_experiment(config)
     try_to_restart_experiment(experiment, force_restart=args.force_restart)
@@ -163,8 +196,7 @@ def train_curriculums():
             should_stop_curriculum = train_one_curriculum(experiment, curriculum_config, curriculum_idx)
         else:
             _ = train_one_curriculum(experiment, curriculum_config, curriculum_idx)
-
-
+        #
         for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
             if curriculum_idx_for_eval == curriculum_idx:
                 # No forward transfer
@@ -173,6 +205,7 @@ def train_curriculums():
             tr_for_eval.updates_done = 0
             tr_for_eval.average_bce = []
             tr_for_eval.average_accuracy = []
+            tr_for_eval.average_accuracy_element_wise = []
             experiment.register_train_statistics(tr_for_eval)
             data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
             evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
