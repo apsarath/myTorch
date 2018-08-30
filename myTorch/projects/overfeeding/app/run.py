@@ -13,7 +13,7 @@ from myTorch.utils import MyContainer, create_config, compute_grad_norm
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128_gem.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
 
@@ -180,7 +180,7 @@ def train_curriculums():
 
     config = create_config(args.config)
     filename = os.path.join("logs", config.project_name, "{}__{}".format(config.ex_name, "log.txt"))
-    # filename = "log.txt"
+    filename = "log.txt"
     logging.basicConfig(level=logging.INFO, filename=filename, filemode="w")
     logging.info(config.get())
     experiment = prepare_experiment(config)
@@ -197,6 +197,7 @@ def train_curriculums():
         else:
             _ = train_one_curriculum(experiment, curriculum_config, curriculum_idx)
         #
+        should_stop_curriculum = False
         for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
             if curriculum_idx_for_eval == curriculum_idx:
                 # No forward transfer

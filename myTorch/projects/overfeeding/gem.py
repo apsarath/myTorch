@@ -216,7 +216,10 @@ class GemModel(Recurrent):
                 past_task = self.observed_tasks[tt]
                 ptloss = 0.0
                 for _data in self.memory_data[past_task]:
-                    current_ptloss, _ = super()._compute_loss_and_metrics(data=_data)
+                    if(self.is_ssmnist):
+                        current_ptloss, _, _, _, _ = super()._compute_loss_and_metrics(data=_data)
+                    else:
+                        current_ptloss, _ = super()._compute_loss_and_metrics(data=_data)
                     ptloss += current_ptloss
                 ptloss /= len(self.memory_data[past_task])
                 ptloss.backward()
@@ -227,7 +230,12 @@ class GemModel(Recurrent):
             _retain_graph = True
         else:
             _retain_graph = retain_graph
-        seqloss, num_correct, num_total = super().train_over_one_data_iterate(data=data,
+
+        if(self.is_ssmnist):
+            seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = super().train_over_one_data_iterate(data=data,
+                                                                              task=task, retain_graph=_retain_graph)
+        else:
+            seqloss, num_correct, num_total = super().train_over_one_data_iterate(data=data,
                                                                               task=task, retain_graph=_retain_graph)
         regularisation_loss = torch.zeros_like(seqloss)
 
@@ -275,4 +283,8 @@ class GemModel(Recurrent):
         if (self.use_regularisation):
             self.zero_grad()
             (seqloss + regularisation_loss).backward(retain_graph=retain_graph)
-        return seqloss, num_correct, num_total
+
+        if(self.is_ssmnist):
+            return seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct
+        else:
+            return seqloss, num_correct, num_total

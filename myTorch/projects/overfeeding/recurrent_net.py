@@ -141,9 +141,9 @@ class Recurrent(nn.Module):
 
     def _compute_loss_and_metrics(self, data):
         if(self.is_ssmnist):
-            self._compute_loss_and_metrics_ssmnist(data)
+            return self._compute_loss_and_metrics_ssmnist(data)
         else:
-            self._compute_loss_and_metrics_regular(data)
+            return self._compute_loss_and_metrics_regular(data)
 
     def _compute_loss_and_metrics_ssmnist(self, data):
 
