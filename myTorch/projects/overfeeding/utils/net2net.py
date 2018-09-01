@@ -124,7 +124,7 @@ def generate_noise_for_output(replication_factor, size,
     for val in replication_factor:
         noise_matrix.append(generate_noise_matrix_for_output(a=val, b=size,
                                                              use_noise=use_noise,
-                                                             use_random_noise=use_random_noise, weights=teacher_w[val]))
+                                                             use_random_noise=use_random_noise))
     return noise_matrix
 
 

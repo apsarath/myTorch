@@ -13,7 +13,7 @@ from myTorch.utils import MyContainer, create_config, compute_grad_norm
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128_gem.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
 
@@ -108,9 +108,10 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
                                       step + 1)
                     logger.log_scalar("train_gradient_norm_model_idx_" + str(curriculum_idx), gradient_norm,
                                       step + 1)
-                    logger.log_scalar("train_average_element_accuracy_model_idx_" + str(curriculum_idx),
+                    if(config.task == "ssmnist"):
+                        logger.log_scalar("train_average_element_accuracy_model_idx_" + str(curriculum_idx),
                                       average_accuracy_element_wise, step + 1)
-                    logger.log_scalar("train_running_element_average_accuracy_model_idx_" + str(curriculum_idx),
+                        logger.log_scalar("train_running_element_average_accuracy_model_idx_" + str(curriculum_idx),
                                       running_average_accuracy_element_wise,
                                       step + 1)
 
@@ -120,19 +121,30 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
             tr.updates_done += 1
             if tr.updates_done % 1 == 0:
 
-                str_to_log = "When training model, model_index: {}, " \
+                if (config.task == "ssmnist"):
+                    str_to_log = "When training model, model_index: {}, " \
                              "examples seen: {}, " \
                              "running average of BCE: {}, " \
                              "average accuracy for last batch: {}, " \
                              "running average of accuracy: {}," \
                              "average elementwise accuracy for last batch: {}, " \
-                             "running average of elemenetwise accuracy".format(curriculum_idx,
+                             "running average of elemenetwise accuracy: {}".format(curriculum_idx,
                                                                                tr.updates_done * config.batch_size,
                                                                                running_average_bce,
                                                                                average_accuracy,
                                                                                running_average_accuracy,
                                                                                average_accuracy_element_wise,
                                                                                running_average_accuracy_element_wise)
+                else:
+                    str_to_log = "When training model, model_index: {}, " \
+                                 "examples seen: {}, " \
+                                 "running average of BCE: {}, " \
+                                 "average accuracy for last batch: {}, " \
+                                 "running average of accuracy: {}".format(curriculum_idx,
+                                                                                       tr.updates_done * config.batch_size,
+                                                                                       running_average_bce,
+                                                                                       average_accuracy,
+                                                                                       running_average_accuracy)
                 if config.log_grad_norm:
                     str_to_log = str_to_log + "gradient norm: {}".format(gradient_norm)
                 logging.info(str_to_log)
@@ -161,6 +173,7 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
                                                                step=tr.updates_done)
             if is_expansion_successful:
                 is_curriculum_level_completed = False
+                data_iterator.reset_iterator()
                 model_expansion_steps_offset += config.max_steps
                 model = experiment._model
             #     This step seems to be necessary to ensure that model.optimizer is updated. I am not sure why such a
@@ -180,7 +193,7 @@ def train_curriculums():
 
     config = create_config(args.config)
     filename = os.path.join("logs", config.project_name, "{}__{}".format(config.ex_name, "log.txt"))
-    filename = "log.txt"
+    # filename = "log.txt"
     logging.basicConfig(level=logging.INFO, filename=filename, filemode="w")
     logging.info(config.get())
     experiment = prepare_experiment(config)
@@ -197,24 +210,25 @@ def train_curriculums():
         else:
             _ = train_one_curriculum(experiment, curriculum_config, curriculum_idx)
         #
-        should_stop_curriculum = False
-        for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
-            if curriculum_idx_for_eval == curriculum_idx:
-                # No forward transfer
-                break
-            tr_for_eval = MyContainer()
-            tr_for_eval.updates_done = 0
-            tr_for_eval.average_bce = []
-            tr_for_eval.average_accuracy = []
-            tr_for_eval.average_accuracy_element_wise = []
-            experiment.register_train_statistics(tr_for_eval)
-            data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
-            evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
+        # for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
+        #     # if curriculum_idx_for_eval == curriculum_idx:
+        #         # No forward transfer
+        #         # break
+        #         # continue
+        #     tr_for_eval = MyContainer()
+        #     tr_for_eval.updates_done = 0
+        #     tr_for_eval.average_bce = []
+        #     tr_for_eval.average_accuracy = []
+        #     tr_for_eval.average_accuracy_element_wise = []
+        #     experiment.register_train_statistics(tr_for_eval)
+        #     data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
+        #     evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
 
         if config.expand_model:
             experiment, is_expansion_successful = expand_model(experiment,
                                                                config,
                                                                step=0)
+            print("expansion")
             print(is_expansion_successful)
         # model.train()
 
