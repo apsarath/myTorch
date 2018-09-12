@@ -96,9 +96,9 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
 
     start_time = time.time()
     num_batches = 0
-    filename_s = "samples_{}.txt".format(config.ex_name)
-    filename_g = "groundtruth_{}.txt".format(config.ex_name)
-    filename_sg = "samplesAndgroundtruth_{}.txt".format(config.ex_name)
+    filename_s = "samples_{}_rl.txt".format(config.ex_name)
+    filename_g = "groundtruth_{}_rl.txt".format(config.ex_name)
+    filename_sg = "samplesAndgroundtruth_{}_rl.txt".format(config.ex_name)
     f_s = open(filename_s, "w")
     f_g = open(filename_g, "w")
     f_sg = open(filename_sg, "w")
@@ -111,14 +111,14 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
             max_sequence_length=20,
             get_attention=False,
             length_normalization_factor=5.0,
-            length_normalization_const=20.0)
+            length_normalization_const=5.0)
     go_id = data_reader.corpus.str_to_id[config.go]
     initial_decoder_input = [[go_id] for _ in range(config.batch_size)]
 
     for mini_batch in itr:
         print("Count : {}".format(count))
         count += 1
-        if count > 10:
+        if count > 30:
             break
         num_batches = mini_batch["num_batches"]
         model.zero_grad()
@@ -135,10 +135,10 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         samples = []
         for seq_list in seqs:
             sample = []
-            for seq in seq_list:
+            for seq in seq_list[:1]:
                 for w_id in seq.output:
                     sample.append(data_reader.corpus.id_to_str[w_id])
-                sample.append("--- | ---")
+                #sample.append("--- | ---")
             samples.append(sample)
 
         source_texts = []
@@ -161,8 +161,8 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 " ".join(source_text),
                 " ".join(target_text),
                 " ".join(sample)))
-            f_s.write("{}\n".format(" ".join(sample)))
-            f_g.write("{}\n".format(" ".join(target_text)))
+            f_s.write("{}--|--{}\n".format(" ".join(source_text), " ".join(sample[1:-1])))
+            f_g.write("{}\n".format(" ".join(sample[1:-1])))
 
     f_sg.close()
     f_s.close()
@@ -181,7 +181,7 @@ def run_experiment(args):
 
     experiment, model, data_reader, tr, logger, device = create_experiment(config)
 
-    experiment.resume("best_model", "model")
+    experiment.resume("rl_model", "model")
 
     for mode in ["valid"]:
         tr.mini_batch_id[mode] = 0

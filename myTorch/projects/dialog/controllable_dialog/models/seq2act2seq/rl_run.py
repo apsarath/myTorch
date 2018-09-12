@@ -15,6 +15,7 @@ from myTorch.utils.gen_experiment import GenExperiment
 
 from myTorch.projects.dialog.controllable_dialog.data_readers.data_reader import Reader
 from myTorch.projects.dialog.controllable_dialog.data_readers.opus import OPUS
+from myTorch.projects.dialog.controllable_dialog.data_readers.twitter_corpus import Twitter
 
 from myTorch.projects.dialog.controllable_dialog.models.seq2act2seq.seq2act2seq import Seq2Act2Seq
 
@@ -28,24 +29,21 @@ def _safe_exp(x):
         return 0.0
 
 def get_dataset(config):
-    hash_string = "{}_{}".format(config.base_data_path, config.num_dialogs)
-    fn = 'corpus.{}.data'.format(hashlib.md5(hash_string.encode()).hexdigest())
-    fn = os.path.join(config.base_data_path, str(config.num_dialogs), fn)
-    if 0:#os.path.exists(fn):
-        print('Loading cached dataset...')
-        corpus = torch.load(fn)
-    else:
-        print('Producing dataset...')
+    if config.dataset == "opus":
         corpus = OPUS(config)
-        #torch.save(corpus, fn)
-
+    elif config.dataset == "twitter":
+        corpus = Twitter(config)
     return corpus
 
 def create_experiment(config):
     device = torch.device(config.device)
     logging.info("using {}".format(config.device))
 
-    experiment = GenExperiment(config.name, config.save_dir)
+
+    save_dir = os.path.join(config.save_dir, "_".join(config.act_anotation_datasets))
+    print("Saving at {}".format(save_dir))
+
+    experiment = GenExperiment(config.name, save_dir)
     experiment.register(tag="config", obj=config)
 
     logger=None
@@ -64,7 +62,7 @@ def create_experiment(config):
                         config.hidden_dim_src, config.hidden_dim_tgt,
                         corpus.str_to_id[config.pad], bidirectional=config.bidirectional,
                         nlayers_src=config.nlayers_src, nlayers_tgt=config.nlayers_tgt,
-                        dropout_rate=config.dropout_rate).to(device)
+                        dropout_rate=config.dropout_rate, device=device).to(device)
     logging.info("Num params : {}".format(model.num_parameters))
     logging.info("Act annotation datasets : {}".format(config.act_anotation_datasets))
 

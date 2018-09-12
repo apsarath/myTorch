@@ -19,6 +19,7 @@ class Twitter(object):
         self._pad = "<pad>"
         self._unk = "<unk>"
         self._other_act = "<other>"
+        self._generic_responses()
         self._data = []
         self._read_dialogs()
         self._contruct_vocab(config.vocab_cut_off)
@@ -71,6 +72,13 @@ class Twitter(object):
                 id_list.append(self._str_to_id[self._config.unk])
         return id_list
 
+    def pad_sentences(self, sent_list, cut_off):
+        pad_id = self._str_to_id[self._config.pad]
+        for i, sent in enumerate(sent_list):
+            if len(sent) < cut_off:
+                sent_list[i] += (cut_off - len(sent))*[pad_id]
+        return torch.LongTensor(sent_list)
+
     def _preprocess_data(self, sent_cut_off):
         for i, text in enumerate(self._utterances):
             self._utterances[i] = self._text_to_id(text)
@@ -101,17 +109,28 @@ class Twitter(object):
                 if w_id != pad_id:
                     sent_len += 1
             return sent_len
+
+        # generic responses
+        self._generic_responses = []
+        for response in self._generic_responses_text:
+            self._generic_responses.append([go_id] + [self._str_to_id[word] for word in response.split(" ")] + [eou_id])
+
+        padded_generic_responses = self.pad_sentences(self._generic_responses, sent_cut_off+1)
+        self._generic_responses_input = padded_generic_responses[:,:-1]
+        self._generic_responses_output = padded_generic_responses[:,1:]
+
         
         sources_len = [_sent_len(text_ids) for text_ids in sources]
-        targets_lens = [_sent_len(text_ids) for text_ids in targets]
+        targets_len = [_sent_len(text_ids) for text_ids in targets]
 
         self._sources, self._targets = [],[]
         for idx in range(len(sources_len)):
-            if sources_len[idx] > self._config.min_sent_len and targets_lens[idx] > self._config.min_sent_len:
+            if sources_len[idx] > self._config.min_sent_len and targets_len[idx] > self._config.min_sent_len:
                 self._sources.append(sources[idx])
                 self._targets.append(targets[idx])
 
         self._sources_len = [_sent_len(text_ids) for text_ids in self._sources]
+        self._targets_len = [_sent_len(text_ids)-1 for text_ids in self._targets]
 
         #sorted_indices = np.argsort(sources_lens)[::-1]
         #self._sources = [self._sources[idx] for idx in sorted_indices]
@@ -126,6 +145,7 @@ class Twitter(object):
         self._data["targets_input"] = self._targets[:,:-1]
         self._data["targets_output"] = self._targets[:,1:]
         self._data["sources_len"] = self._sources_len
+        self._data["targets_len"] = self._targets_len 
 
     def _split_train_valid(self):
         self._processed_data = {"train": {}, "valid" : {}}
@@ -178,8 +198,9 @@ class Twitter(object):
         self._generic_responses_text = [
             "oh my god", "i don t know",
             "i am not sure",
-            "i don t think that is a good idea",
-            "i am not sure that is a good idea"]
+            "thank you so much",
+            "i don t know why",
+            "i don t understand why"]
 
     @property
     def data(self):

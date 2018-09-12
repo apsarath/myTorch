@@ -19,7 +19,7 @@ class Reader(object):
         input_data["num_batches"] = int(data_len / self._config.batch_size)
         s_e_indices = list(zip(list(range(0, data_len, self._config.batch_size)), list(range(self._config.batch_size, data_len, self._config.batch_size)))) 
         mb_id = 0   
-        shuffle(s_e_indices)
+        #shuffle(s_e_indices)
         for s, e in s_e_indices[resume_mb_id:]:
             for k in self._data[mode]:
                 input_data[k] = self._data[mode][k][s:e]

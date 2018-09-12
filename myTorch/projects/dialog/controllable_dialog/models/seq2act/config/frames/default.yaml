@@ -39,7 +39,7 @@ nesterov: False
 grad_clip_norm: 5.0
 
 # task specific details
-device: "cpu"
+device: "cuda"
 num_epochs: 20
 batch_size: 10
 task: "frames_seq2act"

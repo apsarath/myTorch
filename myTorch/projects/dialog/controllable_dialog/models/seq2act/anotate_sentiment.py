@@ -33,7 +33,7 @@ def get_dataset(config):
         corpus = OPUS(config)
     elif config.dataset == "twitter":
         corpus = Twitter(config)
-        return corpus
+    return corpus
 
 
 def anotate(config, experiment, target_corpus, logger, device):
@@ -46,7 +46,7 @@ def anotate(config, experiment, target_corpus, logger, device):
     # convert opus_data text to target data.
     def _convert_data(source_data, source_id_to_str):
         target_data = []
-        for source_text in source_data:
+        for source_text in source_data.cpu().numpy():
             target_text = " ".join([source_id_to_str[w_id] for w_id in source_text])
             target_data.append(target_text)
 
@@ -68,7 +68,7 @@ def anotate(config, experiment, target_corpus, logger, device):
         acts["target"].append(sentiment)
     print("Done targets.. {}".format(time.time()-start_time))
 
-    target_corpus.save_acts("{}_{}".format("sentiment", len(sentiment_classifier.sentiment_types)), acts)
+    target_corpus.save_acts("sentiment", acts)
     
 
 def create_experiment(config):

@@ -39,17 +39,17 @@ class Seq2Act2Seq(nn.Module):
         self._act_embedding = []
         for i in range(self._num_attributes):
             self._act_embedding.append(nn.Embedding(
-                                            self._num_acts,
+                                            self._num_acts[i],
                                             self._act_emb_dim))
 
         self._list_of_modules = nn.ModuleList(self._act_embedding)
         
         # Word Embedding look-up table for the target
-        #self._tgt_embedding = nn.Embedding(
-        #    self._src_vocab_size,
-        #    self._src_emb_dim,
-        #    self._pad_token_src,
-        #)
+        self._tgt_embedding = nn.Embedding(
+            self._src_vocab_size,
+            self._src_emb_dim,
+            self._pad_token_src,
+        )
 
         # Encoder GRU
         self._encoder = nn.GRU(
@@ -76,11 +76,13 @@ class Seq2Act2Seq(nn.Module):
 
         # Curr act prediction.
         self._l1_curr = nn.Linear(self._src_hidden_dim, self._act_layer_dim)
-        self._l2curr_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
+        #self._l2curr_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
+        self._l2curr_act = nn.Linear(self._act_layer_dim, sum(self._num_acts))
 
         #Next act prediction
         self._l1_next = nn.Linear(self._src_hidden_dim + self._act_emb_dim*self._num_attributes, self._act_layer_dim)
-        self._l2next_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
+        #self._l2next_act = nn.Linear(self._act_layer_dim, self._num_acts*self._num_attributes)
+        self._l2next_act = nn.Linear(self._act_layer_dim, sum(self._num_acts))
 
     def encode(self, input_src, src_lengths, input_acts, is_training):
         # Lookup word embeddings in source and target minibatch
@@ -108,21 +110,26 @@ class Seq2Act2Seq(nn.Module):
 
     def forward(self, input_src, src_lengths, input_tgt, input_acts, is_training):
         # Lookup word embeddings in source and target minibatch
-        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, is_training)
+        tgt_emb = F.dropout(self._tgt_embedding(input_tgt), self._dropout_rate, is_training)
 
         h_t, curr_act_emb = self.encode(input_src, src_lengths, input_acts, is_training)
 
         #curr_act prediction
-        curr_act_logits = torch.chunk(
-            self._l2curr_act(F.relu(self._l1_curr(h_t))),
-            self._num_attributes,
-            dim=1)
+        act_logits = self._l2curr_act(F.relu(self._l1_curr(h_t)))
+        curr_act_logits = torch.split(act_logits, self._num_acts, dim=1)
+        #curr_act_logits = torch.chunk(
+        #    self._l2curr_act(F.relu(self._l1_curr(h_t))),
+        #    self._num_attributes,
+        #    dim=1)
 
         #next act prediction
-        next_act_logits = torch.chunk(
-            self._l2next_act(F.relu(self._l1_next(torch.cat((curr_act_emb, h_t),dim=1)))),
-            self._num_attributes,
-            dim=1)
+        act_logits = self._l2next_act(F.relu(self._l1_next(torch.cat((curr_act_emb, h_t),dim=1))))
+        next_act_logits = torch.split(act_logits, self._num_acts, dim=1)
+
+        #next_act_logits = torch.chunk(
+        #    self._l2next_act(F.relu(self._l1_next(torch.cat((curr_act_emb, h_t),dim=1)))),
+        #    self._num_attributes,
+        #    dim=1)
 
         h_t = torch.cat((h_t, curr_act_emb), dim=1)
 
@@ -145,7 +152,7 @@ class Seq2Act2Seq(nn.Module):
             decoder_state = torch.stack([state for state in decoder_states], dim=1)
 
         input_tgt = torch.stack([torch.LongTensor([ipt[-1]]).to(self._device) for ipt in inputs_list]).squeeze(1)
-        tgt_emb = F.dropout(self._src_embedding(input_tgt), self._dropout_rate, False)
+        tgt_emb = F.dropout(self._tgt_embedding(input_tgt), self._dropout_rate, False)
 
         tgt_input = torch.cat((tgt_emb, h_t), dim=1).unsqueeze(1)
         h_t = h_t.unsqueeze(0).expand(self._nlayers_tgt, h_t.size(0), h_t.size(1)).contiguous()

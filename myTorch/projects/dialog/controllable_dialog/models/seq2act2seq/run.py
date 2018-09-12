@@ -58,7 +58,7 @@ def create_experiment(config):
     reader = Reader(config, corpus)
 
     model = Seq2Act2Seq(config.emb_size_src, len(corpus.str_to_id), len(config.act_anotation_datasets),
-                        corpus.num_acts(tag=config.act_anotation_datasets[0]),
+                        [corpus.num_acts(tag=dataset) for dataset in config.act_anotation_datasets],
                         config.act_emb_dim, config.act_layer_dim,
                         config.hidden_dim_src, config.hidden_dim_tgt,
                         corpus.str_to_id[config.pad], bidirectional=config.bidirectional,

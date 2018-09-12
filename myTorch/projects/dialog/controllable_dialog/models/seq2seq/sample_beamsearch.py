@@ -111,7 +111,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
     for mini_batch in itr:
         print("Count : {}".format(count))
         count += 1
-        if count > 1000:
+        if count > 30:
             break
         num_batches = mini_batch["num_batches"]
         model.zero_grad()
@@ -125,10 +125,10 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
         samples = []
         for seq_list in seqs:
             sample = []
-            for seq in seq_list:
+            for seq in seq_list[:1]:
                 for w_id in seq.output:
                     sample.append(data_reader.corpus.id_to_str[w_id])
-                sample.append("--- | ---")
+                #sample.append("--- | ---")
             samples.append(sample)
 
         source_texts = []
@@ -151,7 +151,7 @@ def run_epoch(epoch_id, mode, experiment, model, config, data_reader, tr, logger
                 " ".join(source_text),
                 " ".join(target_text),
                 " ".join(sample)))
-            f_s.write("{}\n".format(" ".join(sample)))
+            f_s.write("{}--|--{}\n".format(" ".join(source_text), " ".join(sample[1:-1])))
             f_g.write("{}\n".format(" ".join(target_text)))
 
     f_sg.close()

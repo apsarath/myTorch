@@ -1,0 +1,26 @@
+/home/sarath/anaconda3/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+INFO:root:OrderedDict([('config_filename', 'default.yaml'), ('description', 'seq2act2seq twitter'), ('project_name', 'seq2act2seq_twitter'), ('ex_name', 'seq2act2seq_3layer_gru_512'), ('base_data_path', '/mnt/data/chinna/data/datasets/seq2seq/twitter/data/'), ('dataset', 'twitter'), ('num_dialogs', 1000000), ('emb_size_src', 200), ('hidden_dim_src', 512), ('hidden_dim_tgt', 512), ('act_emb_dim', 128), ('act_layer_dim', 128), ('bidirectional', False), ('nlayers_src', 2), ('nlayers_tgt', 2), ('dropout_rate', 0.3), ('eou', '<eou>'), ('go', '<go>'), ('unk', '<unk>'), ('num', '<num>'), ('pad', '<pad>'), ('sent_cut_off', 30), ('min_sent_len', 7), ('train_valid_split', 0.95), ('vocab_cut_off', 25000), ('embedding_loc', 'None'), ('act_anotation_datasets', ['frames', 'sentiment']), ('optim_name', 'Adam'), ('lr', 0.001), ('rho', 0.9), ('eps', 1e-08), ('weight_decay', 0.0), ('lr_decay', 0.0), ('beta_0', 0.9), ('beta_1', 0.999), ('alpha', 0.99), ('momentum', 0.0), ('centered', False), ('dampening', 0.0), ('nesterov', False), ('grad_clip_norm', 5.0), ('curr_act_loss_coeff', 1.0), ('next_act_loss_coeff', 1.0), ('device', 'cuda'), ('num_epochs', 200), ('batch_size', 20), ('task', 'twitter_lm'), ('eval_batch_size', 32), ('test_batch_size', 32), ('rseed', 5), ('time_lag', 100), ('seq_len', 10), ('bptt', 70), ('use_tflogger', True), ('save_every_n', 500), ('inter_saving', [0, 1000, 2000, 3000, 4000, 5000]), ('tflog_dir', '/mnt/data/chinna/logs/seq2act2seq_twitter/seq2act2seq_3layer_gru_512'), ('save_dir', '/mnt/data/chinna/output/seq2act2seq_twitter/seq2act2seq_3layer_gru_512')])
+INFO:root:using cuda
+INFO:root:Num params : 39629756
+INFO:root:Act annotation datasets : ['frames', 'sentiment']
+INFO:root:#################### 
+ Epoch id : 0 
+
+INFO:root:train: loss: 6.0156499077689345,  perp: 409.7920794474472, time : 383.4458894729614
+INFO:root:valid: loss: 5.711138161539843,  perp: 302.21484192055675, time : 5.25261664390564
+INFO:root:#################### 
+ Epoch id : 1 
+
+INFO:root:train: loss: 5.58758086050536,  perp: 267.088712696521, time : 385.6849901676178
+INFO:root:valid: loss: 5.629647356205622,  perp: 278.56386649137426, time : 5.53920316696167
+INFO:root:Saving Best model : loss : 5.629647356205622
+INFO:root:#################### 
+ Epoch id : 2 
+
+INFO:root:train: loss: 5.428862784350242,  perp: 227.88993800380152, time : 386.6382510662079
+INFO:root:valid: loss: 5.616003282096609,  perp: 274.7889317593706, time : 5.565316677093506
+INFO:root:Saving Best model : loss : 5.616003282096609
+INFO:root:#################### 
+ Epoch id : 3 
+

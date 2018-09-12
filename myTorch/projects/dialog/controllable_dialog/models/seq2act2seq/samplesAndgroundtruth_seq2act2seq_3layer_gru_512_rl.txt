@@ -1,0 +1,2320 @@
+Source : ive had half a bottle of wine but im pretty sure i just heard a guy say dont do butt stuff to his lady friend as she got off at 
+ GroundTruth : i mean hes not wrong unless theyre into that 
+ Sample : <go> i think she would have to do something to do the same thing that would be a good job <eou>
+
+Source : he is reading the dialogue and it is so bad they just asked are you famous to him listen guys i know you cant see this but i hate you 
+ GroundTruth : are <unk> all <unk> in a secret way i mean your cool but most ive met or seen from a far are so self involved 
+ Sample : <go> i cant wait to see you and i have no idea what youre talking about to talk about it <eou>
+
+Source : i used to get sad that i never had money to go away to college but now im so happy i spent that time networking to get to where i 
+ GroundTruth : my mom has in debt from <unk> for me and i can honestly say that <unk> abroad is the only thing i got out of it 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : amp <unk> etc amp think that here they have a place to just be people amp not get treated like shit amp its nice to think i have that too 
+ GroundTruth : i like all that too but i dont think a climate of tolerance and acceptance is the same as or <unk> a pc climate 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen ever yet ive seen in a while <eou>
+
+Source : i used to get sad that i never had money to go away to college but now im so happy i spent that time networking to get to where i 
+ GroundTruth : clearly one of us had the better idea 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : this girl left her phone in the uber im here trying to figure out how to get in contact w her cuz its locked she calls me to her phone 
+ GroundTruth : such a random uber pool moment but im glad im able to give her the phone back 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : this girl left her phone in the uber im here trying to figure out how to get in contact w her cuz its locked she calls me to her phone 
+ GroundTruth : amp is like do you have my phone i tell her yes turns out we work for the same company shes picking it up from me tom 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : a boy asked me why i am wearing a hat with a dress bc it doesnt match please give me more fashion advice as you sit there in cargo shorts 
+ GroundTruth : what a loser i bet he was wearing white socks 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive ever seen <eou>
+
+Source : girl in the post office was so pretty and she had on them stupid sss sandals with the strap a <unk> bag and a damn bike not even my type 
+ GroundTruth : dont you wear sandals too dont block your blessings like this 
+ Sample : <go> i cant wait to see you at the end of the night and i am going to see you <eou>
+
+Source : i lost my best friend the person who put up with me for twelve years bc she got bored of me she was the perfect friend amp now im alone 
+ GroundTruth : if you need to talk dm me 
+ Sample : <go> this is the best thing ive ever seen ive ever seen that ive seen it in the past years <eou>
+
+Source : if you hit a car in nassau atleast have the courtesy to leave your information so that i do not have to pay out of my pocket to fix my 
+ GroundTruth : want me to find them amp kill them 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : i was texting my sister and i asked her to tell <unk> that i miss her and she told me that <unk> smiled rly big and my heart broke in 
+ GroundTruth : update <unk> gave this to my dad and asked him to bring it to me awwwww 
+ Sample : <go> i love you so much i miss you so much so much i miss you so much so much <eou>
+
+Source : if you hit a car in nassau atleast have the courtesy to leave your information so that i do not have to pay out of my pocket to fix my 
+ GroundTruth : nobody fucks up <unk> car on my watch 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : when wed come home amp take the the dogs out for a walk wed have to call for nelly loudly from the bottom of the stairs to get her to 
+ GroundTruth : she was partially deaf and also very slow in the last month or so so it took a little time we were patient bb not so much 
+ Sample : <go> this is the most accurate thing ive ever seen it in the end of the time i am in <eou>
+
+Source : if the tweet is too long it just deletes the image amp <unk> the tweet to add a web link but how is it even tweeted in the first place 
+ GroundTruth : did you update to the latest version of the twitter app 
+ Sample : <go> i think its the only one of the <unk> of the <unk> of the <unk> of the <unk> <unk> <eou>
+
+Source : to be clear not only do i think their work is vital amp worthy of support it is but this is a tip any art investors can take to the 
+ GroundTruth : im certain the <unk> work will come to be regarded as historically significant in terms of artistic and cultural context alike 
+ Sample : <go> i think he has to be a bigger problem than he has to be more than a few years <eou>
+
+Source : i dont even know this kid <unk> and we had such a validating moment where i knew i wasnt the only one who could sense it was a rip off 
+ GroundTruth : this made me strangely happy i enjoy this story 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : with my last dog chica we took her to the vet and they ran a bunch of tests to say her liver was failing amp she was probably going to 
+ GroundTruth : which is what happened to her and basically the same thing to mickey maybe he did have allergies ive been having them he may have got 
+ Sample : <go> thank you so much i love you so much i love you so much i miss you so much <eou>
+
+Source : yo i meet good cops all the time they are <unk> by this stuff but i think the good ones are gonna have to stand up now too much dying 
+ GroundTruth : this is it if the good guys never stand up and call out the bad apples it will continue 
+ Sample : <go> thank you so much for the kind words in the words i have to be back in the room <eou>
+
+Source : i way i was more comfortable in my own skin why does my brain tell me bad things about how i look when i know they are not a problem 
+ GroundTruth : sadly its human nature happens to everyone just gotta start positive even when its hard believe me i know 
+ Sample : <go> this is the best thing ive ever seen ive ever seen ive ever seen it in the past years <eou>
+
+Source : my coworker just told me a joke in spanish and he thinks i laughed cause it was funny but i laughed cause i dont know what the fuck he said 
+ GroundTruth : this made me laugh so loud bc this happens to me all the time 
+ Sample : <go> i cant wait to see what happened to see you and i have to wait to see you guys <eou>
+
+Source : forgot to mention i was in an elevator today w a man who wore a shirt that just said i am a poet amp i was like is that allowed 
+ GroundTruth : prob not which makes it better 
+ Sample : <go> i cant wait to see you in the next two weeks of october th october th in th row <eou>
+
+Source : dude next to me at work low key loves trump do i try to talk to him about it do i try and tell him he is wrong what should 
+ GroundTruth : smile and dial on his ass 
+ Sample : <go> i thought he was the only one who said that he was going to be better than the country <eou>
+
+Source : so yall know how my laptop crashed last week and how it was gonna cost the same to fix it as it would to just buy a brand new one 
+ GroundTruth : i shared experience at event for nonprofit to show how incidents like this can be <unk> crippling for lowincome students 
+ Sample : <go> i was thinking about the same thing but it was the only one that was in the middle east <eou>
+
+Source : as a jew i grew up on a steady diet of never again but now that i see it happening i dont know what i can do to stop it 
+ GroundTruth : they told us we had a moral responsibility to prevent another hitler but they never told us how to stop him im not sure they even knew 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : <unk> is a better person than i because if my little sister woke me up in the middle of the night and i had ice powers id fucking kill her 
+ GroundTruth : speaking of killing sisters did you see the jonbenet ramsey special 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : i mean lets be honest if im asking u to do something a diff way than how youre doing it its cause of how i got it in the past 
+ GroundTruth : yes its a given but were all adults u should be able to say how u like something done wo attitude we all have preferences 
+ Sample : <go> i thought i was going to be in the middle of the game but i was gonna be there <eou>
+
+Source : franklin on progress of the team rb is a good position right now where we have a lot of depth in talent we have that w the ol too 
+ GroundTruth : we are leaps and bounds ahead of where we were a year ago with pass protection i am really excited about the ol 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen in the past years <eou>
+
+Source : i found my high school resume amp about a third of it is just blatant lies but also i put my social security number on there for some reason 
+ GroundTruth : whoever let me send this to other humans as an assessment of my value should be fired 
+ Sample : <go> i thought it was the only thing that happened to me when i was in town and it was <eou>
+
+Source : my mom says it is <unk> and you can move it if you want to just needs lots of sun it is really pretty though amp can get big 
+ GroundTruth : ill think about that its a lovely flower deserves better than where it is currently thats for sure 
+ Sample : <go> thank you so much i love you so much i miss you tons of you so much so much <eou>
+
+Source : if not expect a visit from me amp i will still give you the chance to delete it if not we have to fight amp im being so serious 
+ GroundTruth : violence doesnt solve violence the bigger issue is what is our president doing about these unjust shootings 
+ Sample : <go> i dont know if i can do anything but i would have to do that it would be fun <eou>
+
+Source : both my dad amp brother passed away over years ago so this garden is special to us it was all <unk> w weeds but we r almost ready to 
+ GroundTruth : begin putting in the plants my mom has chosen she loves <unk> so theres alot of them 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : i understand my son goes to school in front of my house and i call his mom every midday to know how he is i can imagine your head 
+ GroundTruth : you always worry about them no matter what age and where they are 
+ Sample : <go> i think he has to do the same as soon as he has to do it for a while <eou>
+
+Source : woke up to a nice layer of ash on my truck also have a good cough thanks to the terrible air quality here why would anyone ever live here 
+ GroundTruth : you are the only one who can answer that 
+ Sample : <go> thank you so much for being kind of the best experience in the world we have a great weekend <eou>
+
+Source : this boy in my class scares me every time i look up hes dead ass staring at me even when i catch him he still looking into my soul 
+ GroundTruth : give him a little wink and see what where it goes 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : little chica the chihuahua i had b mickey had a hard life too i adopted her at age when my grandma got too sick to take care of her 
+ GroundTruth : she lived a long <unk> <unk> her knees amp all her little organs gave out and the vets couldnt do anything useful to help her 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : my roommate just left to go to the same shelter that he found mickey at we shall see what he finds i keep thinking were on the verge of 
+ GroundTruth : all these longevity discoveries for humans i really hope we can get good <unk> stuff for dogs amp cats so they can live longer too 
+ Sample : <go> i cant wait to see you in the next two weeks but i think he has to do it <eou>
+
+Source : when a girl walks into the store and all the guys jaws drop but you gay af so all you see is that her pants dont match her shirt 
+ GroundTruth : i must admit she was super hot she just reached with her outfit 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years in the past years of <unk> <eou>
+
+Source : lol listen i wrk full time and go to school full time amp im gonna keep it real do part time for one or the other if you can 
+ GroundTruth : i work for the doe im a have to deal with it lol im a brace myself for the torture im about to embrace 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : me trying to convince dad to get a dog i heard you stop smoking weed n cigs if you have a dog dad just keep smoking weed no dog 
+ GroundTruth : need a dog when youre moving 
+ Sample : <go> i have no idea what i am talking to do with you and i dont have to do it <eou>
+
+Source : ive been waiting all day for my sister to get home from school so i can finally call her amp ask what her new bfs sign is game time 
+ GroundTruth : he is a pisces capricorn pisces this is well 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : just an fyi were not apart of the meet and greet but we will be hanging out after every show by the merch booth we want to meet you 
+ GroundTruth : thats so dope love how that hasnt changed 
+ Sample : <go> i cant wait to see you in the next time i will see you in the next few weeks <eou>
+
+Source : telling me to pray after i vent is taken as u trying to get my issues out your face as soon as possible wo offering any type of insight 
+ GroundTruth : of course i prayed i pray amp i continue to pray 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in a while <eou>
+
+Source : any <unk> will tell you that tx used to be a country amp i think california can claim the same in terms of size of the economy amp population 
+ GroundTruth : as in if it were a country california would be awesome not as in california didnt used to be a country it used to be part of mexico 
+ Sample : <go> i have no idea what i want to do but i have no idea what i want to do <eou>
+
+Source : its sick when u find out ur moms moving to arizona right when u graduate but then ur dads in nevada also so its one or the other lol 
+ GroundTruth : or you move in w me 
+ Sample : <go> i think its a good thing but i think i might have to do it for a few weeks <eou>
+
+Source : you cant tell me he was being super extra with all the shit he was <unk> once i saw he dropped a diss i knew it was over tho 
+ GroundTruth : <unk> about what u <unk> are you surprised lmaoo king petty 
+ Sample : <go> i cant wait to see you and i have to wait to see you in the next two weeks <eou>
+
+Source : i am terrified of flying so of course hubs is taking me on an anniversary trip and i have to fly bc thats just how much he loves me 
+ GroundTruth : nothing a few drinks wont solve 
+ Sample : <go> i love you so much i miss you so much i miss you so much so much so much <eou>
+
+Source : if you click the url i linked it goes to a page with the countries laid out like the screenshot so you can drag them around or add more 
+ GroundTruth : any <unk> will tell you that tx used to be a country amp i think california can claim the same in terms of size of the economy amp population 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : hate to be that guy but am i the only one excited that <unk> is retiring maybe blizzard can have good plot to go along with good lore now 
+ GroundTruth : it wont happen even without him every expansion is the same interesting premise <unk> down by the stuff no one cares about 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years of the year in the world <eou>
+
+Source : any <unk> will tell you that tx used to be a country amp i think california can claim the same in terms of size of the economy amp population 
+ GroundTruth : as in if it were a country california would be awesome not as in california used to be a country we used to be part of mexico 
+ Sample : <go> i have no idea what i want to do but i have no idea what i want to do <eou>
+
+Source : i try not to take my fursuit head off in public if i can help it only rarely have i done so because i was seriously starting to overheat 
+ GroundTruth : me <unk> but ya if ya over heat ya have to do what ya have to do 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : okay but here is money in my wallet that you can put into your car for gas and you know that i have put gas in your car before 
+ GroundTruth : no i did not know that still doesnt give me time 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : if youd told me year amp half ago that bush would end up not supporting gop nom id have thought what a mean thing to do to your son 
+ GroundTruth : if true shows political establishment has no party lines all are working for personal gain 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : i hate watching the <unk> on fight over a bed in a vacay house as much as i hate watching any of the <unk> do it get over yourselves 
+ GroundTruth : im watching the episode after that one omg 
+ Sample : <go> i thought it was the only thing that happened to me i was in the morning of the game <eou>
+
+Source : ugh imagine how fly i would be if the clothing i actually wanted to wear was available in my size like what u see right now is me settling 
+ GroundTruth : stop tweeting my life i have come to hate shopping so much my actual aesthetic and my closet are complete strangers 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen it in a while <eou>
+
+Source : bruh i literally saw the fall of a black run barber shop that did good things for the neighborhood at the hands of a a white man like woah 
+ GroundTruth : this barbershop has been there for years this man came in drove customers away by being excessively rude and calling people retarded 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : once again someone we were told is ok turns out to be a terrorist who wants to destroy our country amp its people how did he get thru system 
+ GroundTruth : we were told your father was ok and found out he needed to be returned to germany 
+ Sample : <go> i cant wait to see him in the next two weeks i think he will be in the game <eou>
+
+Source : i dont have any inside info on why that was and i wouldnt be able to share if i did but its the reason for my project fi <unk> 
+ GroundTruth : for a company as evil as ibm and this is the same company that literally <unk> the nazi holocaust with punch card <unk> the 
+ Sample : <go> i cant wait to see you at the end of the season in the end of the season tonight <eou>
+
+Source : im sad cause im sure someone stole my only comfy pair of blue jeans out of the dryer and all i have to wear are my black ones now 
+ GroundTruth : i didnt even pay much for them i got them at goodwill its just really hard to actually find any comfy pants for me 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in my life <eou>
+
+Source : my roommate and my homie were on the way to a meeting with a bigger girl she was out of breath and my roomie told her dont push yourself 
+ GroundTruth : we can take a break whenever you want that is probably the <unk> nice thing ive ever heard lol 
+ Sample : <go> this is the best thing ive ever seen ive seen it in the past years of the past decade <eou>
+
+Source : no go on tonight got plenty of time to grind tomorrow and there will for sure be a night stream tomorrow i think hours in a day is good 
+ GroundTruth : i mean come on man theres only more days man i expect like half of them to be hours get it <unk> 
+ Sample : <go> i cant wait to see you at the end of the season at the end of the season tonight <eou>
+
+Source : where do get your heart plugs i remember them being rly cute and im in the market for a new pair cause i just lost one of mine x 
+ GroundTruth : tbh i just got them from amazon there are other shapes too but the hearts are my fav c 
+ Sample : <go> i thought i was in the area but i was in the middle of the room in the room <eou>
+
+Source : why is it this club i follow thats in toronto has posted multiple club vids with march madness and in nyc its so rare to hear in the club 
+ GroundTruth : aka toronto is about to be litty bc mm is a club anthem tbh 
+ Sample : <go> i thought it was the only thing that was the only thing i had to do the same thing <eou>
+
+Source : and latin america they can ship to the us amp canada last if they have the courage to stand up to the haters and keep their margins up here 
+ GroundTruth : anyway i love <unk> aluminum but the jet black color idea was <unk> due to the <unk> factor they need color plastic 
+ Sample : <go> i have no idea what youre talking about how much people are willing to do nothing to do it <eou>
+
+Source : once again someone we were told is ok turns out to be a terrorist who wants to destroy our country amp its people how did he get thru system 
+ GroundTruth : how did the ok city bombers get thru oh yes they were born here 
+ Sample : <go> i cant wait to see him in the next two weeks i think he will be in the game <eou>
+
+Source : oh my god you were the nice person who let me stand in front of you i can see the top of my head in this thank you again 
+ GroundTruth : everyone needed a good view of amp it was no problem at all is so real sometimes haha 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : do the people that say racist shit on the internet with dog <unk> pretend to like other races in person or do yall go all the way with it 
+ GroundTruth : they never say that in person 
+ Sample : <go> i think it was a good idea but i think it would have to be a lot of sense <eou>
+
+Source : i used to go to el <unk> as a child not fluent in spanish with my not fluent in english mom one time they though she was kidnapping me 
+ GroundTruth : it so weird to not be able to talk to your mom in complex sentences until your an adult and master a language fully points <unk> food 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was at the same time <eou>
+
+Source : they will not stop killing us no heart what so ever i am sick and tired tired of being sick treating us like they owe us yall dont 
+ GroundTruth : i really cant see myself standing for the anthem saturday night bad mouth a brother for sitting fine our sisters no more 
+ Sample : <go> i have no idea what youre talking about how much people are willing to be here in the world <eou>
+
+Source : i met a cute guy at a bar yesterday and hes the first person to ever ask me out on a dinner date i lightweight wanted to cry 
+ GroundTruth : hes taking me out on friday im not sure what to do im gonna pee my pants 
+ Sample : <go> i thought it was the only thing i had to do the same thing i was in the morning <eou>
+
+Source : i cant be the only one who post shit on their stories and you know exactly who they are for but you wont send them directly to them 
+ GroundTruth : i feel like thats the sole purpose of a story 
+ Sample : <go> i cant wait to see you at the end of the season in the end of the season in <eou>
+
+Source : i actually said be careful your white privilege is showing to a customer today amp even with me in a lot of trouble idc amp have no regrets 
+ GroundTruth : im about to get fired over a similar argument and for being anti police 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : buch is still adjusting for sure but i wish we saw a little more out of him hasnt been bad at all but hoped he would stand out 
+ GroundTruth : i thought he got better as the games went on had a lot of very nice plays that just didnt get finished unfortunately 
+ Sample : <go> i have no idea what he has to do with <unk> and <unk> <unk> <unk> <unk> <unk> <unk> sa <eou>
+
+Source : i dont ask that from my partner if i want it dont worry ill get it what i want from you is time and attention occasionally a coffee 
+ GroundTruth : not even flaming hots <unk> a liar 
+ Sample : <go> i dont think i was just thinking about it but i have to go back to the next level <eou>
+
+Source : not that i have any special insight into the specs but im not all that curious except about project fi since i worked on a piece of it 
+ GroundTruth : and ive been publicly pessimistic about it since it launched probably a bit rudely but the economics of it seem weird to me 
+ Sample : <go> i have no idea what youre talking about how much people are willing to do it for the purpose <eou>
+
+Source : yo i tried to redeem my legend edition on ps and it just vanished i tried to do it again but it said the code has been used 
+ GroundTruth : have any help or advice for me 
+ Sample : <go> thank you so much i love you so much i love you so much i love you so much <eou>
+
+Source : that made me think like it should have why did i know like black folks but not well i lived in nyc i was not racist right right 
+ GroundTruth : wrong i had <unk> problems long story short ive been trying to examine them ever since i know now 
+ Sample : <go> i dont know what happened to do but i dont know what youre talking about how much it means <eou>
+
+Source : i love how everyone went from fuck the world cup of hockey ill never watch to well this is fun and enjoyable amp im having a good time 
+ GroundTruth : i was excited about it from the start i was stoked to have hockey back a few weeks earlier than normal lol 
+ Sample : <go> i cant wait to see you at the end of the season in the end of the season tonight <eou>
+
+Source : so like today she just kind of sat on the middle of the stairs not quite believing me when i was like yeah were going out just us 
+ GroundTruth : and then there was sunday when she just sat in <unk> spot by her fan sniffing the floor over and over again its confusing for her 
+ Sample : <go> i was just thinking about the same thing i was thinking about the same thing that happened to me <eou>
+
+Source : he looks like a big bad dude i cant with this man shot and killed and he has his hands up in the air the whole time disgusting 
+ GroundTruth : police commentary i think hes on something hes cooperating amp thats no reason to shoot someone its so disgusting 
+ Sample : <go> i cant wait to see him in the <unk> of the <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : i send a snap to people last night of a lower body shot of me in calvin klein boxers just to flex the brand not to <unk> sex 
+ GroundTruth : wow you left me out of that one 
+ Sample : <go> i thought it was the only one that was the only one of the <unk> of the <unk> <unk> <eou>
+
+Source : earlier tonight i fell in love w a boy at a dairy queen grill amp chill who didnt know dairy queen restaurants existed n gave me free fries 
+ GroundTruth : they were already closed and the cook was off so he made me my burger himself i want to marry him 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive ever seen <eou>
+
+Source : last night i went to play my ps that i hooked up a few days back and <unk> the usb ports arent powered when its in sleep mode 
+ GroundTruth : thats really irritating since the ps ds wont charge on anything that doesnt have data 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in a while <eou>
+
+Source : i know im in rural america because theres a walmart full of guns and a car park full of trump stickers good time to go to the wilderness 
+ GroundTruth : otoh even in bay area sporting goods store means half of it is dedicated to guns <unk> camo gear and such 
+ Sample : <go> i dont think he has to do anything to do with the <unk> of the <unk> of the <unk> <eou>
+
+Source : omg this was so cute but yes i love cinnamon ugh now i dont know what to do ill probably get it and give it to my boyfriend 
+ GroundTruth : i dont really get the hype but its worth a shot if you havent tried it 
+ Sample : <go> this is the best thing ive ever seen in a while ive ever seen it in the past years <eou>
+
+Source : a girl didnt wait for everyone to get out before she got on the bus and this guy screamed you have to wait i hate white millennials true 
+ GroundTruth : i am a white millennial but i know to wait to get on a fucking bus 
+ Sample : <go> i thought it was the only one that was the only one of the time i was watching it <eou>
+
+Source : got my first c on a bio test in this newish class amp im <unk> most people got s or <unk> sure what that says about the professor 
+ GroundTruth : sheesh didnt bring up the curve 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : i hear ya i am not into car games otherwise fh would be on that list too i also buy amp play way too many games its true 
+ GroundTruth : dont we all lol if youre not into to video games it seems nuts i try to explain to my wife its a good hobby lol 
+ Sample : <go> i cant wait to see you at the same time i am going to have to see you tonight <eou>
+
+Source : todays hw is make a satire news article with ps so im taking a cop killing someone and turning it into them actually going to jail for it 
+ GroundTruth : fictional stories always the best ones 
+ Sample : <go> this is the best thing ive ever seen a lot of people in the past years of the year <eou>
+
+Source : he pushed to sign the lease for the store to have control of it the lease was priced higher and the black owner could no longer afford it 
+ GroundTruth : i actually witnessed gentrification start and end i am shook it is honestly so upsetting i wonder how the shop is doing now 
+ Sample : <go> i think he knows the same thing he has to do it for a while he has to do <eou>
+
+Source : i remember many years ago that one of my dads friends from work who wants to live to be amp is still alive was afraid of aluminum pans 
+ GroundTruth : because of the apparent connection with aluminum in the brains of people with alzheimers disease people avoid aluminum in <unk> 
+ Sample : <go> this is the best thing ive ever seen that ive seen in a while ive seen in a while <eou>
+
+Source : no way <unk> couldve come amp <unk> rooney without giving him a chance last thing you need is the press on your back after the season he had 
+ GroundTruth : <unk> hopes mat <unk> <unk> bi <unk> <unk> 
+ Sample : <go> i have no idea what he has to do with <unk> and <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : isnt terrible and as long as i can build android aosp on it i may buy one probably the small one to go with the bigger iphone plus 
+ GroundTruth : i should do another poll about how excited people are about the new chat client that googles rumored to be launching this week 
+ Sample : <go> i have no idea what youre talking about to do with you and i dont know what youre talking <eou>
+
+Source : in i was in remote northern bc on a summer job with only back to the future soundtrack for music today i can recite all songs on it 
+ GroundTruth : on <unk> this week every single bit of music in the episode is from that soundtrack amazing 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : i seen some girl tweeting about how she cant wait for s bodies to be back in style ie narrow hips big boobs cuz thats her body type 
+ GroundTruth : like literally no one is saying youre not hot why you gotta be the medias preference right now shut ya big titties up 
+ Sample : <go> i cant wait to see what i want to see what i want to see you in the city <eou>
+
+Source : me lets get tacos before we go to north beach him why dont we get tacos in north beach me im going to pretend you didnt say that 
+ GroundTruth : do not get tacos in north beach 
+ Sample : <go> i think he has to do the same as soon as he has to do it for a while <eou>
+
+Source : this guy in the hospital is going to break my heart please let me stay as long as i can ive gone a week without beer im doing 
+ GroundTruth : holy shit hug id be a mess if i saw that 
+ Sample : <go> i love you so much i cant wait to see you guys and i miss you tons of it <eou>
+
+Source : im so thankful for my coworkers at papa johns all of my older delivery drivers treat me like a daughter one of them just fixed my car for 
+ GroundTruth : free for me when i wouldve paid at any shop 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : i still find it funny how many rw dudes still cry about sons of the <unk> stuff while i have not heard one word about the green skull 
+ GroundTruth : ive always wondered if green skull was inspired by bruce wayne agent of shield 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : no funny supreme been dropping some fire but they dont give a fuck about me amp my success so id rather support my ppls trying to come up 
+ GroundTruth : niggas will make clothes for their brand then spend their sales money on supreme then wonder why no one knows of their brand lol 
+ Sample : <go> i have no idea what youre talking about you and i was just thinking about it in the morning <eou>
+
+Source : so with the controversy over the <unk> on the jet black finish of the iphone i want to yell at apple that this is why you use <unk> 
+ GroundTruth : they shouldnt have bothered with the fancy <unk> sic <unk> technique to replicate what you can <unk> out with <unk> 
+ Sample : <go> i think it was the only one that was the only one in the middle of the top of <eou>
+
+Source : <unk> askin me to eat an ice cream bar with her n i dont want to but if i dont she wont finish n i hate wasting food 
+ GroundTruth : i relate to this so hard 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : got my first c on a bio test in this newish class amp im <unk> most people got s or <unk> sure what that says about the professor 
+ GroundTruth : can i just take a moment to say im really impressed by your <unk> youre an awesome human jen 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : new york is the city where youre thinking on your run i should buy an arm band case and then realize theres an apple store next to you 
+ GroundTruth : but then because real estate is so expensive they dont carry any cases for your phone 
+ Sample : <go> thank you so much i have a great day for the day i cant wait to see you again <eou>
+
+Source : i didnt throw him out i said either the toys go or he goes so he took hes clothes and left now what to do with these toys 
+ GroundTruth : id say light that shit on fire and take the kids and dont look back 
+ Sample : <go> i dont think he has to do anything to do with his tax returns he has to do it <eou>
+
+Source : lol while im going through all of this my boy goes it was question damn i was just wondering amp then told me he got his girl pregnant 
+ GroundTruth : lmfaooooo i think i made him feel worse than he already felt but shit i was on an emotional roller coaster myself 
+ Sample : <go> i thought i was going to tell him but i was gonna go back to the school lol <eou>
+
+Source : im also a terrible person and never like to keep steady jobs because i dont like to be underpaid so we gon be poorer than i am now 
+ GroundTruth : lol while im going through all of this my boy goes it was question damn i was just wondering amp then told me he got his girl pregnant 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th th ave <eou>
+
+Source : so i made a friend in paris and he <unk> very little english but hes writing to me in french and i have no idea what hes saying 
+ GroundTruth : theres apps that you take pictures with and itll translate it for you 
+ Sample : <go> i think he has to be in the same boat as well as he has to do the same <eou>
+
+Source : thought for the day what does it mean to retire from <unk> is that like retiring from a job and going to a new one the next day 
+ GroundTruth : what is <unk> though like i race <unk> but i dont consider that traditional <unk> <unk> 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen in the past years <eou>
+
+Source : just want all the young gals to remember that and keep your mind clear because you are not defined by the men in your life i love u 
+ GroundTruth : also its boring to talk about nothing but what guys are hot and who youre talking to and youre a radiant smart flower and not boring 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : today i was told if i dont want antisemitic replies i should take jewish out of my bio remind me not to dress too sexy around that guy 
+ GroundTruth : also taking it out of the bio would just increase the number of people who claim youre trying to keep it secret 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : not only did adam <unk> like one of my tweets earlier but i just bought a <unk> to see amp meet set it off so basically todays good 
+ GroundTruth : same my socks are dry and i actually woke up to my new alarm this morning today is great 
+ Sample : <go> i cant wait to see you at the end of the season in the end of october th october <eou>
+
+Source : i imagine there are a helluva lot of people headed to tulsa at this moment this is the one that will get the attention needed to fix things 
+ GroundTruth : good for you for using your imagination 
+ Sample : <go> i thought it was the only one that was the only one i had to do it with it <eou>
+
+Source : what the fuck do you do when one of the people you spend the majority of your time with makes you so extremely anxious youre always on edge 
+ GroundTruth : and then you can literally never eat when youre with them because they put it off and it puts you in an even worse mood 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : but then the main uk writer moved to the us book and took some of the material with him and i have no idea how it all fits 
+ GroundTruth : nobody knows its like trying to understand shazam 
+ Sample : <go> i dont think he has to do anything to do as much as possible as he has to do <eou>
+
+Source : we have a gate in front of our stairs so our dogs wont go upstairs and my brother was bringing his dishes down and tripped over the gate 
+ GroundTruth : hit his shoulder on the wall and fell backwards landing on the floor and having all his glass <unk> break 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in my life <eou>
+
+Source : fall is the best cuz you can wear jeans again cuz shorts are lowkey trash but its either wear em or deal wyour dick <unk> to clam chowder 
+ GroundTruth : new england clam chowder to be exact fuck the patriots 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : when i grow up i want to be able to walk over <unk> in <unk> without slipping into a deep dark hell basically i want to be rihanna 
+ GroundTruth : i invented this so all womens can be riri 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : pics amp vids may suck since ill be under his nose getting a lot of vibration but nothing is better than being this close for a rock show 
+ GroundTruth : theres nothing better than lookin up and seeing that nose enjoy all his awesomeness 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : on a heavier note this us trip is a harsh reminder of how lucky we are in france last time ive seen such extreme poverty was in india 
+ GroundTruth : people with no medical care ads for discounted dental crowns ads for miserable micro jobs trash everywhere in the streets 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in a while so <eou>
+
+Source : i had volleyball with william <unk> and he was in my warm up group the first day of school rest in peace man you were a cool kid 
+ GroundTruth : when people in class came to realization that it was the billy we played with i teared up this is so sad 
+ Sample : <go> i love you so much i cant wait to see you and i miss you tons of you guys <eou>
+
+Source : lmao i like them over easy but i can only consume the whites with a lot of salt on toast so most of the time bandit gets them 
+ GroundTruth : aw ill bet bandit loves it and any food cooked by a <unk> is immune from food <unk> 
+ Sample : <go> i thought it was the only one that was the one of the most time i was watching it <eou>
+
+Source : all i want rn is a grilled cheese w pickles amp animal fries from in n out i am so mad at them for not being on postmates 
+ GroundTruth : i can make <unk> and steak fries and i have a container of pickles here 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : the best part of this movie is the part where kurt says on the count of three and counts on his fingers but then he doesnt have enough 
+ GroundTruth : yesss kurt was my fave part of that movie tbh <unk> 
+ Sample : <go> this is the best thing ive ever seen the video of the season in the end of the season <eou>
+
+Source : i dont want to fake like im strong like im under control of things im not i am angry and i am spiteful and i will lash out 
+ GroundTruth : being awful to people who hurt me makes me feel whole i dont care if its unhealthy 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : you dont care about jen aniston youre projecting your own hurt cus you know what its like to have a man pass you up for the next chick 
+ GroundTruth : can i pretend to have a chance w brad in peace 
+ Sample : <go> thank you so much i love you so much i miss you tons of time and miss you tons <eou>
+
+Source : i dont get how youre supposed to eat pringles out of a can is this a salsa jar scenario and im supposed to pour it into something else 
+ GroundTruth : do you remember these i had a few colors 
+ Sample : <go> i have no idea what i have to do with <unk> and <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : that is all from montgomery in this game and this season great year expect to see him plenty in st and in the yanks rotation at some point 
+ GroundTruth : could even make the team out of st depending on what moves cashman makes and obviously his performance 
+ Sample : <go> this is the best thing ive ever seen ever yet ive seen in a while in the past years <eou>
+
+Source : ive done more in the past two months of living in jerusalem than i did in the two years living in tel aviv the eternal city likes me 
+ GroundTruth : i thought rome was the eternal city 
+ Sample : <go> this is the best thing ive ever seen ever yet ive ever seen that ive seen in a while <eou>
+
+Source : today out of all days the <unk> parking lot was full to the <unk> and campus security was out to get people so i couldnt park in staff 
+ GroundTruth : i cant believe its still so full like usually it pans out after a month 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : him with him on a business trip to the us so that he could buy a commodore from a store in the us that had an exchange policy 
+ GroundTruth : because at that time and i experienced this myself commodore had such a notoriously bad quality control system in order to make profits 
+ Sample : <go> i dont think he has to do anything to do anything to do with his tax returns as well <eou>
+
+Source : people tell me im crazy and that some shit is bound to happen to me but honestly idc im going to let men know how disgusting they are 
+ GroundTruth : and remind them of how easy it is to make them feel like the real pieces of shit they are for <unk> women 
+ Sample : <go> this is the best thing ive ever seen in a while ive ever seen it in the past years <eou>
+
+Source : my roommate was the one who adopted him but he took instantly to me to both of us but me especially hed been in a fight or something 
+ GroundTruth : billy said the shelter was going to have to <unk> him in some days if he hadnt adopted him so we rescued him from doggie death row 
+ Sample : <go> i think he has to do the same as soon as he has to do it for a while <eou>
+
+Source : people who say if you dont like it leave are the ones who claim to love the country more but refuse to do anything to fix its problems 
+ GroundTruth : its not a love for country that causes them to say this its just underlying racism 
+ Sample : <go> thank you so much i cant wait to see you in the evening i love you so much lt <eou>
+
+Source : later ae posted a freelance gig for a gay news site run by their parent co i got the <unk> first time anyone paid me to write words 
+ GroundTruth : so after all that it was pretty cool to have them profile me and six of my more badass coworkers a few weeks ago 
+ Sample : <go> this is the most accurate thing ive ever seen in the video ever seen it in the bay area <eou>
+
+Source : it takes a secure man to love me and ive found that but i guess im not allowed to be happy i guess ill always be a target 
+ GroundTruth : was im <unk> dick at truck stops make ends meet an ex prostitute on my <unk> posted im ran through i laughed 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in my life <eou>
+
+Source : my iphone has been here in la since last thursday but hasnt been delivered amp wont be until maybe tomorrow i do not like ups very much 
+ GroundTruth : that sucks our ups guy is great when we ordered the iphone he came in the beginning of his route instead of the end 
+ Sample : <go> i cant wait to see you at the end of the season at the end of the season tonight <eou>
+
+Source : been googling what to eat for lunch for a solid minutes <unk> about to get the same thing i eat every single day chipotle i hate myself 
+ GroundTruth : been thinking what to have since about am sushi it <unk> again idk why i think it will ever be any different 
+ Sample : <go> i have no idea what youre talking about how much people are willing to be here in the world <eou>
+
+Source : also wanna let you know ive started listening to tbs a lot more and im upset no one told me theyre great i like them a lot 
+ GroundTruth : im fairly fucking sure i did 
+ Sample : <go> i dont know what i want to do but i just want to see what happened to do it <eou>
+
+Source : my parents threw a surprise party for my st but i was off the xans after the <unk> show in sf i dont remember a thing lol 
+ GroundTruth : but i apparently posted a picture on instagram lmao so that was a cool day kinda dont do xans 
+ Sample : <go> i think it was the only one that was the only one that had to be in the top <eou>
+
+Source : if a guy who stabbed a family member amp whose father says hes a terrorist isnt on a terrorist watch list whats the point of watch lists 
+ GroundTruth : and if hes not who is boggles the mind 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years of the year in the world <eou>
+
+Source : at least its not as evil as ibm which is known for <unk> their <unk> products based on how much you use them amp charging money to 
+ GroundTruth : increase the performance by sending out an ibm service <unk> to cut a jumper wire or remove a slowdown board in the base model 
+ Sample : <go> this is the best thing ive ever seen in the video of the <unk> of the <unk> of <unk> <eou>
+
+Source : if you lie about a touchy subject to get people to feel bad for you and try to gain relevance from it thats so beyond screwed up 
+ GroundTruth : scream it for everyone in the back 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : how wild u determine when or how often to use it a quota a ratio for cand a for cand b keep it simple just apply facts 
+ GroundTruth : isnt what he is saying is not all facts have equal weighting so illegal things trump does is not equal to her email 
+ Sample : <go> i thought it was the only one that was the only one i had to do it in the <eou>
+
+Source : your a wonderful artist and im sorry you had to deal with so much drama today over one art piece if you need a break take it 
+ GroundTruth : you <unk> is always here for you i shall bash anyones face in with a baseball bat just ask mom <unk> 
+ Sample : <go> thank you i love you so much lt lt lt lt lt lt lt lt lt lt lt lt <eou>
+
+Source : holding on to anger is like grasping a hot coal with the intent of throwing it at someone else you are the one who gets burned <unk> 
+ GroundTruth : i hold onto mine wearing really thick gloves and then i roast marshmallows over it <unk> would be proud of my <unk> 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : when i replace a symbol with a new one that is bigger the new symbol size gets shrunk to the size of the old one pic attached 
+ GroundTruth : not sure if you tried to fix this in your update mins ago but the problem persists just fyi 
+ Sample : <go> this is the most accurate thing ive ever seen in a while so i can see it in the <eou>
+
+Source : a persons disability need not stand between them and their dreams today i passed the bar exam and am proud to say i am a blind attorney 
+ GroundTruth : i am so happy for you what an wonderful achievement to realize ones dreams i wish you all the best 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : the worst part about bray wyatt is that they expect us to think hes a real threat he hasnt won a feud in such a long time 
+ GroundTruth : very <unk> really needs a major win amp soon 
+ Sample : <go> i think he has to be the most <unk> in the world he has to be in the world <eou>
+
+Source : not everyone is going to get you accept that amp move on when you find people that do make cool shit wthem thats it thats the secret 
+ GroundTruth : when will i find someone to make <unk> with me 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : not like i will love you even when it all goes dark more like its so dark out there how could you survive without me neil <unk> 
+ GroundTruth : what are you if not a tower blooming with <unk> dalton day 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : but now my mother caught the spring cleaning bug and moved everything and now i cant find it she cant find it and my dad is useless 
+ GroundTruth : this is absolutely infuriating to me because they she blames me for losing stuff when i know where i left it but she moved it 
+ Sample : <go> i have no idea what youre talking about to do with you and you dont know what youre talking <eou>
+
+Source : lmao i got out of work and just had to deal with a trip from africa it feels like not like you invite me anyway you bum 
+ GroundTruth : i always invite you youre always like uhhh <unk> 
+ Sample : <go> i dont even know if i can do that but i dont know what i want to do it <eou>
+
+Source : yes i do know you i guess i was in the groove when you waved amp yelled hi on nd w your colleagues sorry for that lol 
+ GroundTruth : hi again i think it was just amusing going from happy to being sad 
+ Sample : <go> thank you so much im glad to see you in the bronx i cant wait to see you tonight <eou>
+
+Source : hey whats the best way to set some time with you guys ive been using your app a lot for work and wanted to show <unk> feedback 
+ GroundTruth : shoot us an email would love to see what youve been working on hellocom 
+ Sample : <go> thank you so much i have a lot of <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : every time i go to panera middle schoolers are there like how can yall afford that we used to <unk> up to afford a inch at subway 
+ GroundTruth : im dying we legit would ask every person around us for change just to get like a bagel from tim hortons 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : honestly between the imac and ipad i rarely use the mbp anymore but i used to use it to test new oss as they came out <unk> 
+ GroundTruth : cool i havent had issues with previous releases will see what happens when i try this update 
+ Sample : <go> i thought it was the best thing ive seen in a while but i was in the same boat <eou>
+
+Source : someone was walking around with a sign that said farting on it and their shirt said poop and i have been laughing for the past three min 
+ GroundTruth : they also played an audio of someone presumably that person saying those words over and over 
+ Sample : <go> this is the best thing ive ever seen ive seen in a while ive seen a few years ago <eou>
+
+Source : oh i meant this a vc with the cv b vc owned by cell displaying content cell can choose to reuse b has weak ref to a 
+ GroundTruth : oh okay i currently have the <unk> vc contain the children adding it to the cells view just for display purposes 
+ Sample : <go> thank you so much for the kind words of the great time to be a part of the day <eou>
+
+Source : lots of at my school theyve all seen my videos some of them look at me like i killed their entire family this should be fun d 
+ GroundTruth : its too dangerous to go alone here take this <unk> over logic to use 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : im staying as broken and horrific as it can be this is my home to quote the <unk> margaret cho i have chosen to stay and fight 
+ GroundTruth : well need all the troops we can get 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : oh i meant this a vc with the cv b vc owned by cell displaying content cell can choose to reuse b has weak ref to a 
+ GroundTruth : but i guess giving the cell the ability to communicate with the container vc is nice 
+ Sample : <go> thank you so much for the kind words of the great time to be a part of the day <eou>
+
+Source : you a <unk> i wanna see my fav girl in a bikini me enlightened loud so everyone hears i would prefer her fully <unk> thank you <unk> 
+ GroundTruth : clothes allow complexity and expression <unk> possibilities <unk> are okay but just show skin and have no options 
+ Sample : <go> thank you so much i love you so much so much so much so much so much so much <eou>
+
+Source : i almost slept in and didnt go to class amp i was like no i should go only to have class get cancelled once i got there 
+ GroundTruth : they didnt send you an email lol 
+ Sample : <go> i have no idea what youre talking about how much people are willing to do it all the time <eou>
+
+Source : so <unk> and i once made up a demon named hector and now im hesitant to talk to anyone with that name sorry <unk> of the world 
+ GroundTruth : thats how i feel about toby 
+ Sample : <go> thank you so much for the kind words of the great time to be a part of the day <eou>
+
+Source : man i dont care if you like eminem or not but dont be walking around the weed club screaming about how he is the best rapper alive 
+ GroundTruth : lets not get political in the club 
+ Sample : <go> i dont think he has to do the same as he has to do anything to do with it <eou>
+
+Source : donald u have secret plans to stop isis and n <unk> a true leader and patriot u must share those with defense dept to keep us safe 
+ GroundTruth : they are a secret so how do really know he has any plans 
+ Sample : <go> this is the best thing ive ever seen a lot of people in the past years of the <unk> <eou>
+
+Source : i thought maybe it was just me when i missed my train by seconds yesterday but the train i did make today left a full minute early 
+ GroundTruth : and when options for the faster trains are limited and wait times long thats a bummer consider a minute grace period 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : as soon as i sent that i realized a if anyone had a solution it would be you and b i should play with smarter playlists more 
+ GroundTruth : heh <unk> is a beautiful rabbit hole to go down 
+ Sample : <go> i wish i could be there but i cant wait to see what i could do with the <unk> <eou>
+
+Source : im being weird and sentimental but just wanna say thank you to anyone who likes and supports me in any way shape or form im so lucky 
+ GroundTruth : love your voice drew its so unique and lush keep it up itd be fun to catch up sometime 
+ Sample : <go> i love you so much i miss you so much i miss you so much so much so much <eou>
+
+Source : so good to be home finally left work almost an hour and a half ago fortunate enough to miss most la traffic but didnt miss for <unk> 
+ GroundTruth : la traffic is something im not keen on repeating any time soon p 
+ Sample : <go> i have no idea what youre talking about you and i am in the same way to do it <eou>
+
+Source : no they are taught that by their parents trust me as a person who moved into a hood as a child and they watched me in stores 
+ GroundTruth : parents loved me i was the first minority they ever met they put me on to cash money and wouldnt even go to a show 
+ Sample : <go> i have no idea what youre talking about to do with you and i dont know what youre talking <eou>
+
+Source : cant stand when other models are mean i am just nice to everyone and would help anyone maybe thats why i get picked on its so sad 
+ GroundTruth : im sorry to hear that dont change who you are 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : y do people let themselves be driven by their <unk> accelerate to my speed n <unk> you pass its because i allowed it the as me smh 
+ GroundTruth : caught up before my exit without <unk> too 
+ Sample : <go> thank you so much i miss you so much i miss you tons of <unk> and lots of <unk> <eou>
+
+Source : my neighbor did not hear me banging on the ceiling last night to kill the roach and came downstairs to ask if they are ever too loud 
+ GroundTruth : use pine cleaner when you clean roaches and ants hate it 
+ Sample : <go> i cant wait to see you at the end of the season in the end of october th october <eou>
+
+Source : i read a post there one day criticizing the but some of my best friends are black thing that some people do when they say racist stuff 
+ GroundTruth : at first i was all id never say something like that but i <unk> never say <unk> of my best friends are black 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : its cause he dont know if its you or a grandma driving i always look twice when i see a silver <unk> to make sure its you 
+ GroundTruth : oh arent you the kid that drives the automatic <unk> i feel gay just passing that thing 
+ Sample : <go> i dont know if i can do that but i would have to do it for a few weeks <eou>
+
+Source : really con man and i quote if you like the doctor you have you can keep your doctor look it up amp get me a martini robot 
+ GroundTruth : look i live in <unk> known don the con for many years and yes he is a con man and a cheat every promise is a lie wake up 
+ Sample : <go> i thought it was the best thing ive ever seen in a while i was in the bay area <eou>
+
+Source : the majority of people <unk> in sciences at my school are either asian or caucasian every time i go to class i feel so out of place 
+ GroundTruth : same girl its ok we have to represent 
+ Sample : <go> i cant wait to see what i want to see what i want to see you in the <unk> <eou>
+
+Source : satellite parked in its usual area the satellite does not have to be attached to a person to stalk them for gps stuff to work bid laden 
+ GroundTruth : they are going to die too we all are at least we are preparing 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area so i can see it again <eou>
+
+Source : ready to not be in a sitting position anymore after the nonstop flight from cali amp now driving <unk> to cle i keep stopping to stretch ugh 
+ GroundTruth : sfo to <unk> <unk> haha one last meal 
+ Sample : <go> this is the best thing ive ever seen in the video ever seen a lot of <unk> in <unk> <eou>
+
+Source : lol maybe it will wake them thats all i was saying if im la i just continue to let them stink i think the shirts are funny 
+ GroundTruth : considering their best player getting overly emotional cost them the win yesterday i dont really buy into the motivation stuff 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area so i can see it again <eou>
+
+Source : pretty nifty to be able to use all chars and take photos anyway i bought this three years ago bc msft brand name and keys felt good 
+ GroundTruth : this goes back to my earlier series of tweets about how brand names become important when the good and the flimsy keyboards are made in <unk> 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : it makes me so happy that you like them lt i plan to get a <unk> partial eventually and then ill dress up at meets and cons 
+ GroundTruth : ahhh thats awesome d cant wait to see tho red rocks it well its somewhat of a fetish to see masculine dudes cross 
+ Sample : <go> i was just thinking about the same thing i thought it was the only thing that happened to me <eou>
+
+Source : i saw it and i thought its not just me lol no joke i was listening to kendrick lamar after a yoga sesh and some detox water 
+ GroundTruth : hahaha i surprise ppl all the time when i know random ratchet songs by heart 
+ Sample : <go> i have no idea what youre talking about to do with you and i dont have to do it <eou>
+
+Source : heading to the apocalypse has answered a long asked question for me the two books i am taking to the desert are eye of the hunter and 
+ GroundTruth : voyage of the fox rider i have my ipad but those are the hard copies 
+ Sample : <go> this is the most accurate thing ive ever seen it in the bay area so i can see it <eou>
+
+Source : by the <unk> be clear death threats and neo nazi crap do not scare me these ppl are <unk> i will keep doing my job without hesitation 
+ GroundTruth : thank you for telling the truth 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : if you about to spend the money im giving you to go buy <unk> then fuck your brand nigga ima go spend it directly at <unk> stupid 
+ GroundTruth : niggas is crazy b since ppl paying attention let me plug my shit in <unk> island tomorrow <unk> gang ts coming v soon and more got 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your point <eou>
+
+Source : last night was wild af yall i was wit this nigga his baby mama and the baby we was all kickin it like it was nothing lmaoooo 
+ GroundTruth : in the bed too all of us 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive seen in the past years <eou>
+
+Source : other than rap stars it seems out of fashion these days for rich people to to flaunt their wealth a la lifestyles of the rich and famous 
+ GroundTruth : rap stars and some potus candidates you mean 
+ Sample : <go> this is the best thing ive ever seen that ive seen in a while ive seen in a while <eou>
+
+Source : its very cool but feels like it should be at <unk> instead of broadway i think a lot of audience didnt know what to make of it 
+ GroundTruth : i kind of wish i had sat closer i could see fine but theres a weird disconnect between the intimacy of the sound amp the distance 
+ Sample : <go> i cant wait to see what i want to see what happened to do you guys have to do <eou>
+
+Source : always ask do we really need a meeting for this do we really need a slide deck for this do i understand this enough to articulate simply 
+ GroundTruth : in my experience a good half of meetings booked are <unk> or unnecessary asking these questions helps save precious time 
+ Sample : <go> i thought it was the only one that was the only one of the <unk> in the top sense <eou>
+
+Source : im here prove my mom wrong when she said cooking was gay and i can never b rich that was yrs ago shes dead <unk> on chopped 
+ GroundTruth : contestant sheds single tear then quickly <unk> themselves 
+ Sample : <go> i cant wait to see you there are you going to be a part of the debates for hours <eou>
+
+Source : oh boy so far so much shit has gone on this semester rape racism and some drunk kid made a bet with a drunk kid that he 
+ GroundTruth : could hid the drunk kid with his truck so glad i have one semester left 
+ Sample : <go> thank you so much for the kind words i love you so much lt lt lt lt lt lt <eou>
+
+Source : dude see me trying to parallel park on a one lane one way street and the nigga <unk> beside me to try to pass amp hits me 
+ GroundTruth : luckily it didnt leave a mark on my car 
+ Sample : <go> this is the best thing ive ever seen a lot of people in the past years ive seen it <eou>
+
+Source : was it this i wonder cause i criticized <unk> too bad i was hoping my first block would be a rightwing tool not someone on our side 
+ GroundTruth : this is the tweet i think cant deny my feelings are hurt 
+ Sample : <go> i cant wait to see you in the next two weeks of october th in october th october th <eou>
+
+Source : wed like to know more about how you use <unk> do you use knowledge boards please let us know why yes or no thank you so much 
+ GroundTruth : no youre at your best when focusing on rss not all this other rubbish 
+ Sample : <go> i have no idea what i have to do with my <unk> and <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : mrs bill clintons response after ny terror attack is the same as always we need to go slow on this no sense of urgency just like obama 
+ GroundTruth : looks ready to collapse any minute 
+ Sample : <go> i thought it was the only one who was in the middle of the top of the same thing <eou>
+
+Source : hey apple people you got everything shipped well done you take the rest of the week off youve earned it tell tim i said it was ok 
+ GroundTruth : hey thanks ill guess ill leave work now in reality im still here for many more hours 
+ Sample : <go> thank you so much for the kind words i have a great weekend to have a great weekend here <eou>
+
+Source : owner of record store wow youre so beautiful so fine me thx so u gonna give me off to make up for hitting on a potential customer 
+ GroundTruth : wouldnt be so uncomfortable if the man wasnt years old sir i could be your daughter be professional 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : a girl in my hs fell asleep while driving and died the night before i took calc ap test they didnt tell us until after the test 
+ GroundTruth : a classmate of mine in high school was riding his bike home amp was killed by a drunk driver right before graduation 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : im white im <unk> im male im cis i have an obligation to use that privilege to do what i can fuck that move to canada noise 
+ GroundTruth : im just scared as fuck at how literal fight might become 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen it in the past ten years ago <eou>
+
+Source : i could not care any less about the world cup of hockey but give me an excuse to drink in the name of patriotism and im there 
+ GroundTruth : but we are in big trouble 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : i appreciate the degrees today but we need to get to the point where i dont need to sleep with my fan in my bed w me 
+ GroundTruth : i love to sleep with all my fans 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : she was partially deaf and also very slow in the last month or so so it took a little time we were patient bb not so much 
+ GroundTruth : bb would be at the bottom running around in circles when she heard the garage door open she would race up and down the stairs waiting 
+ Sample : <go> i miss you so much i miss you so much i miss you so much i miss you tons <eou>
+
+Source : if you got drunk at a party and had sex with someone by choice it was not rape dont ruin someones life because of your drunk mistake 
+ GroundTruth : well said but what about those who contend that drunk women cannot make choices 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : im really starting to feel the stress of living with my parents at age but i dont have the money to move out so im just suffering 
+ GroundTruth : but the biggest thing is they keep touching and moving my things im looking for something and it was in the same place for months 
+ Sample : <go> i cant wait to see you in the next two weeks in october th in october th october th <eou>
+
+Source : its kinda irritating when i want to mock a right wing loon but know my left wing loon friends would get mad at me for body shaming 
+ GroundTruth : i have faith that you can mock their intellect their personality and their philosophy with style and grace 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : mom got a ticket for going on a street it literally says that on tix but it says on norris canyon st eh stupid ass white cop 
+ GroundTruth : why are they so bored they pull over for <unk> when they get the limit sign wrong because the street is mph 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen it in a while <eou>
+
+Source : mfw people sending me dm threats cause of my last post bruh i cant have an opinion all i said was i dont see the point <unk> 
+ GroundTruth : thats really dumb you should be allowed to have your opinions cuz its your fcking twitter 
+ Sample : <go> i cant wait to see you at the same time i have to go back to the next time <eou>
+
+Source : id give the cell a weak ref to your vc have it manage releasing it or not cell will always die before the vc owning its cv 
+ GroundTruth : im doing that now only its strong i figure the cell should also properly own it as well 
+ Sample : <go> i thought it was the only one that was the only one of the night i was in there <eou>
+
+Source : im trying to do something to help the kids and anybody who wanna be inspired if you got a problem with that go be a troll haha 
+ GroundTruth : when my daughter goes to college i am going to be a big brother instead of talking the talk i will be walking the walk 
+ Sample : <go> thank you so much i cant wait to see you and i love you so much i miss you <eou>
+
+Source : how would you feel if you saw a performance of equal measure to daniel day lewis in there will be blood <unk> on natalie portman in jackie 
+ GroundTruth : i literally do not believe you 
+ Sample : <go> i thought it was the only one that was the only one of the night i was in there <eou>
+
+Source : all jimmy fallon had to do was ask about donald trumps rape case to donald himself but he just <unk> the child rapist for money amp ratings 
+ GroundTruth : your fake rumor spreading tactics suck and are very outdated 
+ Sample : <go> i think he will be in the same way he will be in the way to the next year <eou>
+
+Source : u scared by mqm now there r mqm one pakistani amp one international <unk> <unk> <unk> ga <unk> <unk> ko but remember <unk> is only altaf bhai 
+ GroundTruth : and tomorrow there will be and also and maybe and 
+ Sample : <go> this is the best thing ive ever seen in the past years of the past decade of the year <eou>
+
+Source : i didnt go cause i was working but ill buy the pins no worries and maybe get you some cash next time your up here it all 
+ GroundTruth : im never up there anymore so if ya dont want to no worries i only use venmo 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : was it this i wonder cause i criticized <unk> too bad i was hoping my first block would be a rightwing tool not someone on our side 
+ GroundTruth : cant deny my feelings are hurt 
+ Sample : <go> i cant wait to see you in the next two weeks of october th in october th october th <eou>
+
+Source : trump had a <unk> mic malfunction i wouldnt pay the mic guy he said when people dont do a good job for me i dont pay em 
+ GroundTruth : into the heap with the losers mic man 
+ Sample : <go> i thought he was doing the same thing in a few weeks ago he would have to do it <eou>
+
+Source : as soon as wed come home and say nelly bb would run up the stairs and bark so loudly like nelly come on theyre here walk time 
+ GroundTruth : if you have dogs you know how important routine is to them they get very fixed on set specific steps and <unk> to their daily routine 
+ Sample : <go> thank you so much for the kind words in the world i love you so much lt lt lt <eou>
+
+Source : i dont know what <unk> me most about <unk> the act itself or that its done so much a new word had to be invented for it 
+ GroundTruth : as a gay man i can say honestly 
+ Sample : <go> i dont think i have to do that but i dont think i can do it in the <unk> <eou>
+
+Source : i am absolutely tired of defending my bigoted father and looking the other way with his hate i am not allowed to confront him on it anymore 
+ GroundTruth : because he doesnt want to hear that hes being a shit and refuses to change 
+ Sample : <go> i have no idea what youre talking about to do with you and i dont know what youre talking <eou>
+
+Source : so was it guantanamo bay that inspired his rage or was it donald trump or answer c who cares lock him up and throw away the key 
+ GroundTruth : my money is on trumps big mouth 
+ Sample : <go> i think he has no idea what he has to do with his tax returns and he has done <eou>
+
+Source : okay ppl if you dont remember the initial reaction to the kg dr promos you probably want to let that last tweet go by wo kneejerk p 
+ GroundTruth : oh yes i like to be bitten by all sorts of blood thirsty bugs said no woman explorer ever 
+ Sample : <go> i dont want to talk about it but i dont want to see what i want to do it <eou>
+
+Source : we got answers today anthony <unk> has severe <unk> that has caused all his issues his throat is very bad from it but hes on meds now 
+ GroundTruth : ohhhh poor baby but at least you know now what the problem is praying for a fast recovery 
+ Sample : <go> this is the best thing ive ever seen it in the past ten years of the past ten minutes <eou>
+
+Source : on one hand if u examine toni <unk> woes its due to bad money handlers on the other hand at what point do u check things yourself 
+ GroundTruth : im broke as a joke that aint funny but i stay refreshing that amex apps 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : if your nose starts bleeding out of nowhere im either going to assume you just did a fuck ton of cocaine or you just picked your nose 
+ GroundTruth : in my hometown we would get these dry santa ana winds and then even taking step outside i always instantly got a nosebleed 
+ Sample : <go> thank you so much i cant wait to see what it means to look like i have to do <eou>
+
+Source : my passion will seemingly drive my emotions off the wall at times i get tired of being strong and i just want to be <unk> or held 
+ GroundTruth : let me not be okay for once so i can get these emotions out 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : my passion will seemingly drive my emotions off the wall at times i get tired of being strong and i just want to be <unk> or held 
+ GroundTruth : let not be okay for once so i can get these emotions out 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : so i wasnt really able to get her exercise she had other health problems but her weight amp lack of exercise hurt her knees i like dogs 
+ GroundTruth : my roommate just left to go to the same shelter that he found mickey at we shall see what he finds i keep thinking were on the verge of 
+ Sample : <go> i was thinking about the same thing but it was the only thing that happened to me i was <eou>
+
+Source : had a customer call and ask if we sell small bags of chips we dont but theres a right down the block i was about to say 
+ GroundTruth : that i could go down and pick up something but i really didnt want to they dont tip me enough 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : now the tricky part is figuring out a good way to unit test my web components so i can do some <unk> thanks for looking into this 
+ GroundTruth : please write something up or link me to whatever you find my team is also trying to figure this out 
+ Sample : <go> thank you so much for the kind words we have a great weekend we have a great weekend here <eou>
+
+Source : it shouldnt matter whether his hands were up or not cause the fucking cops had no reason to treat him as a suspect in the first place 
+ GroundTruth : he couldve been reaching in his pockets reaching in the window or flipping them off for all i care they were there for a disabled car 
+ Sample : <go> i dont think he has to do anything to do with his tax returns he has to be done <eou>
+
+Source : so im going to new york city the week of oct rd with my wife whos got an interview anyone nyc based got any must do recommendations 
+ GroundTruth : bring your game to <unk> thursday at the 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen in a while ive ever seen yet <eou>
+
+Source : yo a week from today you can show up at the <unk> at pm to see a reading im directing is such a wonderful text and you 
+ GroundTruth : should come see it so you can say you were there for the first staged reading when it eventually becomes a hit downtown 
+ Sample : <go> thank you so much i love you so much i love you so much i love you so much <eou>
+
+Source : they told us we had a moral responsibility to prevent another hitler but they never told us how to stop him im not sure they even knew 
+ GroundTruth : how do you stop a fascist when every social structure and half the nation are set up to help him succeed 
+ Sample : <go> i have no idea what youre talking about how much people are willing to do it all the time <eou>
+
+Source : billy said the shelter was going to have to <unk> him in some days if he hadnt adopted him so we rescued him from doggie death row 
+ GroundTruth : italian <unk> normally live years but he was a small size for the breed i dont think his <unk> was quite big enough poor 
+ Sample : <go> i have no idea what he has to do the same thing to do the same thing to do <eou>
+
+Source : rumor has it that i said diamonds was scratched from the <unk> because lou pena was in her stall if true all i can say is lol 
+ GroundTruth : its hilarious but im actually pretty proud that they caught it and took action 
+ Sample : <go> i was just thinking about the same thing but it was the only one that was the only one <eou>
+
+Source : if you want to get really meta re the bushes per kitty kellys bio jeb is <unk> favorite not surprising hed reject the guy who dissed him 
+ GroundTruth : if it was just personal stuff though i doubt hed have shared it with people even a small <unk> like itd be private 
+ Sample : <go> i dont think he has to do anything to do anything to do anything to do anything to do <eou>
+
+Source : same will go for the v does not give me devices neither to review my only hope is att or verizon to send me one to review 
+ GroundTruth : send me a dm with your info and ill add you to the list 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was in the same room <eou>
+
+Source : ppl voting for <unk> amp the jets over moon rocks at the bg show is my x winning over <unk> at <unk> moment yall dropped the ball 
+ GroundTruth : reminds of the crowd choosing triple wide over last man <unk> at <unk> v 
+ Sample : <go> this is the most accurate thing ive ever seen in the video ever seen it in the bay area <eou>
+
+Source : i hope it does work esp as i have a personal interest in <unk> issues but the corp side has to be ready to ball not sure 
+ GroundTruth : well they seem to be tooling up the right way by moving to s sf bio land at least maybe some cross <unk> w other ceos 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : i remember in th grade music class they were doing lice check when all of the sudden they escorted <unk> ass out of the room good times 
+ GroundTruth : this is so random like i cant 
+ Sample : <go> i cant wait to see you in the next time i have to go back to the next time <eou>
+
+Source : so far this season brighton have given us m for <unk> a point in the league and a place in the next round of the cup cheers 
+ GroundTruth : if they throw in a stick of rock ill let the pitch invasion jokes slide 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive ever seen in a while <eou>
+
+Source : can i just say that id truly love to be on a reality show especially one with competition and games i dont lose im a winner baby 
+ GroundTruth : but definitely a high budget reality show something on mtv or cbs or the like 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : sorry i dont know the exact right path to take in this dungeon ill think about my <unk> while i wait for the daily <unk> to clear 
+ GroundTruth : <unk> in all things at all times 
+ Sample : <go> i am very happy to see you and i hope you are not going to be a good friend <eou>
+
+Source : tim tebow hit a batting practice hr should the mets call him up to the majors no then why vote for donald trump because of okay idea 
+ GroundTruth : <unk> has one okay idea i guess i missed that one 
+ Sample : <go> i think he has to be a democrat and he has to vote for him to vote for him <eou>
+
+Source : they say i shot a man named gray and took his wife to italy she inherited a million bucks and when she died it came to me 
+ GroundTruth : i cant help it if im lucky 
+ Sample : <go> i have no idea what youre talking about what youre talking about what youre talking about what youre talking <eou>
+
+Source : just like apple does anyway my prediction is that apple would be foolish not to give in to demand for shiny phones amp make an iphone c 
+ GroundTruth : my prediction is aapl will continue to be foolish about the global market and not ship the c with <unk> id accept <unk> <unk> 
+ Sample : <go> i cant wait to see you in the next two weeks as long as i am in the morning <eou>
+
+Source : my moms coworker is related to and close with angelina jolie when i told my mom about the divorce she said ill get the scoop on angie 
+ GroundTruth : omg thats so cool i how it isnt true 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : the subway was so packed that i couldnt reach down to change the song so i listened to the cotton eyed joe from chambers to penn station 
+ GroundTruth : oh my god fuck the subway i cannot deal with it today 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area so i can see it again <eou>
+
+Source : but now my mother caught the spring cleaning bug and moved everything and now i cant find it she cant find it and my dad is useless 
+ GroundTruth : sorry for the <unk> problems lol but i cant keep this bottled up anymore im gonna explode 
+ Sample : <go> i have no idea what youre talking about to do with you and you dont know what youre talking <eou>
+
+Source : <unk> added re strategy for <unk> this weekend id love to see him off the pace were going to let the race unfold and have a target 
+ GroundTruth : that track surface is jacked outside outside <unk> place to be 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i want to come visit you <unk> sounds so cool you do have internet right no netflix no youtube no cable no why dont you visit me 
+ GroundTruth : add in no running water and that would be the majority of my vacations as a kid tv was hooked up to a car battery 
+ Sample : <go> i cant wait to see you at the same time i have to go back to sleep next week <eou>
+
+Source : donald trump could dress up fully in a kkk outfit to one of his campaign rallies and white folks would still not admit that hes a racist 
+ GroundTruth : lol leave trump alone they cried 
+ Sample : <go> i think he has to be in the top of the debate he has to be in the world <eou>
+
+Source : serious q before ios you could flick a notification off the top of your screen but now you just have to wait it out is that right 
+ GroundTruth : sometimes the flick works if youre lucky 
+ Sample : <go> i dont think i have to do it but i think it will be my first time to go <eou>
+
+Source : god is all in g <unk> <unk> <unk> <unk> spirit but christians had started to call g he but g is amphe <unk> <unk> god is god 
+ GroundTruth : ampthen humans started to fight out of that why to sell weapons cause thats the most profitable business 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen in a while in the past years <eou>
+
+Source : my moms coworker is related to and close with angelina jolie when i told my mom about the divorce she said ill get the scoop on angie 
+ GroundTruth : omg thats so cool i hope it isnt true 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : yeah im jealous and petty that certain people get to meet gaga when they dont have half the love or support some of us have for her 
+ GroundTruth : me when i met her last week lmao 
+ Sample : <go> i thought she was going to be in the middle of the same thing that happened to the game <eou>
+
+Source : some lady at fitness yelled at me cause i parked my car in a compact spot so i told her to go back to her retirement home 
+ GroundTruth : after that comment you probably put her in one 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen it in the past years so much <eou>
+
+Source : david simon just tried to explain to black folks why his usage of nigga was cool as a bunch of black folks were like uh no sir 
+ GroundTruth : can anyone give me a legitimate reason why black people can use this word and white people cant 
+ Sample : <go> i dont think he has to do anything to do anything to do anything to do anything to do <eou>
+
+Source : in the ongoing saga of bodies are magic and stupid i now seem to have badly jacked my right knee couldnt sleep last night for the pain 
+ GroundTruth : currently at <unk> urgent care center where i hope to learn wtf i managed to do to myself this time tall <unk> ppl knees are bullshit 
+ Sample : <go> this is the most accurate thing ive ever seen in the world in the world in the past years <eou>
+
+Source : and i love the lost in space tv show but the movie wont be aimed at me and the target audience has no affection for the property 
+ GroundTruth : the movie was pretty lousy remembered only because it replaced titanic at opening weekend st season of tv show was best 
+ Sample : <go> this is the best thing ive ever seen ive seen it in the past years of the past decade <eou>
+
+Source : i know my anxiety makes me come off as cold and distant but i swear im not a bad person im just bad at being a person 
+ GroundTruth : that didnt come across on your periscope also if you were bad at being a person your cats wouldnt love you 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : this is your reminder if you harass me im just going to laugh at you and use the data to help protect others from people like you 
+ GroundTruth : just so we dont violate your terms could you let the community at large know what you constitute as harassment 
+ Sample : <go> im not sure what i want to do but i have no idea what youre talking about you guys <eou>
+
+Source : trump had a <unk> mic malfunction i wouldnt pay the mic guy he said when people dont do a good job for me i dont pay em 
+ GroundTruth : if you listen closely you can almost hear the sound of that line being cut and saved for an ad about trumps business practices 
+ Sample : <go> i thought he was doing the same thing in a few weeks ago he would have to do it <eou>
+
+Source : a cold isnt so bad but still rest down here we my friends and i all caught the flu a few weeks ago and it was hellish 
+ GroundTruth : yeah lol i was reading your fb posts im glad youre better ill get there 
+ Sample : <go> this is the best thing ive ever seen in my life so i cant wait to see it again <eou>
+
+Source : like so far it seems to be a lot of spilling <unk> <unk> on a wood table w bright lighting i am sorta kidding but also not 
+ GroundTruth : at least of your furniture must be white or <unk> 
+ Sample : <go> i have no idea what youre talking about you and i dont think youre talking about what you think <eou>
+
+Source : as in if it were a country california would be awesome not as in california used to be a country we used to be part of mexico 
+ GroundTruth : <unk> is an autonomous danish territory and not a sovereign nation but they do have an emoji flag not as big as they might look 
+ Sample : <go> this is the most accurate thing ive ever seen it in the past ten minutes in the past years <eou>
+
+Source : open in new tab works on mobile web like it should the google search apps dont do it but i hope they will independent of amp 
+ GroundTruth : ill look forward to it working in the news app and search app 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : a new yorker in the bay <unk> continue to assume that these bart lines are optional we dont stand in line for the subway you see 
+ GroundTruth : i hope at the very least you let people off first 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a few years ago <eou>
+
+Source : wait does this mean i wasnt supposed to use the josh marshall foundation to pay my parking tickets when i lived in dc is that wrong 
+ GroundTruth : years ago some <unk> reporter surely had the goods on trump that his foundation was just a tax shelter little did she know 
+ Sample : <go> i was just thinking about the same thing that happened to me i was just thinking about it lol <eou>
+
+Source : someone in the stanford cs dept is about to get very lucky bc cant figure out how to change the shipping address for my new phone 
+ GroundTruth : not as luck as this dog 
+ Sample : <go> i love you so much i cant wait to see you guys and i love you tons of <unk> <eou>
+
+Source : what if jeffrey is just a stuffed body and the real jeffrey is in the upside down and ina and winona go in and rescue him 
+ GroundTruth : remember gentle jeffrey smells of vanilla and <unk> its true you can look it up 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i take moments like that as validation that yes in fact i am qualified to be an entrepreneur as so many others are such at it 
+ GroundTruth : lord knows i have enough moments of <unk> on the other side of that equation that such little <unk> are most welcome 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : i need someone who texts back shows me lots of attention and wants to spend time w me so i might as well just date myself 
+ GroundTruth : or you can find someone for you in this concert featuring band live details here 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i have no doubt i would much prefer the news in another state glad to hear its just la thats broken amp not all of ca 
+ GroundTruth : entertainment is the major industry in la some dont realize that when they complain about celebrity news in local news 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : when i was <unk> old i was a refugee from the turkish occupation of <unk> so i wld never approve use of this image against refugees 
+ GroundTruth : so <unk> was a greek <unk> escaping muslim aggression try harder lefties 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : when i was little daddy took me with him on his reserve <unk> army bases were fun i go to surplus stores when i miss him 
+ GroundTruth : the surplus stores smell like every base daddy took me i miss him 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : you read the article i thought it was an amazing way to get people to pay attention to the real news even if it wasnt tech 
+ GroundTruth : yes but its not <unk> <unk> thats what i meant 
+ Sample : <go> thank you so much i love you so much i love you so much i love you so much <eou>
+
+Source : getting myself regal bagel and <unk> before school because this has been one of the most stressful weeks of my life and im giving into it 
+ GroundTruth : regal and <unk> is my fav combo 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years of the year in the world <eou>
+
+Source : dont stay there they dont have cameras in <unk> to rooms and i was robbed while sleeping i was not <unk> after i file a claim 
+ GroundTruth : dont stay at <unk> hotel in las vegas and i was robbed while asleep not <unk> after i file a claim 
+ Sample : <go> i have no idea what they are talking about how much they have to do they have to do <eou>
+
+Source : nor with fm radio or any of the other smartphone features that everyone in india and africa demands for a phone of half the iphones price 
+ GroundTruth : i hope that aapl proves me correct and does ship a <unk> gb iphone s s plus for asia africa europe and the middle east 
+ Sample : <go> this is the most important thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : really spammy spam may be using <unk> links as a way to validate the email reached some sort of human so it could make that worse 
+ GroundTruth : true but it still feels worth it the really spammy stuff gets caught by gmail spam its the <unk> s 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : a place near ub where im taking them now its a small gym ill have to find a place in rochester when im home in winter 
+ GroundTruth : im gonna look around in rochester as well did you like the first lesson 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past years of <unk> <eou>
+
+Source : we would love to help you out if you could dm your email address we can have our tech support team get in contact with you 
+ GroundTruth : im having trouble with the dm 
+ Sample : <go> thank you so much i love you so much i miss you tons of you so much so much <eou>
+
+Source : i dont hate police but as a black man in usa i am deathly afraid of them amp tired of being silent ab unjust police brutality 
+ GroundTruth : its a shame that we have problems like this police need to be <unk> by the masses and gun control laws need pushed 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your point <eou>
+
+Source : <unk> <unk> ke <unk> ki life mein bus tv mobile games ya video games ya social networking hi <unk> <unk> hai <unk> <unk> sports <unk> <unk> 
+ GroundTruth : hum new generation hai is <unk> new <unk> use <unk> hai sports to old <unk> kay <unk> ha video games <unk> tv <unk> how cool 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : <unk> is ppl bein <unk> u have a verified <unk> talmbout u get blue checks for bein a thot now thot is all im reduced to 
+ GroundTruth : puked a little in my mouth when homeboy mentioned the blue check yesterday 
+ Sample : <go> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : aka airline reservation system ars called a res system in the biz and didnt get any major carriers to buy in so they shut it down 
+ GroundTruth : its a shame if google had been able to convince delta to use their res system they wouldnt have had that outage 
+ Sample : <go> i have no idea what youre talking about how much people are willing to be here in the city <eou>
+
+Source : one month until my rd birthday and i get sick if this isnt a sign that my body doesnt want me to age idk what is 
+ GroundTruth : also is the worst year ever so good luck 
+ Sample : <go> thank you so much i miss you tons of <unk> and tons of <unk> <unk> sa sa sa sa <eou>
+
+Source : raw sore throat and chills two days before i moderate the d sup debate send me your cold treatments <unk> <unk> <unk> no voice no good 
+ GroundTruth : drink a lot of tea take hot baths and sleep 
+ Sample : <go> this is the most accurate thing ive ever seen in a while so i will be in the debate <eou>
+
+Source : okay im gonna eat a sandwich have a good cry take a nap then sit in the shower and cry some more w a side of 
+ GroundTruth : im sorry you are having such a rough time lt 
+ Sample : <go> thank you so much for the kind words i love you so much for the great words so much <eou>
+
+Source : i do like two blue euro hows that for a gimmick name and na is marketing hey heres the future of our league on one team 
+ GroundTruth : team na is great for canada shitty for usa some of the us arguably most skilled albeit obv young players on taken away 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : cant read an article on my iphone cause a rogue ad keep opening up the app store tell me again how ad blockers are bad again 
+ GroundTruth : sidenote the <unk> app from <unk> can go fuck itself 
+ Sample : <go> i cant wait to see you in a few weeks when i see you in a few weeks in <eou>
+
+Source : if horror is dead i cannot wait until its resurgence cause its been one helluva year for a dead thing which it would be cause horror 
+ GroundTruth : likewise if movies are dead i cant wait for their renaissance another s or s could be on the horizon 
+ Sample : <go> i cant wait to see you and i have no idea what youre talking about how much it is <eou>
+
+Source : we would love to help you out if you could dm your email address we can have our tech support team get in contact with you 
+ GroundTruth : no matter what we cook even boiling water for certain types of tea we use it best tool ever ever 
+ Sample : <go> thank you so much i love you so much i miss you tons of you so much so much <eou>
+
+Source : if im not mistaken this isnt the first time that marion cotillard was rumored to be having an affair w a married man waves auntie fan 
+ GroundTruth : shes french its their national sport what do you want 
+ Sample : <go> this is the most accurate thing ive ever had ever ever watched it in the end of the season <eou>
+
+Source : so the elementary school in the town next to mine closed down because of a bomb threat and the galaxy tower looking out to the hudson 
+ GroundTruth : rover was also evacuated things have not been great these pasted few days and its getting way to close to home 
+ Sample : <go> thank you so much i cant wait to see what it means to be a part of the event <eou>
+
+Source : psa wear your helmet took a nasty spill on my bike today and landed on my head walked away with only a sprained hand helmets ftw 
+ GroundTruth : well you probably shouldnt be doing stuff like this all the time cole yes to helmets 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : if only we could get pres obama to finally show as much anger and contempt at terrorists as he does toward americans who disagree with him 
+ GroundTruth : excuse me but u r suppose b representing president obama yet ur comments r against him how come 
+ Sample : <go> i think he has a lot of people who has to do the same thing to do with it <eou>
+
+Source : daughter <unk> is a bad choice i want to be <unk> me hmm yes very cute but how can i make this political for good rts 
+ GroundTruth : imagine a bowl full of kids in that bowl only three kids are <unk> would you take a handful of those kids home 
+ Sample : <go> i thought it was the only thing that happened to me when i saw the <unk> of the <unk> <eou>
+
+Source : i think its so fucked up that people get to see angelina and brads court documents or anyones for that matter leave people the f alone 
+ GroundTruth : and yet we are to see tax returns sad world we live in 
+ Sample : <go> i think it was the only one that was the one of the <unk> of the <unk> of <unk> <eou>
+
+Source : but weve made different names of god <unk> out of how we suppose to call g whats the most correct name we need to sell weapons 
+ GroundTruth : jewish people they know about different names <unk> all of them cause g is g in every name <unk> 
+ Sample : <go> it was the only one that was the only one of the night i was in the top valley <eou>
+
+Source : ive seen apple news do that too but usually when its restoring its state viewing a story after ive been using other apps for a while 
+ GroundTruth : the news app notifications not doing anything at all is really bizarre i filed a new bug report on that one just today 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : i wonder next episode selina tell bruce about ivy awful way to go for ivy <unk> acting was very strong <unk> here since claire was leaving 
+ GroundTruth : maybe not since bruce govt his own problems 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : you simply cant be a grown man who cries dont look at me amp not expect to be teased bet a dodger gets <unk> tonight tho 
+ GroundTruth : is it too late to bet on what player gets thrown at i have seager 
+ Sample : <go> i cant wait to see you in the next two weeks in october th in october th october th <eou>
+
+Source : one month until my rd birthday and i get sick if this isnt a sign that my body doesnt want me to age idk what is 
+ GroundTruth : youre gonna be sick for a month 
+ Sample : <go> thank you so much i miss you tons of <unk> and tons of <unk> <unk> sa sa sa sa <eou>
+
+Source : but i do think we need to take into account the cost of the proof as well the simple solution doesnt have any proof at all 
+ GroundTruth : where is the proof of <unk> this is extremely difficult to understand 
+ Sample : <go> i was thinking about the same thing but it was the only thing that happened to me i think <eou>
+
+Source : trump has tweeted times more than us the tv show with a damn in our title do you really want a president who posts that much 
+ GroundTruth : whats happens when refers to <unk> and the tardis 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen a lot of people in the world <eou>
+
+Source : no thats definitely a street ive walked down its scary on some level but its not as scary as the media makes it out to be 
+ GroundTruth : im more scared of <unk> buses 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : doing homework and the phantom menace is on say what you want about jar jar and ep but ill never forget that moment darth <unk> <unk> 
+ GroundTruth : ayyy im watching it right now too bitch 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : but i guess holding the players inside as a way to <unk> patriotism is okay but standing up i guess kneeling for your beliefs isnt k 
+ GroundTruth : up until they were kept in the locker room the nfl has <unk> been paid by the military to move them onto the field 
+ Sample : <go> i was thinking about the same thing but it was the only thing that happened to me i was <eou>
+
+Source : writing gigs typically fall into two categories id do this if they paid me in sand or doing this feels like eating a bag of sand 
+ GroundTruth : and <unk> is eating a bag of sand and then getting paid with a bag of sand 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : not over the the fact that on my lunch break i stayed on ft wmy lil <unk> while she watched me stuff my face <unk> salad 
+ GroundTruth : while i ask u about your professor 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : when i came out in college it fed me a steady diet of bad lesbian movies and cultural references i was too young to know firsthand 
+ GroundTruth : later ae posted a freelance gig for a gay news site run by their parent co i got the <unk> first time anyone paid me to write words 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive ever seen <eou>
+
+Source : i dont and im trying to think of some people who do but i feel like its a lost art i can ask around as well 
+ GroundTruth : if u find someone let me know if not ill probably just use a normal font 
+ Sample : <go> i dont think i have to do that but i dont have to do anything to do with it <eou>
+
+Source : so what <unk> should really be bragging about in their story is that it shows that something that was designed in china is of good quality 
+ GroundTruth : the problem with made in china is that it needs a brand associated with it to mean anything because designed in china is tainted 
+ Sample : <go> i cant believe it was the only one that was one of the <unk> i was in the th <eou>
+
+Source : i feel it all i do is think abt self <unk> <unk> bcuz im lit <unk> and i wanna shove my face in solid snakes tits 
+ GroundTruth : me bb i wanna play with his boobies and watch them <unk> tbh 
+ Sample : <go> this is the best thing ive ever seen that ive seen in a while ive seen in a while <eou>
+
+Source : does my new os like granola does my new os have minimum seven pints of ice cream in her freezer does my new os enjoy <unk> 
+ GroundTruth : wait what is the last word 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen it in the past years of life <eou>
+
+Source : its not enough for trump to lose the election his brand needs to tank his empire must crumble and he needs to starve in a gutter 
+ GroundTruth : it will be a landslide win 
+ Sample : <go> i dont think he has to do anything to do anything to do anything wrong with his own followers <eou>
+
+Source : i didnt know gary sanchez couldnt speak <unk> he wants to be loved as a yankee he has to learn the language he is in america 
+ GroundTruth : no offense to gary but hes going to make millions of dollars coming from a poor country assimilate to the usa thats all i ask 
+ Sample : <go> i thought he was going to be a good friend but he was going to be a good job <eou>
+
+Source : in fairness tho the librarian was prob a tougher situation to resolve it would have come down to a war of words btwn me amp him 
+ GroundTruth : i dont think i ever said anything abt the chem teacher cuz that was my junior year years after the library situation 
+ Sample : <go> i thought he was in the same boat but i think he might have to go to the game <eou>
+
+Source : ash you need to draw a cute spider for this page me oh ill draw a jumping spider is distracted looking at spider videos for hours 
+ GroundTruth : what about <unk> spiders do you think theyre cute when they shimmy under the sand d 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : last night i tweeted about one of my <unk> candles and i feel like i have to be honest with you i couldnt actually smell it 
+ GroundTruth : wait this probs also explains why i complained that the graham cracker frozen yogurt tasted like generic sweetness my world is crumbling 
+ Sample : <go> thank you so much i cant wait to see how much i love you so much i miss you <eou>
+
+Source : i spoke to the dean abt the librarian a few times but i dont think he really believed me i ended up studying in the cafeteria 
+ GroundTruth : in fairness tho the librarian was prob a tougher situation to resolve it would have come down to a war of words btwn me amp him 
+ Sample : <go> i dont think he has to do anything to do with the <unk> of the <unk> of the <unk> <eou>
+
+Source : true that marvel be doin that shit a lot lol i still think its better than the reviews it got and forreal civil war was great 
+ GroundTruth : the mcu is just on a whole <unk> level im too hyped for all their movies cant wait for dr strange that will be epic 
+ Sample : <go> i think thats the only one that matters is the best thing ive ever seen the rest of it <eou>
+
+Source : poor little guy i think he was shock at the end shallow breathing he didnt want to move or go anywhere just stand stopped eating too 
+ GroundTruth : with my last dog chica we took her to the vet and they ran a bunch of tests to say her liver was failing amp she was probably going to 
+ Sample : <go> i think he has to do the same as soon as he has to do it for a while <eou>
+
+Source : who are you and whatd you do with foo theyre for next summer for sale if you want them i just bought them bc lol b 
+ GroundTruth : if youre trying to make a buck then nah or f you want the to come back im down to buy them either way 
+ Sample : <go> i have no idea what i want to do but i dont know what i want to do lol <eou>
+
+Source : we are over words moving on and what is obama being impressed for why would the nigerian pres not be able to give a good one 
+ GroundTruth : impressed with the government effort so far in the fight against boko haram 
+ Sample : <go> this is the most accurate thing ive ever seen in a while and i am in the right way <eou>
+
+Source : its kinda messed up that there is an election nearing amp these terrorist attacks amp all people seem to care about is some couple splitting up 
+ GroundTruth : we are very lucky we could be a mess like brussels or france 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : thats actually not at all what i told you i <unk> you to go back and reread the dms but coming at me sideways publicly is 
+ GroundTruth : not even sure <unk> you got defensive from my previous tweet because i wouldnt try you like that but all right lol 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : dearly beloved we are gathered here today to mourn the kitchen that never stays clean and now a moment of silence as i scrub the dishes 
+ GroundTruth : this damn diet forces creativity and has turned the kitchen into a <unk> all hours of the day cuz were starving 
+ Sample : <go> i thought it was the only one that was the only one that was the one of the <unk> <eou>
+
+Source : we are over words moving on and what is obama being impressed for why would the nigerian pres not be able to give a good one 
+ GroundTruth : and also the expectation as regards his speech was high i know what im saying 
+ Sample : <go> this is the most accurate thing ive ever seen in a while and i am in the right way <eou>
+
+Source : glad i learned young that theres more to life than guys and while the right one can enrich your life youre so much more than that 
+ GroundTruth : just want all the young gals to remember that and keep your mind clear because you are not defined by the men in your life i love u 
+ Sample : <go> thank you so much i love you so much so much i cant wait to see you next weekend <eou>
+
+Source : ive had <unk> sun dipped for like a month and idk if the <unk> shade is too dark for me bc i dont wanna be problematic 
+ GroundTruth : but i wanna know if its actually <unk> on the skin 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i have to say that bill gates and mark zuckerberg had the right idea by giving so much money to charity foundations to avoid fights later 
+ GroundTruth : i also noticed that for some reason tech billionaires seem to raise fairly normal kids compared to other billionaires like jobs amp <unk> 
+ Sample : <go> this is the best thing ive ever seen that ive seen a lot of people in the past years <eou>
+
+Source : that summer larry brown invited me over to his house for dinner he invited me to play golf he played in my familys weekend softball game 
+ GroundTruth : i could not be loving this more 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was in the same room <eou>
+
+Source : and lungs were giving out i think he might have been having some problems with his brain near the end too because he was getting confused 
+ GroundTruth : poor little guy i think he was shock at the end shallow breathing he didnt want to move or go anywhere just stand stopped eating too 
+ Sample : <go> i thought he was going to be a good friend but i think he might have to do it <eou>
+
+Source : sometimes im afraid of messaging or talking to people because i dont want to be bothersome to them probably why i dont talk some days lt 
+ GroundTruth : this is why i have no friends they always get offended when i do this 
+ Sample : <go> i dont even know what i want to do but i dont know what i want to do that <eou>
+
+Source : the women next to me at the bar are talking abt how embarrassed they are to eat in front of men amp im here all like 
+ GroundTruth : chew at them with your mouth open smack burp moan 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : newsflash <unk> obama has done a good job and hillary clinton will do such a good job i wonder if theyll ever elect another white man 
+ GroundTruth : lol thats good <unk> ive wanted to write that for the longest time 
+ Sample : <go> i think you should have to be a bigger person than you would have to do a better job <eou>
+
+Source : i started reading the new <unk> <unk> book and i had to stop because apparently just reading about slavery is too much for me rt now 
+ GroundTruth : i started to get that feeling of complete despair for the human race i get when i read <unk> 
+ Sample : <go> i wish i could be there but i would love to see what i could do with the <unk> <eou>
+
+Source : hey everyone im still sad about my little dog mickey dying yesterday id been in denial about it but all the signs are that his heart 
+ GroundTruth : and lungs were giving out i think he might have been having some problems with his brain near the end too because he was getting confused 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i have a really big important day today im super nervous but i have this tweet as my background for the day to keep me going 
+ GroundTruth : one step at a time girl youve got this 
+ Sample : <go> i love you so much i love you so much i love you so much i miss you tons <eou>
+
+Source : we gonna talk about bipolar depression next week in psych pray for my tiny soul as i deal with some of these problematic ppl sayin shit 
+ GroundTruth : but like bless my profs soul for saying its ok if i wanna skip next weeks class or take a break cause he wants me to take care 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : when donald trump is on his <unk> at his heirs will be fighting over how to get his money like evil spoiled children mark my words 
+ GroundTruth : between todays medical advances and the good genes that he brags about trump could live to be more likely but i spotted him 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : true but i like to believe he wont do shit like that he wont be able to have his crazy coke parties with josh gordon tho 
+ GroundTruth : he might now since rg and mccown went down 
+ Sample : <go> i dont think he has to be as much as possible as possible as he has to do that <eou>
+
+Source : ive been on a late s pc gaming kick am now deciding on my next review vote for your pick using the poll embedded below thanks 
+ GroundTruth : oh man i loved lego island as a kid and even tried to <unk> it a few months ago 
+ Sample : <go> this is the best thing ive ever seen in a while ive ever seen it in the past years <eou>
+
+Source : say u dont like her but try not to talk shit about the wonderful thing she did in becoming a parent to children who needed it 
+ GroundTruth : thats actually a great compromise i will tweet this exact thing 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past decade so much <eou>
+
+Source : its kinda messed up that there is an election nearing amp these terrorist attacks amp all people seem to care about is some couple splitting up 
+ GroundTruth : thats why this country is in the condition its in we are also lucky that these terrorists are so inept 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : hrs flying ahead time to add all my new music into one super sonic <unk> <unk> live show did i mention i love having new music 
+ GroundTruth : i <unk> it too give me some of that 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive ever seen <eou>
+
+Source : it was staple in my household and i recently apologized to my mom for making fun of her before i realized how much i love it 
+ GroundTruth : hahaha i was too young to order cds off the tv but i looked for the other artists on it in the store 
+ Sample : <go> thank you so much i love you so much so much so much so much i miss you tons <eou>
+
+Source : a friend just said come on and i said eileen and he didnt know what i was talking about and now we cant be friends anymore 
+ GroundTruth : my high school principal was an eileen so you can imagine how awesome <unk> were especially when we wanted something 
+ Sample : <go> i thought it was the only one that was one of the top of the <unk> of the <unk> <eou>
+
+Source : grows back fairly soon like maybe week or so but they dont want you to shave in the meantime so if it does grow back sooner 
+ GroundTruth : its kind of spotty like it wont grow back evenly and if youre very sexually active then youll obviously want to avoid that 
+ Sample : <go> i was just thinking about it but i think it was the only one who was in the area <eou>
+
+Source : pneumonia after he wasnt keeping down his food poor little guy at least i gave him a good home after <unk> him from the sj shelter 
+ GroundTruth : my roommate was the one who adopted him but he took instantly to me to both of us but me especially hed been in a fight or something 
+ Sample : <go> i thought he was going to be a good friend but he was going to be a good job <eou>
+
+Source : makin copies of a french <unk> journal for one of the professors i work for stole one of the copies so i can practice reading french 
+ GroundTruth : my lil job in the classics department is so fun 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : s rap dusty ass beats be boring af and put me to sleep but even i can admit big l the greatest rapper to ever liv 
+ GroundTruth : wow niggas really asked that lol 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : africa has china in the south the us with canada <unk> in the west mexico in the north and two copies of india in the east 
+ GroundTruth : europe has texas in the west then california nevada then <unk> over the <unk> countries 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : christine will awkwardly give some random dude my number filled out on a quick draw but cant just tell my forever crush i think hes cute 
+ GroundTruth : if he was your forever crush i woulda heard about him by now 
+ Sample : <go> i cant wait to see you in a couple weeks and i have to wait to see you again <eou>
+
+Source : yes ok i said you got it i learned the hard way when i got responses i was added my second one to a <unk> me 
+ GroundTruth : thanks hope i get the hang of it take care 
+ Sample : <go> i thought it was the only thing i had to do it when i can get it out here <eou>
+
+Source : the premiere eps was avail for a short time as a sneak peek dont fret though itll be back up on so add it to wl 
+ GroundTruth : okay i understand my mom will wait on thursday thanks for the responds 
+ Sample : <go> this is the best thing ive ever seen in the video ever seen the video of the year old <eou>
+
+Source : if im not challenging myself to try things musically that i havent done before then im not doing my job thanks for helping me do that 
+ GroundTruth : counting down the days until escape need to relive those edc vibes 
+ Sample : <go> i love you so much i cant wait to see you in the next time you guys rock me <eou>
+
+Source : its kinda messed up that there is an election nearing amp these terrorist attacks amp all people seem to care about is some couple splitting up 
+ GroundTruth : the guy that had the jeep filled with explosives a year or ago and it didnt go off now this guy with the pressure cookers 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : africa has china in the south the us with canada <unk> in the west mexico in the north and two copies of india in the east 
+ GroundTruth : if you click the url i linked it goes to a page with the countries laid out like the screenshot so you can drag them around or add more 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : it amazes me how my professors have phds and then it takes them minutes to figure out to get a youtube video to go full screen 
+ GroundTruth : didnt this just happen to your class the other day 
+ Sample : <go> this is the most accurate thing ive ever seen in my life so i can do it for me <eou>
+
+Source : and she never took chica outside of the trailer and the little garden surrounding it so she never learned to go for walks like other dogs 
+ GroundTruth : so i wasnt really able to get her exercise she had other health problems but her weight amp lack of exercise hurt her knees i like dogs 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive seen in the past years <eou>
+
+Source : maybe well meet again when we are slightly older and our minds less hectic and ill be right for you and youll be right for me 
+ GroundTruth : but right now i am chaos to your thoughts and you are poison to my heart 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : lucas is off on his honeymoon with brad they said that a while back im sure he will be back soon now that sabrina is dead 
+ GroundTruth : hes been on his honeymoon for months he came back when jules was in the hospital remember 
+ Sample : <go> i think he has to be a good idea hes not a bad guy but hes a good guy <eou>
+
+Source : which is what happened to her and basically the same thing to mickey maybe he did have allergies ive been having them he may have got 
+ GroundTruth : pneumonia after he wasnt keeping down his food poor little guy at least i gave him a good home after <unk> him from the sj shelter 
+ Sample : <go> i dont think he has to do anything to do anything to do anything to do anything to do <eou>
+
+Source : a lot of the idiotic planning in the <unk> makes sense when you realize these are people who think the gold standard is a good idea 
+ GroundTruth : wizards stuck in the past obsessed with racial purity loud and <unk> shes many things but rowling aint subtle 
+ Sample : <go> i think thats the only one that matters is the best thing ive ever seen in the past season <eou>
+
+Source : dont hate most media bc of bias hate them bc theyre <unk> amp care only for profit not for truth justice or the american way profit 
+ GroundTruth : the media is not a <unk> filled with lots of great and lots of bad folks like any industry 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : democrats want to appeal to people who believed a glass vial was proof enough to start a war killing over a million as the reasonable folk 
+ GroundTruth : trump will win because good if you can call it that because liberalism sure as hell isnt is dumb 
+ Sample : <go> i have no idea what i have to do but i dont want to see what happened to you <eou>
+
+Source : today upon huffing the playdoh i keep on my desk for emotional support i confirmed that i have lost my sense of smell i blame <unk> 
+ GroundTruth : last night i tweeted about one of my <unk> candles and i feel like i have to be honest with you i couldnt actually smell it 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : i want to go on record and say that moves more and goes harder than any other bass player on stage ever my dude kills it 
+ GroundTruth : hes a bassist with a wrestlers stage presence meet el diablo 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : i called its for a reservation u get a chance to be b the release so u basically can reserve a pair min b everyone can 
+ GroundTruth : yup u got it my friend 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th th ave <eou>
+
+Source : why dont we try focusing on the good people are doing for the world instead of speculating on their private life of which we know nothing 
+ GroundTruth : excuse me thats not what hollywood and reality tv is all about olivia you cant have it both ways 
+ Sample : <go> this is why i have to go to the gym so i have to go back to the gym <eou>
+
+Source : he then failed to make a break to cover second for possible force on <unk> to b not his finest moment still young still learning b 
+ GroundTruth : im sure pedroia and or <unk> may say something 
+ Sample : <go> i thought he was doing the same thing he was doing the same thing he was doing nothing wrong <eou>
+
+Source : the third and final release of the three body problem series is today if you havent read the first two yet i cant recommend it enough 
+ GroundTruth : hows the second one compared to the first one 
+ Sample : <go> i love you so much i love you so much i cant wait to see you in the way <eou>
+
+Source : <unk> costume changes make no sense like how do you hide a cape long sleeve shirt and a skirt under a blouse and a short skirt 
+ GroundTruth : and where do the boots come from 
+ Sample : <go> i cant wait to see what i have to do but i have to go back to the <unk> <eou>
+
+Source : if youre going to be sure to post a picture of your shoes in your bio so those of us who are shy can recognize you 
+ GroundTruth : gonna use that little gem on some <unk> later 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : why the hell are people so incapable of loving people that dont look like them talk like them think like them what are you afraid of 
+ GroundTruth : generally people <unk> amp educated are not like this 
+ Sample : <go> this is why i have to do the same thing i dont think it was the same reason why <eou>
+
+Source : hard work is appreciated but the truth is i run on mbps wifi and ive had full size runs sell out before i even get notified 
+ GroundTruth : do you have a specific release this happened for we can look on our end and see if that specific site is slowing down 
+ Sample : <go> this is the best thing ive ever seen a lot of people in the past years of the time <eou>
+
+Source : just bc we share the title of poc doesnt mean we share the same experiences of the black community and to think so is incredibly naive 
+ GroundTruth : we will never experience the same oppression adversity and fear that our black friends colleagues and family members do 
+ Sample : <go> this is the best thing ive ever seen it in the past ten years of the past ten years <eou>
+
+Source : anyone know how to delete msm stories about deleting vip emails i have a very high profile client who needs to cover up a cover up 
+ GroundTruth : i already told my family to look out for some version of this story in the msm in about or weeks 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen in a while in a few weeks <eou>
+
+Source : ive been working on an old rock garden at my moms for the past month amp a half it was built by my dad amp brother 
+ GroundTruth : both my dad amp brother passed away over years ago so this garden is special to us it was all <unk> w weeds but we r almost ready to 
+ Sample : <go> this is the best thing ive ever seen that ive seen in a while ive seen in a while <eou>
+
+Source : my stress level is to the point where i feel genuine <unk> for the dudes who get to work the night shift at a gas station 
+ GroundTruth : it sucks because most people like this will never really get to appreciate the simplicity of their task 
+ Sample : <go> this is the best thing ive ever seen ive ever seen that ive seen it in the past years <eou>
+
+Source : <unk> on ur insta picture of u wearing the white dress where can we get the dress and those black heels they are stunning on u 
+ GroundTruth : <unk> if you join you can receive an email w info about outfit <unk> 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen it in the past years <eou>
+
+Source : looking at the young trump supporters behind him full of hate at his rally in nc is the closes images weve seen since civil rights era 
+ GroundTruth : the enthusiastic cheers and smiles show how much they hate cronyism in the establishment just like bernie supporters 
+ Sample : <go> i have no idea what he has to do to be in the <unk> of <unk> <unk> <unk> <unk> <eou>
+
+Source : i find if i fall asleep in front of the <unk> with a half drunk beer in hand than that has also been a good day 
+ GroundTruth : a l m o s t as good 
+ Sample : <go> i cant wait to see you at the end of the season i have to go back to sleep <eou>
+
+Source : they may get me for going against the grain but i feel good knowing ill go down standing on principle you cant make this stuff up 
+ GroundTruth : watched your video on yt solid talk man no labels just truth you take care 
+ Sample : <go> i cant wait to see you in the same outfit i have no idea what youre talking about it <eou>
+
+Source : this goes back to my earlier series of tweets about how brand names become important when the good and the flimsy keyboards are made in <unk> 
+ GroundTruth : having worked at msft in the past i know they spend a tremendous amount of time and energy hunting down <unk> of their products 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : im honestly a bit confused why no one has brought me or my books any cake perhaps i will take this matter into my own hands 
+ GroundTruth : there is no cake but what we make 
+ Sample : <go> i cant wait to see you in the city i have to wait to see you in the city <eou>
+
+Source : i had this talk with my gf too she is looking for a cancer research <unk> in yrs and if trump wins it make a diff 
+ GroundTruth : from the outside canadian it feels like of course this wont happen but the thought is chilling 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen it in the past ten years ago <eou>
+
+Source : this is not suppose to be happening every week thats not normal people i mean damn why have <unk> if you just gonna shoot a mf 
+ GroundTruth : why an unarmed black man killed in tulsa yet an fbi top ten wanted criminal just wounded in a shootout that injured officers 
+ Sample : <go> i have no idea what i want to do but i dont want to see what i can do <eou>
+
+Source : my gym is on that corner so im there a few times a week at least im more scared of being pushed onto the subway tracks 
+ GroundTruth : yeah the random crazies those stories are always chilling 
+ Sample : <go> this is the most accurate thing ive ever seen it in the bay area so i can see it <eou>
+
+Source : he was developing like roots and stuff now that can all go out the window he can be a big hero and impress his cat son 
+ GroundTruth : but will you really be completely <unk> d 
+ Sample : <go> i thought he was doing the same thing but i think he might have to do something to do <eou>
+
+Source : according to my <unk> i just changed my diet amp <unk> more my period would be more <unk> i didnt realize he had a death wish 
+ GroundTruth : the only thing a man should say is ill grab a towel 
+ Sample : <go> i cant wait to see you in the same boat but i have to wait to see you guys <eou>
+
+Source : <unk> on connor <unk> he has a bright future not many guys can be a true freshman and step on the field talented guy smart guy 
+ GroundTruth : my job is to help him progress as much as he can i want to help him maximize every snap that he gets 
+ Sample : <go> i dont think he has to do anything to do anything to do anything to do with the browns <eou>
+
+Source : i got an even worse story i had a scholarship at a catholic hs that was amp is predominately white bunch of good folks in there 
+ GroundTruth : except the school librarian amp chem teacher the librarian just wouldnt let me study in the library at all always walked ovr 
+ Sample : <go> it was the only one that was the only one that had to be in the middle of it <eou>
+
+Source : i like to repeat this every few months endless thanks to everyone who reads amp shares my articles tweets etc wish i could kiss you all 
+ GroundTruth : i only retweet your stuff because im scared you will hunt me down and key my car oh wait youre actually really nice 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : it started from when james told nat that vic asked nic to go on a date amp was sealed when they turned on the f agreement 
+ GroundTruth : um paul wanted to take a shot at james he had no intention on that deal nat knew that vic was the <unk> 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years in the past years of life <eou>
+
+Source : on flight man to my left stole my headphones religious man to my right has used a pillow to ensure he doesnt have to touch me 
+ GroundTruth : have burst out laughing at diagram of a vagina friend texted to troll both men looked both men are horrified religious man has moved 
+ Sample : <go> i think he has to do the same as soon as he has to do it for a while <eou>
+
+Source : my feet just wont stop <unk> up i take muscle <unk> to kill them <unk> fall asleep someone wakes me up and they cramp again fml 
+ GroundTruth : someone needs a foot massage lol also eat bananas amp drink water 
+ Sample : <go> this is the most accurate thing ive ever seen it in the bay area so i can see it <eou>
+
+Source : i still feel like n started to distrust da when d told her she didnt trust z anymore bcz how close she was getting to paulie 
+ GroundTruth : nic actually said it started on day i think the stuff wt amp ds inability to hide her agitation at <unk> amp nc 
+ Sample : <go> it was the only one that was in the middle of the night of the night of the night <eou>
+
+Source : home loss always takes a toll on u when u go to the game the tickets parking the tailgate stuff concessions and getting over the loss 
+ GroundTruth : you are the bad luck man dont go anymore 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in the right way <eou>
+
+Source : <unk> said she wants to take me out to dinner for my bday i said nope just make me some spaghetti at grandmas house family dinner 
+ GroundTruth : omg can i invite myself bc i havent seen grandma in forever 
+ Sample : <go> thank you so much i love you so much so much i miss you tons so much so much <eou>
+
+Source : and to get back to my original point about the variety obit i do not care if river wild was derivative its a fucking fantastic movie 
+ GroundTruth : meryl shouldve played <unk> mom in mile there i said it 
+ Sample : <go> i cant wait to see you in the next few weeks of the season in the season i think <eou>
+
+Source : the only goal i have left in this election year is to try to get someone to understand their <unk> opinions and why they are such 
+ GroundTruth : theres a fucking reason that this guy or that girl believes in x y or z theyre not crazy irrational etc 
+ Sample : <go> this is the best thing ive ever seen ever yet ive seen in a few years ago ive seen <eou>
+
+Source : hi milly sorry to hear that youre having a hard time cancelling if you dm us the phone on your account we can look into it 
+ GroundTruth : i was finally able to get through to someone your <unk> need to be more transparent in what youre actually selling 
+ Sample : <go> thank you so much for the kind words thanks for coming back to the next time to be done <eou>
+
+Source : today has been a dark day please respect my privacy as i deal with the divorce of two close personal friends of mine brad and angelina 
+ GroundTruth : i dont know if this helps but anthony bourdain is newly single hi daddy 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : offended that i was notified of the explosions in chelsea but there was a bomb squad outside our dorm and everyone mute all of a sudden 
+ GroundTruth : the is mercedes from ny news anymore info on the package that was found outside your dorm 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while ive seen <eou>
+
+Source : i dont believe your intention was to try me but to come at me publicly on the tl to question me about biz practices is not 
+ GroundTruth : you say you dont believe i was trying you yet you send <unk> statements i cant believe this but its cool 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : tomorrow on talk radio gronk wears full pads to the <unk> as a sign of <unk> he doesnt like his coach more on the boiling feud 
+ GroundTruth : i dont think gronk wants to be here anymore mike he was forced to remove his pads this doesnt look good mike 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : hi milly sorry to hear that youre having a hard time cancelling if you dm us the phone on your account we can look into it 
+ GroundTruth : its sad how youre taking advantage of loving pet owners who want only whats best for them never going back 
+ Sample : <go> thank you so much for the kind words thanks for coming back to the next time to be done <eou>
+
+Source : theres a place down the block that offers them but if you really wanted to do one in the west bay thatd work for me too 
+ GroundTruth : <unk> email me the info i brewed some for a few months but i would take a class to learn about getting it <unk> 
+ Sample : <go> i think its a good idea but i have a lot of time to do it for a while <eou>
+
+Source : i like to keep my identity secret but ill tell you we have one thing in common ill tell you its based off the fb page 
+ GroundTruth : ugh oh im scared now lol 
+ Sample : <go> i was just thinking about the same thing but it was the only thing ive had to do it <eou>
+
+Source : btw im enrolled in a comp sci program at bu for the next year any recs for ppl to follow amp resources would be much appreciated 
+ GroundTruth : isnt a dev but hes a seasoned tech product manager data guy writer music guy cool dude 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : the fact that grown ass women are naive enough to believe <unk> a known ny nigga didnt cheat on remy for the seven years is hilarious 
+ GroundTruth : <unk> isnt strong enough to stop a man from sleeping with someone else while youre in jail for years wake up sis 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while so much <eou>
+
+Source : lol never mind i literally just passed him in the hall and as usual he just looked straight ahead hes too <unk> to notice anything ever 
+ GroundTruth : robots dont have hearts anyway time to find a new slice of senpai 
+ Sample : <go> i think he has to be in the same boat as well as he has to do his job <eou>
+
+Source : btw im enrolled in a comp sci program at bu for the next year any recs for ppl to follow amp resources would be much appreciated 
+ GroundTruth : im also a less veteran product manager if u ever wanna talk shop 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : how much time is too much i spend in my car daily i hate it but i come home to hard but worth it for me 
+ GroundTruth : its <unk> per person and what you will tolerate i refuse to be in that traffic jam i just cant emotionally take it 
+ Sample : <go> i thought it was the only thing ever happened to me when i was in town when i was <eou>
+
+Source : i want to speak on but see we do this every month we get angry and upset and then a month later yall forget about it 
+ GroundTruth : we <unk> argue we fight for a good month ampthen it just dies down <unk> wait for the next unarmed black man to become a victim 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : im trying to study for drivers ed n all i can think about is one hand <unk> the steering wheel the other hand <unk> ur thigh 
+ GroundTruth : stay loose its okay to be a little nervous focus 
+ Sample : <go> i think its a good idea but i have a lot of things to do a lot of things <eou>
+
+Source : <unk> isnt a testers discipline i use them to manage my cognitive load evolve code and catch mistakes as i make them not to verify sys 
+ GroundTruth : great way to box in the problem that you are currently solving and stay focused 
+ Sample : <go> i have no idea what youre talking about to do you dont know what youre talking about to do <eou>
+
+Source : this trick in a fucking all white <unk> amp <unk> combo w a white aa wrap top black choker amp ankle boots is tryna tell me 
+ GroundTruth : like she looked good but you can tell she <unk> stole the clothes off an hampm mannequin amp then told me i have no style 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : people generally dont believe me when i say that our move from nyc to sf was our version of moving to the burbs but it was 
+ GroundTruth : you can still move to vancouver international burbs 
+ Sample : <go> this is the best thing ive ever seen a lot of people ive ever seen in the past years <eou>
+
+Source : my dad asked why savage has a cross on his head and i got so excited to say issa knife that i <unk> and ruined it 
+ GroundTruth : did he really remove all the tats 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : talked w customer care amp retail all week amp even had cc hang up on me a year after switching amp still no <unk> refunds gone 
+ GroundTruth : oh yuck they never paid your switch <unk> refund 
+ Sample : <go> i have no idea what youre talking about how much people are you willing to do it to you <eou>
+
+Source : i started thinking about the other boi <unk> that i like i think my tastes are really varied but im not sure how to quantify it 
+ GroundTruth : like i like tall n <unk> boys but shirou is a tiny <unk> 
+ Sample : <go> i think it was the best thing ive ever seen a lot of things ive seen in a while <eou>
+
+Source : if i pace around my house will pokmon go have the <unk> resolution to hatch my eggs and reward my buddy i intend to find out 
+ GroundTruth : if youre ok with it being <unk> slow even gps <unk> while stationary will work 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive ever seen <eou>
+
+Source : it really is and i bet she either gets away with it or gets a slap on the wrist its so upsetting that its so common 
+ GroundTruth : i hate that innocent lives are taken it shouldnt get to that level but then to turn around and not <unk> the officers 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : i havent eaten meat in like a week bc the dining halls just happened to only be serving fish and i honestly feel a lot better 
+ GroundTruth : lowkey might stop eating meat all together 
+ Sample : <go> i cant wait to see you in the next two weeks in october th in october th october th <eou>
+
+Source : bb would be at the bottom running around in circles when she heard the garage door open she would race up and down the stairs waiting 
+ GroundTruth : as soon as wed come home and say nelly bb would run up the stairs and bark so loudly like nelly come on theyre here walk time 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen it in the past years <eou>
+
+Source : paul about nicorey i can tell he really cared for you he did like i knew because you guys would get upset about the stupidest things 
+ GroundTruth : is he telling nicole all this stuff 
+ Sample : <go> i dont know what happened to you i was thinking about it but i was just thinking about it <eou>
+
+Source : happy birthday josh pumped to c u out this year btw when r we gonna play k so i can beat you and take a lead 
+ GroundTruth : much love <unk> ill ball out this year n thatll happen very soon except im the one whos gonna be taking the lead hahaha 
+ Sample : <go> thank you so much i love you so much i miss you tons of miss you too ily ily <eou>
+
+Source : my insurance company wants me to save them money by getting rx filled by mail straight from their pharmacy ok fine will save me time too 
+ GroundTruth : however basically the entire burden is on me to secure a new prescription and get it to them for this purpose including possible dr visit 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : im a ua <unk> service tech of my commute is <unk> you have to leave sf by pm now to be home at a decent time 
+ GroundTruth : theres no window anymore regardless of when you leave theres traffic 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : but i think it might bias peoples responses in the poll i just tweeted about the pixel phone launch i have very few questions about it 
+ GroundTruth : not that i have any special insight into the specs but im not all that curious except about project fi since i worked on a piece of it 
+ Sample : <go> i was thinking about the same thing but i think it was the only thing that happened to me <eou>
+
+Source : my kids are gonna be <unk> to commas during a throwback set on hot im gonna be like if only yall were there when this dropped 
+ GroundTruth : mine will still jam to silk with me 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : its not whether or not your kids throw tantrums its how you react thats the variable your job is to be the calm to their storm 
+ GroundTruth : great reminder deep breathing breaks help too 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in the right direction <eou>
+
+Source : i have no problems with the deng contract my only question is if hed have any problems with not being played in ingram earns his mins 
+ GroundTruth : ironic enough we have to get rid of <unk> so small ball mins open up for <unk> so deng can play more pf mins 
+ Sample : <go> i have no idea what he has to do to do with the <unk> of <unk> <unk> <unk> <unk> <eou>
+
+Source : so a cop had a really old bag that he tried to use to flake crutcher after the fact i <unk> have seen that a f 
+ GroundTruth : pcp in the air must be why a whole team of police who shot a helpless man then did nothing heal console or help him as he died 
+ Sample : <go> i think he has to be a bigger problem than he has to be more than a year old <eou>
+
+Source : parts in the series about how the maker of teflon concealed from the public amp its own workers the known dangers of the chemical c <unk> 
+ GroundTruth : but i think im willing to <unk> believe their claims that you cant get much <unk> from cooking in teflon pans its the other stuff 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years so i can see it again <eou>
+
+Source : i havent been to boulder in a few months and wow its just as ugly as denver <unk> <unk> over as <unk> <unk> go up everywhere 
+ GroundTruth : it is <unk> and ive been gone less than a year 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : honestly im a pretty stressed person in general and the whole im not good enough to go to the schools i want to thing isnt helping 
+ GroundTruth : i believe in you just apply to schools and you will end up somewhere great 
+ Sample : <go> i have no idea what youre talking about you and i was talking about it in the same time <eou>
+
+Source : when he was voted out bb i cried this is always the time in bb when sht talking gets deep i tweeted james some love today 
+ GroundTruth : yeah but his cast wasnt like this its probably been really hard on him plus hes in love on top of it 
+ Sample : <go> i thought he was in the same boat when he was in the same boat when he went back <eou>
+
+Source : everythings on the line for the series vs sd amp la do you move madbum up in the rotation to get more games out of him 
+ GroundTruth : absolutely nothing to lose beyond the playoffs 
+ Sample : <go> thank you so much i love you so much i miss you tons of <unk> and tons of <unk> <eou>
+
+Source : best <unk> of the st century kobe wade harden <unk> ray allen let me know if i missed i have a tendency to lose my mind 
+ GroundTruth : honestly i think thats the list and theres no real debate you can quibble the ranks but thats the top for sure 
+ Sample : <go> this is the best thing ive ever seen ive ever seen that ive ever seen that ive ever seen <eou>
+
+Source : ive legit thought cher was saying do you believe but laugh at the love all these years omg why did no one tell me the truth 
+ GroundTruth : lmfao you just shattered my entire opinion of you 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in a while <eou>
+
+Source : that is slightly terrifying i may have to trouble you to send me that whenever you have a spare moment i dont have any of them 
+ GroundTruth : haha no bother at all should be able to do it tonight or this week 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : it really is and i bet she either gets away with it or gets a slap on the wrist its so upsetting that its so common 
+ GroundTruth : its literally so mindboggling to me 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : dont all of these videos that surface after the lie of an official report has been published make you wonder why many black men are jailed 
+ GroundTruth : how many people are in jail because of lies and cops feeling threatened murders are only one aspect of police brutality and corruption 
+ Sample : <go> i have no idea what i have to do and i have no idea what i am talking about <eou>
+
+Source : if you report a suspicious person to the fbi and the fbi doesnt make an arrest there is a risk that the person will become president 
+ GroundTruth : dont understand why they so surprised the fbi didnt see it coming hillary has basically spat on them amp got away with it 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : bb would be at the bottom running around in circles when she heard the garage door open she would race up and down the stairs waiting 
+ GroundTruth : finally one day bb started calling for nelly too which is <unk> bc bb never ever <unk> never 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen it in the past years <eou>
+
+Source : the most heinous legacy of the war on drugs is how poc esp africanamerican men are being fed into this new system amp suffering from it 
+ GroundTruth : not only is prison a horrible <unk> but being <unk> limits your opportunity to success 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in the right direction <eou>
+
+Source : and then there was sunday when she just sat in <unk> spot by her fan sniffing the floor over and over again its confusing for her 
+ GroundTruth : anyway tldr death sucks i want my dog back please make all pets immortal thank you 
+ Sample : <go> this is the most accurate thing ive ever seen it in the past time i was at the moment <eou>
+
+Source : wasting an entire year on a guy that aint shit amp tells you to keep it lowkey bc of ur weight is so shitty dont recommend 
+ GroundTruth : i am upset by this tweet who <unk> 
+ Sample : <go> thank you so much i cant wait to meet you in the evening in the evening in the evening <eou>
+
+Source : whats funny is that i almost had a fantasy football team with the same name what stop me is that i have no knowledge of fb 
+ GroundTruth : i dont <unk> about fantasy nascar next year 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in my life <eou>
+
+Source : if you have dogs you know how important routine is to them they get very fixed on set specific steps and <unk> to their daily routine 
+ GroundTruth : so that was part of bbs routine waiting for nelly running up and down the stairs barking for her etc 
+ Sample : <go> i dont know if i can do anything but i would have to do that it would be cheaper <eou>
+
+Source : the issue at hand is a grave one yes i am referring to the dire conundrum of men being too tall to get danced up on 
+ GroundTruth : i will vote for whoever makes men shorter again 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : have you tried it at starbucks i dont know if i should try it from there but stop dunkin never fails to give me the poops 
+ GroundTruth : starbucks is probably better but i personally dont like the flavor at all 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : i need to go buy a new cruiser board ive been wanting to skate around so badly but the one i wanna get is almost <unk> 
+ GroundTruth : just stumbled on this if youre already in love with another cruiser theres not much we can do 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : right gina i had a doc argue w me over this the other day i sent him a list of all the diff types of pneumonia 
+ GroundTruth : i had it too twice i know it was bullshit she has parkinsons and it was a flare up no one is talking about that now 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : the man and i have not discussed that yet altho they seemed into the art as is idk will find out this is for <unk> else 
+ GroundTruth : let me know if the existing color scheme needs a letter of recommendation i will pretend to be someone important 
+ Sample : <go> this is the best thing ive ever seen ive ever seen that ive seen in the past few weeks <eou>
+
+Source : my issue with the <unk> deal is that weve begun talking about the need to get rid of it before hes even showed up to camp 
+ GroundTruth : ive traded <unk> amp lou for assets <unk> <unk> and dumped deng with a pick already dont me 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive ever seen in a while <eou>
+
+Source : the problem is people tend to blindly believe what the media says without doing any research of their own the media tends to make the small 
+ GroundTruth : stories into big things and try to hide the bigger stories that is going on 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in the right direction <eou>
+
+Source : it finally happened i met gaga for the first time i feel so overwhelmed she fucking hugged me and shes so cute and tiny and perfect 
+ GroundTruth : told you great meeting you tonight love 
+ Sample : <go> this is the best thing ive ever seen that ive seen in the past years in the past years <eou>
+
+Source : i just wanna say sorry to my snapchat friends for my story i probably should have given a heads up on the graphic content ok thanks 
+ GroundTruth : i was eating when i saw it love you though 
+ Sample : <go> thank you so much for the great part of the great journey lt lt lt lt lt lt lt <eou>
+
+Source : go to target for some groceries and you leave with a unicorn <unk> new <unk> a build it yourself shelf new dishes and a baby monkey 
+ GroundTruth : went for some decorations for my little sisters school project and came home with hella <unk> decorations see how this works 
+ Sample : <go> thank you so much i love you so much lt lt lt lt lt lt lt lt lt lt <eou>
+
+Source : im suddenly reminded of when <unk> boyfriend came out i made a post on the blue website calling the library birds story <unk> and bad 
+ GroundTruth : and having multiple library bird <unk> <unk> and post and yell at me <unk> style 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : da led nicole to believe tiff was the that outed the fatal amp this was why she wanted her evicted she is only girl left 
+ GroundTruth : as much on sunday as they reflected a bit 
+ Sample : <go> this is the most accurate thing ive ever seen it in the bay area so i can see it <eou>
+
+Source : i just dont think its likely tom herman ends up at baylor or aampm after this season id bet a better <unk> will come calling 
+ GroundTruth : lsu notre dame usc amp possibly <unk> could all open up this season herman might even consider waiting another year 
+ Sample : <go> i think its a pretty good thing but i think it might be a good thing to do it <eou>
+
+Source : my daughters bday is the th and this yr she is having a halloween themed party so we went out and got lots of decor 
+ GroundTruth : ohhh thats so fun im doing a halloween party for mine this year too 
+ Sample : <go> thank you so much i love you so much love you so much so much so much so much <eou>
+
+Source : someone rtd that where would u sit classroom thing and said shed sit <unk> to <unk> so she can cheat and get all <unk> tweet 
+ GroundTruth : didnt know this but if ur gna cheat u cant sit next to them u gotta sit behind them <unk> 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive ever seen in a while <eou>
+
+Source : apparently we live in an age now where its not acceptable to ask to be paid for your work exposure is the form of payment 
+ GroundTruth : too many people willing to sell for exposure and free always <unk> any price its more of a supply problem 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : trump was telling the truth when he said he doesnt settle lawsuits his charity using money <unk> up by other people does it for him 
+ GroundTruth : that just isnt as disturbing as the cf doing uranium deals <unk> or hillary <unk> up to oil cox 
+ Sample : <go> i dont think he has to do anything to do anything to do anything to do anything to do <eou>
+
+Source : and also the fact that you <unk> not change who people are and what their habits are what you can do is adjust your expectations 
+ GroundTruth : a lesson i have trouble with on a pathological level 
+ Sample : <go> this is the most accurate thing ive ever seen it in the past years of the past years so <eou>
+
+Source : what did twitter folks think of stones snowden want to see it due to the subject but gets mixed reviews will prolly see it anyway 
+ GroundTruth : asking twitter folks as i think youre more familiar wthe narrative than most so your reaction may be a better <unk> than rotten tomatoes 
+ Sample : <go> i thought it was the only one that was the only one i was in the middle of it <eou>
+
+Source : ive been playing spaceship with my year old niece for the past few days and today she told me girl astronauts cant go to space 
+ GroundTruth : wha where did she learn that shit 
+ Sample : <go> this is the best thing ive ever seen ive seen it in the past years of the past decade <eou>
+
+Source : i hear this but in the end you wont be just wearing what you made the half ass t shirt brands is what <unk> the 
+ GroundTruth : anything i make or my peoples can make i will be wearing none of my peoples make jeans so ima go elsewhere for that 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : same here when he <unk> the first time i was like come on man but once he got hit please punch him in the face 
+ GroundTruth : lol no going back teams might expose that 
+ Sample : <go> i think he has to be in the same boat as well as he has to do the same <eou>
+
+Source : i appreciate every one of you who reads my work im not sure where youll read it next but it is no longer at <unk> 
+ GroundTruth : sorry to hear it mate hope youll be publishing regularly somewhere else soon 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : i see a lot of responses like this but ppl forget how much in an earlier era jews were seen as the agents of <unk> 
+ GroundTruth : also there are clearly people who want to deport jews to israel 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : we determine our own <unk> life style choices will come back amp bite u in the butt but u already know that amp do better 
+ GroundTruth : it can happen to the best of us main thing is you are ok thank god 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : we have our own eyes amp ears amp we see the attacks crimes rising and we hear the lies that hrc spew dont need anyone 
+ GroundTruth : life must have screwed over you a lot my dear 
+ Sample : <go> i cant wait to see you and i have no idea what youre talking about to see you guys <eou>
+
+Source : the fact that it can be beat this quickly proves its not worth bucks pissed i even gave them as much money as i did 
+ GroundTruth : this doesnt surprise me at all probably hours before youre doing the same missions again 
+ Sample : <go> this is the most accurate thing ive ever seen it in the bay area so i can see it <eou>
+
+Source : come to dc paul we dont have the women but youd certainly have plenty of leftists to troll in the real world like i do 
+ GroundTruth : no come to new york we have even more of both 
+ Sample : <go> this is the most accurate thing ive ever seen in the video ever seen it in the bay area <eou>
+
+Source : colin kaepernick says hell donate k a month for the next months is setting up web site so public can track how it is spent 
+ GroundTruth : i think it is a must so many good intention projects end up with money in the hands of the wrong people 
+ Sample : <go> this is the best thing ive ever seen in a while in a row so i can see it <eou>
+
+Source : i wanted to read new peter grant mystery as reward for intense <unk> but now its not out until nov any book suggestions you love 
+ GroundTruth : i always read jane <unk> novels on <unk> 
+ Sample : <go> i thought it was the only thing i had to do it when i am in the right way <eou>
+
+Source : proud to be watching my father lay out a bold vision to get americans working again we stand with the worker not big party donors 
+ GroundTruth : why do white supremacists love you 
+ Sample : <go> thank you so much i cant wait to meet you in the evening in the evening in the evening <eou>
+
+Source : if you go back to redeem yourself why give any rants that editors can use they can not edit what comes out of your mouth 
+ GroundTruth : please tell me about it after youve been through the process san fckin <unk> 
+ Sample : <go> i have no idea what i want to do but i dont know what to do to do it <eou>
+
+Source : i appreciate every one of you who reads my work im not sure where youll read it next but it is no longer at <unk> 
+ GroundTruth : omg first brad amp angie file for divorce then this 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : when i grow up i wanna be every time i listen to him i feel like damn hes the <unk> coolest dude in the industry 
+ GroundTruth : thats really nice of you to say man means a lot to me but im nobody just a dude hope we can meet up sometime tho 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : true but the fact that everything came from a single point of mass at a single point in time does where did it come from 
+ GroundTruth : again <unk> is not necessarily <unk> 
+ Sample : <go> i think thats the only one that matters is the best thing that ever happened to the bay area <eou>
+
+Source : fine okay being on campus was actually kind of nice and im glad school is back there i said it its not a big deal 
+ GroundTruth : i agree this is nice tweeting from stanford campus 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen in a while in <eou>
+
+Source : i have sooo many lipsticks i dont use anymore that i wanna get rid of but i cant bring myself to get rid of them 
+ GroundTruth : draw a picture of me with them 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : ill be talking about <unk> in an upcoming webinar can i use a <unk> logo for <unk> that i need to write for the conference 
+ GroundTruth : hi kara sure would you like me to email you one 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : but i think im willing to <unk> believe their claims that you cant get much <unk> from cooking in teflon pans its the other stuff 
+ GroundTruth : like <unk> <unk> and who knows if the generic versions of teflon have <unk> or similarly nasty chemicals in the end product 
+ Sample : <go> i think its a good thing but its a lot of ways to do it for a few weeks <eou>
+
+Source : listening now bruh when i was at the <unk> this weekend the dj was trash and i was like <unk> would be killing this rn 
+ GroundTruth : haha thanks brother i love the <unk> i wanna dj there again 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : brian if you ask me pal they will be gutted when they see it on there twitter later what a missed chance for them lol 
+ GroundTruth : aye theyll choke on their fancy dan coffee when they see what they missed mate 
+ Sample : <go> i have no idea what i have to do with you and i dont know what youre talking about <eou>
+
+Source : same situation happened to me a couple of months ago but i told the cop i had no info for him went inside my <unk> 
+ GroundTruth : thing is you can get shot for walking away these days 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about your relationship <eou>
+
+Source : so basically i feel like if i have trouble wording my opinion the right way or forget an important point people are judging me hard 
+ GroundTruth : and it could just be me being too self conscious or anxious but i already have enough trouble speaking up in class 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : cereal dispenser jammed try to fix it <unk> cinnamon toast crunch pours all over my face hear hahaha i saw that from down the hall 
+ GroundTruth : never fear your <unk> never go unnoticed 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : the yankees leader in war by a position player is brett gardner with this is the lowest by a team leader in their franchise since 
+ GroundTruth : fangraphs tells an even more hilarious story with their war 
+ Sample : <go> this is the best thing ive ever seen in the past years of the past decade of the year <eou>
+
+Source : i hope that aapl proves me correct and does ship a <unk> gb iphone s s plus for asia africa europe and the middle east 
+ GroundTruth : and latin america they can ship to the us amp canada last if they have the courage to stand up to the haters and keep their margins up here 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive seen in the past years <eou>
+
+Source : nobody can say shit about <unk> because we dont act like were hot shit even tho were a million times better than white trash <unk> 
+ GroundTruth : oh my god that hurt our feelings so bad you just say shit like this to be a immature bitch grow the fuck up 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen in a while in the past years <eou>
+
+Source : every year the manager says he wants to win this cup every year the manager makes half a dozen changes ill never get understand it 
+ GroundTruth : you cant just put all the eggs in the fa cup basket because you can go out early in that as well even with a strong team 
+ Sample : <go> i thought he was doing the same thing he was doing the same thing he had to do it <eou>
+
+Source : the quality that the pa derby draws annually and the purse they give away it should def be a gr its essentially the fall derby 
+ GroundTruth : agree but it needs to be weight for age 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while so much <eou>
+
+Source : its sad when you both love each other so much but cant be together because you feel like people would judge or hate on you 
+ GroundTruth : follow your heart <unk> stop caring about what people think about you 
+ Sample : <go> i have no idea what to do with you and i dont want you to be one of them <eou>
+
+Source : big man you need to get out more hi <unk> you come here often is a good ice breaker how you doing is another hh 
+ GroundTruth : im <unk> enough mate trying to calm <unk> with the keith moon nights 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while i will be there <eou>
+
+Source : i bought <unk> bc it features the keith <unk> mural ts madison and other good <unk> content but these marc jacobs comments are so bad 
+ GroundTruth : but did they include the shoot with me 
+ Sample : <go> i was thinking about the same thing but it was the only thing ive ever had to do it <eou>
+
+Source : our un youth agency proposals a joke we have a merged agency with sports at home whatre we advocating for charity should begin at home 
+ GroundTruth : same thing i said when i heard it from the minister of foreign affairs we should fix ours first 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen in a while in a few weeks <eou>
+
+Source : did you know that nfl players were not brought out onto the field for the anthem up until recently it was used as marketing ploy 
+ GroundTruth : they were paid to be brought out as the anthem played 
+ Sample : <go> this is the best thing ive ever seen in a few weeks before it was in the last night <eou>
+
+Source : they should have an emoji thats just a couple of full on testicles just a hanging sack so many things you just wanna scream balls 
+ GroundTruth : i can take care of that for you <unk> one selfie 
+ Sample : <go> i have no idea what youre talking about how much people are willing to be here in the world <eou>
+
+Source : i just wanna say that you dont tweet very often and i take it as a sign that your life is productive and healthy congrats 
+ GroundTruth : something like that i actually simply ran out of things to say around the time that i realized we were all doomed 
+ Sample : <go> this is the best thing ive ever seen ever yet ive seen in the past years of the season <eou>
+
+Source : yes the story faded away after the first lines or so amp had a big box that said i had to join to continue reading 
+ GroundTruth : thanks for letting me know im looking into it seems to be a glitch 
+ Sample : <go> i thought it was the only thing i was going to do it when i was in the <unk> <eou>
+
+Source : for those who dont know thats exactly the scheme that tesla has with their latest model where you can pay to unlock all the features 
+ GroundTruth : features that the car already has like the full capacity of its batteries it costs slightly less if you buy the car with them <unk> 
+ Sample : <go> this is the best thing ive ever seen ive ever seen a lot of people in the past years <eou>
+
+Source : every year the manager says he wants to win this cup every year the manager makes half a dozen changes ill never get understand it 
+ GroundTruth : for a team that hasnt won a thing since we cant pick and choose what cup comps we take seriously its embarrassing tbh pete 
+ Sample : <go> i thought he was doing the same thing he was doing the same thing he had to do it <eou>
+
+Source : all we ask is to <unk> is that a word from the narrative and stick to the facts <unk> is not the path to <unk> 
+ GroundTruth : i dont think <unk> is i think common sense is to believe in <unk> moral innocence you have to suspend reality for yrs 
+ Sample : <go> this is the best thing ive ever seen in a while in a while ive seen in a while <eou>
+
+Source : top fan would have let you go in tournament fam but i took that hot game off of you so pls no call me fan 
+ GroundTruth : i dont like to destroy top fans outside of bed 
+ Sample : <go> i have no idea what youre talking about you and i have no idea what youre talking about it <eou>
+
+Source : sez who u have any proof of that and btw the <unk> are unlike you <unk> and <unk> we defend m wout thought of r 
+ GroundTruth : <unk> ka <unk> eh u call us <unk> eh <unk> <unk> <unk> aka <unk> 
+ Sample : <go> this is the best thing ive ever seen yet ive ever seen that ive seen in the past years <eou>
+
+Source : however basically the entire burden is on me to secure a new prescription and get it to them for this purpose including possible dr visit 
+ GroundTruth : not how you get ppl to do things im sure this is illegal but they should have included stamped <unk> you mail back transfer just happens 
+ Sample : <go> this is the best thing ive ever seen a lot of people in the past years ive seen it <eou>
+
+Source : after talking briefly to justice kennedy his security detail took me out questioned me amp wanted to screen my qs to get back into room 
+ GroundTruth : keep fighting the good fight my man 
+ Sample : <go> i was just thinking about the same thing i thought it was the only thing that happened to me <eou>
+
+Source : all these longevity discoveries for humans i really hope we can get good <unk> stuff for dogs amp cats so they can live longer too 
+ GroundTruth : whether its dna repair or <unk> repair or <unk> drugs or replacement organs from stem cells andor d printers lots of options 
+ Sample : <go> i cant wait to see you and i have to wait to see you in the next few weeks <eou>
+
+Source : we dont pay tax on market value of our stocks until we sell its only a paper value real estate works the same way no 
+ GroundTruth : real estate has capital gains <unk> 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : looks like as are going to have a lineup change valencia is in and davis is out davis is a little under the weather apparently 
+ GroundTruth : are the as looking to trade davis trade good players now before you have to pay them 
+ Sample : <go> i have no idea what i have to do with <unk> and <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : but the biggest thing is they keep touching and moving my things im looking for something and it was in the same place for months 
+ GroundTruth : but now my mother caught the spring cleaning bug and moved everything and now i cant find it she cant find it and my dad is useless 
+ Sample : <go> i have no idea what youre talking about you and i dont think i have to do with you <eou>
+
+Source : almost as much that it boggles my mind that a company intent on moving away from a bougie image cant see how bougie that is 
+ GroundTruth : very strange how little classism i used to see i mistook opportunity afforded to me as opportunity afforded to everyone 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : we dont pay tax on market value of our stocks until we sell its only a paper value real estate works the same way no 
+ GroundTruth : i obviously think people homeowners tenants should have stable housing shouldnt be taxed out but i also think its impt 
+ Sample : <go> this is the best thing ive ever seen it in the past years of the past ten years ago <eou>
+
+Source : which gods do i have to pray to before i can find an apartment in <unk> is there a patron saint for affordable shared housing 
+ GroundTruth : youre joking but saint joseph is the patron saint of real estate <unk> hay <unk> para todo <unk> 
+ Sample : <go> this is the most beautiful thing ive ever seen in a while ive seen in a few years ago <eou>
+
+Source : so from what i hear angelina jolie amp brad pitt after years of marriage have decided to call it quits well <unk> la <unk> brangelina 
+ GroundTruth : money never stays married it just keeps chasing money the richer the poorer money cant buy love benz yes love no 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : <unk> is a good enough product that they could have raised the price for an annual subscription next year and i would have bought it 
+ GroundTruth : that said my uneducated opinion is that this decision and way it was realized by customers will cause them to lose money 
+ Sample : <go> i have no idea what youre talking about the <unk> of <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : so come on you liberal cowards answer the fucking question should we convict that tulsa cop right now forget about a trial yes or no 
+ GroundTruth : betty should face same due process a civilian would you should read the th amendment even tho rw hates the constitution 
+ Sample : <go> if you dont know what youre talking about what youre talking about what youre talking about what youre talking <eou>
+
+Source : was jimmy fallon supposed to do a hardhitting interview of course not was he supposed to shower a racist with love no not that either 
+ GroundTruth : wait until people start to boycott fallon and the trump folks start <unk> about free speech and discrimination 
+ Sample : <go> i dont think he has to be as bad as he has to be as accommodating as he claims <eou>
+
+Source : stephen <unk> was fired for not killing a man his training amp common sense led him to try to deescalate the situation instead of shooting 
+ GroundTruth : he shouldnt have been fired he should have been an example of what to do 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen that ive seen in the past years <eou>
+
+Source : some really great people are saying his entire empire is a fraud thats what ive been told by a lot of people the best people 
+ GroundTruth : excellent ppl are saying that is a front for the whole empire many people are saying it 
+ Sample : <go> i think he has to do the same as well as he has to do it for a while <eou>
+
+Source : todays news is especially sickening and disturbing because it seems we are <unk> marching into a civil war what can we do to stop this 
+ GroundTruth : and certainly tweeting about isnt enough it isnt anything action is <unk> what 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : not like you need advice from me or anyone else but if you want people to stop making fun of your butt hamstring work outs 
+ GroundTruth : so how do you get people to stop making fun of your butt 
+ Sample : <go> i dont know what i want to do but i dont want to see what i want to do <eou>
+
+Source : oh boy so excited to go see them play under the bridge and snow and that cant stop song i think thats what its called 
+ GroundTruth : i thought ur favorite song was <unk> 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen it in the past years <eou>
+
+Source : i dont agree my property taxes have gone up many times over the years to pay those expenses based on what i paid not future 
+ GroundTruth : are you in ca we cap at max per year or rate of inflation increase 
+ Sample : <go> this is the best thing ive ever seen ive ever seen in a while ive seen in a while <eou>
+
+Source : i feel like apples invested so much in aluminum <unk> for their products which is great but not for shiny deep colors like piano black 
+ GroundTruth : and while im excited about the potential for a future iphone made out of ceramic a rugged plastic iphone at cheaper would be great 
+ Sample : <go> i was thinking about the same thing i was just thinking about the same thing that happened to me <eou>
+
+Source : i havent started my usual embarrassing level of retweeting praise yet but a friend just emailed to tell me the piece is your my war 
+ GroundTruth : whats the literary equivalent of black flag you got me thinking 
+ Sample : <go> i thought it was the best thing ive ever seen it in my life i was in the area <eou>
+
+Source : throw your hands in the air amp wave em like ya just dont care amp if you like fish and grits amp givin <unk> fits 
+ GroundTruth : laying siege to jerusalem is appropriate when <unk> <unk> means righteousness of the faith 
+ Sample : <go> thank you so much for the kind words i love you so much lt lt lt lt lt lt <eou>
+
+Source : true story my journey towards started with trying to lose weight yes i read up on how to lose weight i read broadly guess what 
+ GroundTruth : i started learning about the diet industry about feminism about fat hate about health at every size about discrimination 
+ Sample : <go> i think thats the only thing that matters is the best thing ive ever seen the rest of it <eou>
+
+Source : <unk> is a good enough product that they could have raised the price for an annual subscription next year and i would have bought it 
+ GroundTruth : that said my uneducated guess is that this decision and way it was announced will combine to lose them amp 
+ Sample : <go> i have no idea what youre talking about the <unk> of <unk> <unk> <unk> <unk> <unk> <unk> <unk> <unk> <eou>
+
+Source : times like this is when im grateful i wasnt born here not even my country thats murder capital of the world kills because of color 
+ GroundTruth : yeah the murder rate in el <unk> is unacceptable and heartbreaking but to kill simply because of color and bc youre <unk> 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a while <eou>
+
+Source : ya dont think its wild that one meteor killed all the dinosaurs like literally a dinosaur on the opposite side of the world also died 
+ GroundTruth : i dont think they all died they just became extinct after most of them died 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen in the past years <eou>
+
+Source : i need someone to make me a custom dusty pink wig and teach me how to lay it cause ive never done all that before 
+ GroundTruth : yall know anyone who can create good wigs 
+ Sample : <go> i was just thinking about the same thing that happened to me and i was just thinking about it <eou>
+
+Source : norm crosby when you go to court youre putting fate into the hands of people who werent smart enough to get out of jury duty 
+ GroundTruth : man listen i did everything wore a suit expensive shoes white teeth 
+ Sample : <go> i have no idea what youre talking about you and i dont know what youre talking about to do <eou>
+
+Source : please say a prayer for elizabeth betty wood today she passed away on this day back in so many have been helped in her honor 
+ GroundTruth : i went to church this morning and said a few prayers and lit a candle in her memory 
+ Sample : <go> this is the best thing ive ever seen ive ever seen that ive seen it in the past years <eou>
+
+Source : i have a feeling they both evolve from the same monkey like <unk> and <unk> i wonder what that cute lil chimp is gonna be 
+ GroundTruth : i bet its cute im glad were getting some more good <unk> pokemon haha i still love <unk> 
+ Sample : <go> i have no idea what i have to do but i have to do it for a few weeks <eou>
+
+Source : i never heard one word about racism when president bush was in office obama our first black president and that is all we <unk> why 
+ GroundTruth : i think about this every day i have only love amp respect for my many friends of every color none of us are racist stop 
+ Sample : <go> this is the most accurate thing ive ever seen in a while in a while in a few weeks <eou>
+
+Source : when people ask me why i am the way that i am a spoiled brat im just gonna redirect them to this screenshot of a 
+ GroundTruth : my dad still refers to me as princess 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years of the time i read it <eou>
+
+Source : everyone know in baseball that kkk stands for strikes what the hell is all the <unk> about god the world is a soft stupid place 
+ GroundTruth : u got more soul than half the people on earth bro 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive ever seen it in a while <eou>
+
+Source : oh and trump was a mess tonight seemed bored and has all but undone all progress toward scripted narrative speech off the cuff and lazy 
+ GroundTruth : what was the reaction of the audience 
+ Sample : <go> this is the best thing ive ever seen that ive ever seen it in the past ten years ago <eou>
+
+Source : i just read the variety obit for curtis hanson do they always critique the films of the deceased in their <unk> its kind of fabulous 
+ GroundTruth : im gonna rewatch la confidential for the at least th time while i fall asleep 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while so much <eou>
+
+Source : i dont even live in one place throughout the year i cant be a <unk> with a baby imma be on section me hypothetically pregnant 
+ GroundTruth : my <unk> also me hypothetically pregnant 
+ Sample : <go> i cant wait to see you in the evening i have to go back to sleep in the morning <eou>
+
+Source : alrighty killed some time by doing my make up trying to rock a bold red lip even though i never have and im self <unk> 
+ GroundTruth : you cant be <unk> when going red bold 
+ Sample : <go> thank you so much for the kind words in the world i love you so much lt lt lt <eou>
+
+Source : i funded the og kickstarter amp got my st great prints but i dont understand the new campaign is my og funding no longer valid 
+ GroundTruth : hearing a lot of conflicting reports on how legit this service is im in the kickstarter but interested in hearing your thoughts 
+ Sample : <go> i cant wait to see you at the end of the season in october th october th october th <eou>
+
+Source : he was also a very vocal supporter of gay and female rights issues when that was not a popular stance for a man to take 
+ GroundTruth : he had his demons but i think he tried pretty hard to be a good person 
+ Sample : <go> i think he knows the same thing he has to do nothing to do with him as a kid <eou>
+
+Source : who cares look at <unk> no one gives a crap about him anymore he will just rot in prison murderers need to be behind bars 
+ GroundTruth : a friend in told me if you wanna be a strong country ignore the criticism and what anyone says he is probably right 
+ Sample : <go> i have no idea what he has to do to be a better person than he has to do <eou>
+
+Source : ill look like shit for the whole entire week but the day i am scheduled to see my man i am forever <unk> this face 
+ GroundTruth : <unk> is literally <unk> better bake that face 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : this is true but i just meant in general always keeping it real and showing off your intelligence agree with you more so than not 
+ GroundTruth : aw dude lt i could say the same about you 
+ Sample : <go> this is the best thing ive ever seen that ive seen in a while ive seen in a while <eou>
+
+Source : would you guys be down for us to announce something cool tomorrow just wanted to make sure we got your permission first let us know 
+ GroundTruth : i dont know did you finish your homework 
+ Sample : <go> i dont think i would have to do it but i dont think it would be a good idea <eou>
+
+Source : we didnt quite catch that line with the <unk> microphone so we <unk> it as though the actors lips are inside your ear old movies 
+ GroundTruth : or any bravo reality show especially millionaire <unk> 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : i am not one to comment on apple aesthetics too much because they generally get it right but god damn the ios notifications are hideous 
+ GroundTruth : the genius who made calendar notifications hide the current time 
+ Sample : <go> i cant wait to see you and i have to see you in a couple weeks in the morning <eou>
+
+Source : everything happens for a reason that reason causes change sometimes it hurts sometimes it is hard but in the end its all for the best 
+ GroundTruth : well then theres a lotta change in my life right now 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while in a row <eou>
+
+Source : im more mad about the fact ill probably never find the shirt i ordered again than the money i lost cause usps lost my package 
+ GroundTruth : ive been trying to find another one for an hour 
+ Sample : <go> this is the best thing ive ever seen ive ever seen ive ever seen it in the past years <eou>
+
+Source : but <unk> s <unk> is probably also an <unk> <unk> amp both of them stay in the environment forever so theyre both bad pr now 
+ GroundTruth : interestingly a major source of <unk> amp <unk> <unk> in the environment is apparently from thermal receipt paper that gets <unk> 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area in the <unk> of the <unk> <eou>
+
+Source : pretty sure im gonna start crying pretty soon and i dont have time for that rn bc i have more important things to do smh 
+ GroundTruth : i just cried enough for the both of us u good fam 
+ Sample : <go> this is the best thing ive ever seen ive ever seen ive ever seen it in the past years <eou>
+
+Source : it just occurred to me that one can potentially get a day move goal streak and still never get the perfect month achievement thats sad 
+ GroundTruth : you want extra nagging in that last day 
+ Sample : <go> this is the best thing ive ever seen in a while ive seen in a while ive seen it <eou>
+
+Source : you have a guy with a head full of thoughts every one of them is poisoned do you want him to be your next <unk> 
+ GroundTruth : mix skittles w mampms and have some <unk> 
+ Sample : <go> i have no idea what youre talking about you and i dont think youre talking about to do it <eou>
+
+Source : if you clean in a room and find something you lost for a long time your luck is good luck just found my game today 
+ GroundTruth : heh your lucky i found my pokemon <unk> xd in under the bed bro heh 
+ Sample : <go> thank you so much i love you so much i love you so much lt lt lt lt lt <eou>
+
+Source : can we pause and think about just how nuts it is that ronald reagans vp and a former president is voting for the dem nominee 
+ GroundTruth : bush was too liberal to get the top spot in the s he was basically what hillary is 
+ Sample : <go> this is the most accurate thing ive ever seen in the past years of this election cycle in america <eou>
+
+Source : hi john great show as usual what was the product you mentioned that someone rubbed on a dogs leg or was it an inside joke 
+ GroundTruth : something charlie always mentioned on the air i think it is called <unk> or something like that 
+ Sample : <go> thanks for the kind words we have a great weekend we have to listen to the spoken wordflute sunrise <eou>
+
+Source : im more afraid of cars too <unk> its a big deal bcuz bombs killing dozens in nyc is rare if we kill foreigners or not 
+ GroundTruth : of course part of my point is that no one was killed by bombs this weekend in new york elsewhere it was a different matter 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen in a while i am <eou>
+
+Source : my tl is send mixed sports msgs today ok ppl which is worse the death of <unk> skills or nfl offensive line play this season 
+ GroundTruth : death of <unk> is worst it means that players are checking out mentally body follows brain in baseball cant fake it 
+ Sample : <go> this is the most accurate thing ive ever seen in the bay area ive seen in the past years <eou>
+
+Source : it is the fault of many selfish nations the us included sa russia qatar etc all at fault for the death of so many people 
+ GroundTruth : we were talking about syria right primary butcher there is syrian hard to blame world powers there except recently 
+ Sample : <go> this is the most accurate thing ive ever seen in a while ive seen it in the past years <eou>
+
+Source : excuse me stupid i serve in the usa dipshit my father serve in the usa army and if you had any brains you would dangerous 
+ GroundTruth : dude just give up you cannot deal with me i out class you 
+ Sample : <go> i miss you so much i cant wait to see you and i have to wait to see you <eou>
+
+Source : i dont know if im using twitter wrong or like i didnt get the memo but why do people document their whole lives on here 
+ GroundTruth : like yall know how desperate amp in need of validation yall look like you need yall aint celebrities aint noone trying to keep up w you 
+ Sample : <go> i have no idea what youre talking about you and i dont think it was the only one ever <eou>
+

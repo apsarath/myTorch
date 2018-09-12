@@ -8,12 +8,12 @@ num_dialogs: 1000000 # valid ones are 100, 1000, 200000, 500000, 10000000
 
 # Model details
 emb_size_src: 300
-hidden_dim_src: 1024
-hidden_dim_tgt: 1024
+hidden_dim_src: 512
+hidden_dim_tgt: 512
 bidirectional: False
-nlayers_src: 1
+nlayers_src: 2
 nlayers_tgt: 2
-dropout_rate: 0.2
+dropout_rate: 0.3
 
 # Dataset specific details
 eou: "<eou>"
@@ -21,11 +21,12 @@ go: "<go>"
 unk: "<unk>"
 num: "<num>"
 pad: "<pad>"
-sent_cut_off: 20
-min_sent_len: 6
+sent_cut_off: 30
+min_sent_len: 7
 train_valid_split: 0.95
 vocab_cut_off: 25000
-embedding_loc: "/mnt/data/chinna/data/glove/glove.6B.300d.txt"
+embedding_loc: "None"
+# "/mnt/data/chinna/data/glove/glove.6B.300d.txt"
 
 # Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD  
 optim_name: "Adam"
@@ -46,7 +47,7 @@ grad_clip_norm: 5.0
 # task specific details
 device: "cuda"
 num_epochs: 200
-batch_size: 128
+batch_size: 20
 task: "twitter_lm"
 eval_batch_size: 32
 test_batch_size: 32
