@@ -1,0 +1,87 @@
+config_filename: "default.yaml"
+description: "Model to evaluate the performance in presence of the GEM model"
+
+project_name: "Curriculum/associative_recall/75"
+ex_name: "128_gem_addgrad_net2net_256"
+
+
+# model specific details
+
+model:  "LSTM"
+input_size: 8
+output_size:  8
+num_layers: 1
+layer_size: [128]
+activation: "tanh"
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip:  [-10.0, 10.0]
+
+max_steps: 20000
+rseed:  5
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "associative_recall"
+num_bits: 8
+seq_len: 5
+batch_size: 10
+block_len:  3
+num_noise_digits: 1
+num_digits: 8
+
+# curriculum related details
+min_seq_len: 3
+max_seq_len: 45
+step_seq_len: 3
+average_over_last_n: 50
+evaluate_over_n: 50
+curriculum_seed: 6
+new_lr: 0.001
+stop_if_curriculum_failed: True
+threshold_accuracy_for_passing_curriculum: 0.75
+
+
+# early stopping related details
+# Now it is used to determine when the model should be grown.
+#wait_time_before_expanding: 10000
+
+# Details related to expanding the rnn
+expand_model: False
+# This is the amount by which we expand the model
+expansion_offset: -1
+expanded_layer_size: [256]
+make_optimizer_wider: False
+expand_model_weights: True
+use_noise: True
+use_random_noise: True
+
+# saving details
+use_tflogger: True
+save_every_n: 1000000000000
+log_grad_norm: True
+
+# GEM details
+use_gem: True
+memory_strength: 0.5
+num_memories: 2
+use_regularisation: False
+regularisation_constant: 0.0
+use_projection: False
+add_gradients: True
+normalise_gradient_before_adding: False

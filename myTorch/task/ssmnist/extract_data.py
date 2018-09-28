@@ -109,7 +109,8 @@ def create_sequence(src_folder, tgt_folder):
     np.save(tgt_folder + "seq_len_test", test_seq)
 
 
-def create_multidigit_sequence(src_folder, tgt_folder, num_digits):
+def create_multidigit_sequence(src_folder, tgt_folder, num_digits, num_train_data_points = 200000,
+                               num_val_data_points=1000):
 
     np.random.seed(num_digits)
 
@@ -123,19 +124,19 @@ def create_multidigit_sequence(src_folder, tgt_folder, num_digits):
 
     create_folder(tgt_folder)
 
-    train_seq = np.zeros(200000, dtype="float32")
-    valid_seq = np.zeros(20000, dtype="float32")
-    test_seq = np.zeros(20000, dtype="float32")
+    train_seq = np.zeros(num_train_data_points, dtype="float32")
+    valid_seq = np.zeros(num_val_data_points, dtype="float32")
+    test_seq = np.zeros(num_val_data_points, dtype="float32")
 
     multi_x_train = list()
     multi_x_valid = list()
     multi_x_test = list()
 
-    multi_y_train = np.zeros((200000, num_digits + 1), dtype="float32")
-    multi_y_valid = np.zeros((20000, num_digits + 1), dtype="float32")
-    multi_y_test = np.zeros((20000, num_digits + 1), dtype="float32")
+    multi_y_train = np.zeros((num_train_data_points, num_digits + 1), dtype="float32")
+    multi_y_valid = np.zeros((num_val_data_points, num_digits + 1), dtype="float32")
+    multi_y_test = np.zeros((num_val_data_points, num_digits + 1), dtype="float32")
 
-    for i in range(0, 200000):
+    for i in range(0, num_train_data_points):
 
         if i % 100 == 0:
             print(i)
@@ -155,7 +156,7 @@ def create_multidigit_sequence(src_folder, tgt_folder, num_digits):
     np.save(tgt_folder + "y_train", multi_y_train)
     pickle.dump(multi_x_train, open(tgt_folder+"x_train.pkl", "wb"))
 
-    for i in range(0, 20000):
+    for i in range(0, num_val_data_points):
 
         if i % 100 == 0:
             print(i)
@@ -175,7 +176,7 @@ def create_multidigit_sequence(src_folder, tgt_folder, num_digits):
     np.save(tgt_folder + "y_valid", multi_y_valid)
     pickle.dump(multi_x_valid, open(tgt_folder+"x_valid.pkl", "wb"))
 
-    for i in range(0, 20000):
+    for i in range(0, num_val_data_points):
 
         if i % 100 == 0:
             print(i)
@@ -202,4 +203,4 @@ tgt_folder = "/mnt/data/sarath/data/ssmnist/data/"
 
 #create_targets(src_folder, tgt_folder)
 #create_sequence(src_folder, tgt_folder)
-create_multidigit_sequence(tgt_folder, tgt_folder+"5/", 5)
+# create_multidigit_sequence(tgt_folder, tgt_folder+"5/", 5)

@@ -1,3 +1,5 @@
 pyyaml
 tensorflow
 torch == 0.4
+quadprog
+Cython

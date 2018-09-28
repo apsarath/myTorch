@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 from myTorch import Experiment
 from myTorch.projects.overfeeding.recurrent_net import Recurrent
-from myTorch.projects.overfeeding.utils.curriculum import curriculum_generator
+from myTorch.projects.overfeeding.curriculum.curriculum import curriculum_generator
 from myTorch.projects.overfeeding.utils.metric import get_metric_registry
 from myTorch.projects.overfeeding.utils.spectral import *
 from myTorch.task.associative_recall_task import AssociativeRecallData
@@ -17,10 +17,11 @@ from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import MyContainer, get_optimizer, create_config, compute_grad_norm
 from myTorch.utils.logging import Logger
+from myTorch.projects.overfeeding.gem import Gem
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="config/config.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=True, help="if True start training from scratch.")
 args = parser.parse_args()
 
@@ -64,7 +65,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         average_accuracy = 0
 
         model.reset_hidden(batch_size=config.batch_size)
-
+        retain_graph = True
         for i in range(0, data["datalen"]):
 
             x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
@@ -73,12 +74,16 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
 
             model.optimizer.zero_grad()
 
+            # if(i==data["datalen"]):
+            #     retain_graph = False
+            # model.observe(x=x, t=model_idx, y=y, mask=mask, retain_graph=retain_graph)
+            #
             output = model(x)
             if config.task == "copying_memory":
                 loss = F.torch.nn.functional.cross_entropy(output, y.squeeze(1))
             else:
                 loss = F.binary_cross_entropy_with_logits(output, y)
-
+            #
             seqloss += (loss * mask)
             predictions = F.softmax(
                 (torch.cat(
@@ -96,8 +101,6 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
         tr.average_accuracy.append(average_accuracy)
         running_average_bce = sum(tr.average_bce) / len(tr.average_bce)
         running_average_accuracy = sum(tr.average_accuracy) / len(tr.average_accuracy)
-
-        seqloss.backward(retain_graph=False)
 
         for param in model.parameters():
             param.grad.clamp_(config.grad_clip[0], config.grad_clip[1])
@@ -130,7 +133,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                 logger.log_scalar("train_gradient_norm_model_idx_" + str(model_idx), gradient_norm,
                                   step + 1)
 
-        model.optimizer.step()
+        # model.optimizer.step()
 
         metrics["loss"].update(tr.average_bce[-1])
         metrics["accuracy"].update(tr.average_accuracy[-1])
@@ -168,7 +171,9 @@ def train(experiment, model, config, data_iterator, tr, logger, device, metrics,
                     previous_layer_size = model.layer_size
                     experiment.save(tag="model_before_expanding")
                     model.make_net_wider(expanded_layer_size=config.expanded_layer_size,
-                                         can_make_optimizer_wider=config.make_optimizer_wider)
+                                         can_make_optimizer_wider=config.make_optimizer_wider,
+                                         use_noise=config.use_noise,
+                                         use_random_noise=config.use_random_noise)
                     previous_optimizer_state_dict = deepcopy(model.optimizer.state_dict())
                     new_layer_size = model.layer_size
 
@@ -362,6 +367,25 @@ def train_curriculum():
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear").to(device)
 
+    # gem_model = Gem(
+    #     device,
+    #     config.input_size,
+    #     config.output_size,
+    #     num_layers=config.num_layers,
+    #     layer_size=config.layer_size,
+    #     cell_name=config.model,
+    #     activation=config.activation,
+    #     output_activation="linear",
+    #     n_tasks = int((config.max_seq_len - config.min_seq_len)/config.step_seq_len),
+    #     args = {
+    #         "memory_strength": 0.5,
+    #         "is_curriculum": True,
+    #         "num_memories": 256,
+    #         "task": "A"
+    #     },
+    # )
+    # model = gem_model.to(device)
+    #
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
 
@@ -400,22 +424,22 @@ def train_curriculum():
                                               metrics, model_idx)
 
         model.eval()
-        for curriculum_idx, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
-            if curriculum_idx >= model_idx + 10:
-                break
-            tr_for_eval = MyContainer()
-            tr_for_eval.updates_done = 0
-            tr_for_eval.average_bce = []
-            tr_for_eval.average_accuracy = []
-            data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
-            evaluate(model, curriculum_config_for_eval, data_iterator_for_eval, tr_for_eval,
-                     logger, device, model_idx, curriculum_idx)
+        # for curriculum_idx, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
+        #     if curriculum_idx >= model_idx + 10:
+        #         break
+        #     tr_for_eval = MyContainer()
+        #     tr_for_eval.updates_done = 0
+        #     tr_for_eval.average_bce = []
+        #     tr_for_eval.average_accuracy = []
+        #     data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
+            # evaluate(model, curriculum_config_for_eval, data_iterator_for_eval, tr_for_eval,
+            #          logger, device, model_idx, curriculum_idx)
         model.train()
 
-        if (should_stop_curriculum):
-            logging.info("Stopping curriculum after curriculum index:{}, seq_len: {}".format(model_idx,
-                                                                                             curriculum_config.seq_len))
-            break
+        # if (should_stop_curriculum):
+        #     logging.info("Stopping curriculum after curriculum index:{}, seq_len: {}".format(model_idx,
+        #                                                                                      curriculum_config.seq_len))
+        #     break
 
 
 if __name__ == '__main__':

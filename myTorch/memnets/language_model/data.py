@@ -1,7 +1,8 @@
+import codecs
 import os
-import torch
-
 from collections import Counter
+
+import torch
 
 
 class Dictionary(object):
@@ -33,9 +34,11 @@ class Corpus(object):
 
     def tokenize(self, path):
         """Tokenizes a text file."""
+        if (not os.path.exists(path)):
+            path = os.path.join(os.getcwd(), "myTorch/memnets/language_model", path)
         assert os.path.exists(path)
         # Add words to the dictionary
-        with open(path, 'r') as f:
+        with codecs.open(path, "r", encoding="latin1") as f:
             tokens = 0
             for line in f:
                 words = line.split() + ['<eos>']
@@ -44,7 +47,7 @@ class Corpus(object):
                     self.dictionary.add_word(word)
 
         # Tokenize file content
-        with open(path, 'r') as f:
+        with codecs.open(path, "r", encoding="latin1") as f:
             ids = torch.LongTensor(tokens)
             token = 0
             for line in f:

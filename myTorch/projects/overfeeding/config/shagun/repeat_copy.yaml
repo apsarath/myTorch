@@ -1,9 +1,8 @@
-parent_config: "config/default.yaml"
-config_filename: "repeat_copy.yaml"
-description: "repeat copy task"
+config_filename: "associative_recall.yaml"
+description: "associative recall task"
 
-project_name: "repeat_copy_task"
-ex_name: "ex01"
+project_name: "associative_recall_task"
+ex_name: "net2net-ours-128-256"
 
 # model specific details
 
@@ -11,7 +10,7 @@ model:  "LSTM"
 input_size: 8
 output_size:  8
 num_layers: 1
-layer_size: [256]
+layer_size: [128]
 activation: "tanh"
 
 # optimization specific details
@@ -32,19 +31,38 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps:  100000000
+max_steps:  10000000
 rseed:  5
-device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+
 
 # task specific details
-task: "repeat_copy"
+task: "associative_recall"
 num_bits: 8
-min_len:  1
-max_len:  20
-min_repeat: 1
-max_repeat: 10
+seq_len: 5
 batch_size: 10
+block_len:  5
+
+# curriculum related details
+min_seq_len:  5
+max_seq_len:  101
+step_seq_len: 3
+average_over_last_n: 1000
+evaluate_over_n: 1000
+curriculum_seed: 6
+new_lr: 0.001
+
+# early stopping related details
+# Now it is used to determine when the model should be grown.
+time_span: 10000
+
+# Details related to expanding the rnn
+expanded_layer_size: [256]
+make_optimizer_wider: False
+expand_model_weights: True
+use_noise: True
+use_random_noise: True
 
 # saving details
 use_tflogger: True
-save_every_n: 10000
+save_every_n: 1000000000000

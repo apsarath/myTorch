@@ -11,14 +11,14 @@ from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
 from myTorch.memory import RNNCell, GRUCell
 from myTorch.projects.overfeeding.utils.ExpandableLSTMCell import ExpandableLSTMCell
 from myTorch.projects.overfeeding.utils.net2net import make_h_wider, make_weight_wider_at_input, \
-    make_weight_wider_at_output, make_bias_wider, generate_noise_for_input
+    make_weight_wider_at_output, make_bias_wider
 
 
 class Recurrent(nn.Module):
     """Implementation of a generic Recurrent Network."""
 
     def __init__(self, device, input_size, output_size, num_layers=1, layer_size=[10],
-                 cell_name="LSTM", activation="tanh", output_activation="linear"):
+                 cell_name="LSTM", activation="tanh", output_activation="linear", task=None):
         """Initializes a recurrent network."""
 
         super(Recurrent, self).__init__()
@@ -52,6 +52,17 @@ class Recurrent(nn.Module):
 
         self._reset_parameters()
         self.print_num_parameters()
+        self.use_gem = False
+
+        if task in ["copying_memory", "ssmnist"]:
+            self.loss_fn = F.torch.nn.functional.cross_entropy
+        else:
+            self.loss_fn = F.binary_cross_entropy_with_logits
+
+        if task == "ssmnist":
+            self.is_ssmnist = True
+        else:
+            self.is_ssmnist = False
 
     def forward(self, input):
         """Implements forward computation of the model.
@@ -73,6 +84,129 @@ class Recurrent(nn.Module):
             output = self._output_activation_fn(output)
         self._h_prev = h
         return output
+
+    def train_over_one_data_iterate(self, data, task=None, retain_graph=False):
+        if (self.is_ssmnist):
+            return self.train_over_one_data_iterate_ssmnist(data, task, retain_graph)
+        else:
+            return self.train_over_one_data_iterate_regular(data, task, retain_graph)
+
+
+    def train_over_one_data_iterate_ssmnist(self, data, task=None, retain_graph=False):
+        # We have task in the function call to keep the interface same.
+        self.optimizer.zero_grad()
+        seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = self._compute_loss_and_metrics_ssmnist(data=data)
+        seqloss /= float(data["mask"].sum())
+        # num_total = sum(data["mask"])
+        # Verify this later.
+        seqloss.backward(retain_graph=retain_graph)
+        return seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct
+
+    def train_over_one_data_iterate_regular(self, data, task=None, retain_graph=False):
+        # We have task in the function call to keep the interface same.
+        self.optimizer.zero_grad()
+        seqloss, num_correct = self._compute_loss_and_metrics_regular(data=data)
+        seqloss /= sum(data["mask"])
+        num_total = sum(data["mask"])
+        seqloss.backward(retain_graph=retain_graph)
+        return seqloss, num_correct, num_total
+
+
+    def evaluate_over_one_data_iterate(self, data, task=None):
+        # We have task in the function call to keep the interface same.
+        if(self.is_ssmnist):
+            return self.evaluate_over_one_data_iterate_ssmnist(data, task)
+        else:
+            return self.evaluate_over_one_data_iterate_regular( data, task)
+
+    def evaluate_over_one_data_iterate_ssmnist(self, data, task=None):
+        # We have task in the function call to keep the interface same.
+        retain_graph = False
+        self.optimizer.zero_grad()
+        seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct = self._compute_loss_and_metrics_ssmnist(data=data)
+        seqloss /= float(data["mask"].sum())
+        # num_total = sum(data["mask"])
+
+        return seqloss, num_correct, num_total, num_elementwise_correct, num_total_correct
+
+    def evaluate_over_one_data_iterate_regular(self, data, task=None):
+        # We have task in the function call to keep the interface same.
+        retain_graph = False
+        self.optimizer.zero_grad()
+        seqloss, num_correct = self._compute_loss_and_metrics_regular(data=data)
+        seqloss /= sum(data["mask"])
+        num_total = sum(data["mask"])
+
+        return seqloss, num_correct, num_total
+
+    def _compute_loss_and_metrics(self, data):
+        if(self.is_ssmnist):
+            return self._compute_loss_and_metrics_ssmnist(data)
+        else:
+            return self._compute_loss_and_metrics_regular(data)
+
+    def _compute_loss_and_metrics_ssmnist(self, data):
+
+        batch_size = data['y'].shape[1]
+        self.reset_hidden(batch_size=batch_size)
+        seqloss = 0
+
+        correct = 0.0
+        num_examples = 0.0
+        self.reset_hidden(batch_size=batch_size)
+
+        accuracy = torch.zeros(batch_size).to(self._device)
+        num_outputs = torch.zeros(batch_size).to(self._device)
+
+        for i in range(0, data["datalen"]):
+            x = torch.from_numpy(np.asarray(data['x'][i])).to(self._device)
+            y = torch.from_numpy(np.asarray(data['y'][i])).to(self._device)
+            mask = torch.from_numpy(np.asarray(data['mask'][i])).to(self._device)
+
+            output = self.forward(x)
+
+            loss = self.loss_fn(output, y, reduce=False)
+
+            loss = (loss * mask).sum()
+
+            values, indices = torch.max(output, 1)
+
+            accuracy += (indices == y).to(self._device, dtype=torch.float32) * mask
+            # if(torch.sum(torch.abs(mask)).item() > 0):
+            #     a = "yay"
+            # if (torch.sum(torch.abs(accuracy)).item() > 0):
+            #     print("shit")
+            num_outputs += mask
+            seqloss+=loss
+
+        correct = (accuracy == num_outputs).sum()
+        # if(correct>0):
+        #     print("yay")
+        num_examples = len(data['x'][0])
+
+        return seqloss, correct, num_examples, accuracy.sum(), num_outputs.sum()
+
+
+    def _compute_loss_and_metrics_regular(self, data):
+        batch_size = data['y'].shape[1]
+        self.reset_hidden(batch_size=batch_size)
+        seqloss = 0
+        num_correct = 0
+        for i in range(0, data["datalen"]):
+            x = torch.from_numpy(np.asarray(data['x'][i])).to(self._device)
+            y = torch.from_numpy(np.asarray(data['y'][i])).to(self._device)
+            mask = float(data["mask"][i])
+            output = self.forward(x)
+            loss = self.loss_fn(output, y)
+            seqloss += (loss * mask)
+            predictions = F.softmax(
+                (torch.cat(
+                    ((1 - output).unsqueeze(2), output.unsqueeze(2)),
+                    dim=2))
+                , dim=2)
+            predictions = predictions.max(2)[1].float()
+            num_correct += ((y == predictions).int().sum().item() * mask)
+        return seqloss, num_correct
 
     def reset_hidden(self, batch_size):
         """Resets the hidden state for truncating the dependency."""
@@ -97,8 +231,8 @@ class Recurrent(nn.Module):
     def _reset_parameters(self):
         """Initializes the parameters."""
 
-        nn.init.xavier_normal(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
-        nn.init.constant(self._b_o, 0)
+        nn.init.xavier_normal_(self._W_h2o, gain=nn.init.calculate_gain(self._output_activation))
+        nn.init.constant_(self._b_o, 0)
 
     def register_optimizer(self, optimizer):
         """Registers an optimizer for the model.
@@ -160,7 +294,7 @@ class Recurrent(nn.Module):
         print("Num_params : {} ".format(num_params))
         return num_params
 
-    def can_make_net_wider(self, expanded_layer_size):
+    def can_make_net_wider(self, expanded_layer_size, expansion_offset):
         """
         Method to check if the recurrent net can be made wider. The net can be made wider only if
         new_hidden_dim > self._layer_size[0] (ie current hidden dim)
@@ -173,9 +307,12 @@ class Recurrent(nn.Module):
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
         if (candidate_layers):
             flag = True
+        if(expansion_offset>0):
+            flag = True
         return flag
 
-    def make_net_wider(self, expanded_layer_size, can_make_optimizer_wider = False):
+    def make_net_wider(self, expanded_layer_size, expansion_offset, can_make_optimizer_wider=False, use_noise=True,
+                       use_random_noise=True):
         """
         Method to make the recurrent net wider by growing the original hidden dim to the
         size new_hidden_dim
@@ -184,8 +321,11 @@ class Recurrent(nn.Module):
         """
 
         candidate_layers = list(size for size in expanded_layer_size if size > max(self._layer_size))
-        if (candidate_layers):
-            new_hidden_dim = candidate_layers[0]
+        if (candidate_layers or (expansion_offset>0)):
+            if(expansion_offset>0):
+                new_hidden_dim = self._layer_size[0]+expansion_offset
+            else:
+                new_hidden_dim = candidate_layers[0]
             new_layer_size = [new_hidden_dim] * len(self._layer_size)
             logging.info("Making RNN wider. Previous width = {}, new width = {}".format(
                 "_".join([str(x) for x in self._layer_size]),
@@ -194,18 +334,21 @@ class Recurrent(nn.Module):
             initial_hidden_dim = self._Cells[0]._W_x2i.shape[1]
             indices_to_copy = np.random.randint(initial_hidden_dim, size=(new_hidden_dim - initial_hidden_dim))
             replication_factor = np.bincount(indices_to_copy, minlength=initial_hidden_dim)
-            noise = generate_noise_for_input(replication_factor, size=8)
 
             # Growing all the RNN cells
             self._Cells[0].make_cell_wider(new_hidden_dim=new_layer_size[0],
                                            indices_to_copy=indices_to_copy,
                                            replication_factor=replication_factor,
+                                           use_noise=use_noise,
+                                           use_random_noise=use_random_noise,
                                            is_first_cell=True)
 
             for idx, cell in enumerate(self._Cells[1:]):
                 cell.make_cell_wider(new_hidden_dim=new_layer_size[idx],
                                      indices_to_copy=indices_to_copy,
                                      replication_factor=replication_factor,
+                                     use_noise=use_noise,
+                                     use_random_noise=use_random_noise,
                                      is_first_cell=False)
 
             # Growing the parameters of the recurrent net
@@ -223,7 +366,6 @@ class Recurrent(nn.Module):
             #     if(noise[index]):
             #         student_w[index] += noise[index]
 
-
             self._W_h2o.data = torch.from_numpy(student_w)
 
             # Growing the hidden state vectors
@@ -234,23 +376,29 @@ class Recurrent(nn.Module):
                     h[key].data = torch.from_numpy(student_b).to(self._device)
 
             if can_make_optimizer_wider == True:
-
                 logging.info("Making Optimizer wider. Previous width = {}, new width = {}".format(
                     "_".join([str(x) for x in self._layer_size]),
                     "_".join([str(x) for x in new_layer_size])))
 
                 self.make_optimizer_wider(new_hidden_dim=new_hidden_dim, indices_to_copy=indices_to_copy,
-                                          replication_factor=replication_factor)
+                                          replication_factor=replication_factor,
+                                          use_noise=use_noise,
+                                          use_random_noise=use_random_noise)
+
+    def load_metadata_from_another_model(self, other_model):
+        """
+        Method to load some useful metadata from another model
+        :return:
+        """
+        pass
 
     @property
     def layer_size(self):
         return self._layer_size
 
     def make_optimizer_wider(self, new_hidden_dim, indices_to_copy,
-                             replication_factor):
+                             replication_factor, use_noise, use_random_noise):
         # Note that this function is written specifically with this network in mind
-
-
 
         param_indices_to_widen_in_input_dim = [0, 3, 7, 11, 15]
         param_indices_to_widen_in_output_dim = [2, 3, 6, 7, 10, 11, 14, 15]
@@ -269,15 +417,17 @@ class Recurrent(nn.Module):
                 if index in param_indices_to_widen_in_output_dim:
                     state[key] = torch.from_numpy(
                         make_weight_wider_at_output(teacher_w=state[key].data.cpu().numpy(),
-                                                   indices_to_copy=indices_to_copy)) \
+                                                    indices_to_copy=indices_to_copy,
+                                                    use_noise=use_noise,
+                                                    use_random_noise=use_random_noise
+                                                    )) \
                         .to(self._device)
 
                 if index in param_indices_to_widen_in_bias:
                     state[key] = torch.from_numpy(
                         make_bias_wider(teacher_b=state[key].data.cpu().numpy(),
-                                                   indices_to_copy=indices_to_copy)) \
+                                        indices_to_copy=indices_to_copy)) \
                         .to(self._device)
                 # print(state[key].shape)
 
             # print("=============")
-
