@@ -32,7 +32,7 @@ dampening:  0.0
 nesterov: False
 grad_clip:  [-10.0, 10.0]
 
-max_steps: 20000
+max_steps: 10
 rseed:  5
 device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
@@ -41,7 +41,8 @@ task: "ssmnist"
 num_bits: 8
 seq_len: 5
 batch_size: 10
-data_folder: "/mnt/data/shagun/data/ssmnist/data"
+#data_folder: "/data/milatmp1/anbilpas/data/ssmnist/data"
+data_folder: "/Users/shagun/projects"
 
 # curriculum related details
 min_seq_len: 1
@@ -52,7 +53,7 @@ evaluate_over_n: 100
 curriculum_seed: 6
 new_lr: 0.001
 stop_if_curriculum_failed: True
-threshold_accuracy_for_passing_curriculum: 0.75
+threshold_accuracy_for_passing_curriculum: 0.8
 
 
 # early stopping related details
@@ -63,7 +64,7 @@ threshold_accuracy_for_passing_curriculum: 0.75
 expand_model: False
 # This is the amount by which we expand the model
 expansion_offset: -1
-expanded_layer_size: [80]
+expanded_layer_size: [180]
 make_optimizer_wider: False
 expand_model_weights: True
 use_noise: True
