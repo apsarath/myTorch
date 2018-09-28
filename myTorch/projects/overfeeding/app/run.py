@@ -10,10 +10,14 @@ from myTorch.projects.overfeeding.utils.bootstrap import prepare_experiment, \
 from myTorch.projects.overfeeding.utils.evaluate import evaluate_over_curriculum
 from myTorch.projects.overfeeding.utils.spectral import compute_spectral_properties
 from myTorch.utils import MyContainer, create_config, compute_grad_norm
+import torch
+
+torch.set_num_threads(1)
+print(torch.get_num_threads())
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 # parser.add_argument("--config", type=str, default="config/shagun/associative_recall.yaml", help="config file path.")
-parser.add_argument("--config", type=str, default="../config/aaai/ssmnist/128.yaml", help="config file path.")
+parser.add_argument("--config", type=str, default="../config/aaai/extra/128_long.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
 args = parser.parse_args()
 
@@ -173,8 +177,9 @@ def train_one_curriculum(experiment, curriculum_config, curriculum_idx):
                                                                step=tr.updates_done)
             if is_expansion_successful:
                 is_curriculum_level_completed = False
-                data_iterator.reset_iterator()
-                model_expansion_steps_offset += config.max_steps
+                if (config.task == "ssmnist"):
+                    data_iterator.reset_iterator()
+                model_expansion_steps_offset += 4*config.max_steps
                 model = experiment._model
             #     This step seems to be necessary to ensure that model.optimizer is updated. I am not sure why such a
             # dependence exists and would look into later.
@@ -210,19 +215,19 @@ def train_curriculums():
         else:
             _ = train_one_curriculum(experiment, curriculum_config, curriculum_idx)
         #
-        # for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
-        #     # if curriculum_idx_for_eval == curriculum_idx:
-        #         # No forward transfer
-        #         # break
-        #         # continue
-        #     tr_for_eval = MyContainer()
-        #     tr_for_eval.updates_done = 0
-        #     tr_for_eval.average_bce = []
-        #     tr_for_eval.average_accuracy = []
-        #     tr_for_eval.average_accuracy_element_wise = []
-        #     experiment.register_train_statistics(tr_for_eval)
-        #     data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
-        #     evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
+        for curriculum_idx_for_eval, curriculum_config_for_eval in enumerate(curriculum_generator(config)):
+            # if curriculum_idx_for_eval == curriculum_idx:
+                # No forward transfer
+                # break
+                # continue
+            tr_for_eval = MyContainer()
+            tr_for_eval.updates_done = 0
+            tr_for_eval.average_bce = []
+            tr_for_eval.average_accuracy = []
+            tr_for_eval.average_accuracy_element_wise = []
+            experiment.register_train_statistics(tr_for_eval)
+            data_iterator_for_eval = get_data_iterator(curriculum_config_for_eval, seed=config.curriculum_seed)
+            evaluate_over_curriculum(experiment, data_iterator_for_eval, curriculum_idx, curriculum_idx_for_eval)
 
         if config.expand_model:
             experiment, is_expansion_successful = expand_model(experiment,
