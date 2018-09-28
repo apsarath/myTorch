@@ -28,8 +28,7 @@ parser.add_argument("--config", type=str,
                     default="/Users/shagun/projects/myTorch/myTorch/memnets/language_model/ptb.yaml",
                     help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
-parser.add_argument("--log_file_path", type=str, default="log.txt", help="log file path.")
-
+parser.add_argument("--device", type=str, default="cuda")
 
 def _safe_exp(x):
     try:
@@ -241,6 +240,7 @@ def run_experiment(args):
     """Runs the experiment."""
 
     config = create_config(args.config)
+    config.device = args.device
 
     logging.info(config.get())
 
