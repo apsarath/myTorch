@@ -2,19 +2,21 @@ config_filename: "ptb.yaml"
 description: "word langauge model ptb"
 
 project_name: "word_language_model_ptb"
-ex_name: "word_lm_ptb_flatmemory"
+ex_name: "word_lm_ptb_janet"
 data: "data/penn"
 
 # model specific details
 
-model:  "FlatMemory"
+# model specific details
+model:  "JANET"
+num_layers: 1
+layer_size: [1225]
+activation: "relu"
+layer_norm: False
 input_emb_size: 400
 num_layers: 1
-layer_size: [1200]
-activation: "tanh"
 use_relu: True
-memory_size: 1225
-k: 16
+chrono_init: True
 
 # optimization specific details
 
@@ -37,7 +39,7 @@ grad_clip_norm: 5.0
 max_steps: 200000
 num_epochs: 20
 rseed:  5
-device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:2" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "word_lm_ptb"

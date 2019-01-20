@@ -1,20 +1,20 @@
 config_filename: "ptb.yaml"
-description: "word langauge model ptb"
+description: "character langauge model ptb"
 
-project_name: "word_language_model_ptb"
-ex_name: "word_lm_ptb_flatmemory"
-data: "data/penn"
+project_name: "char_language_model_ptb"
+ex_name: "fm_nl2_h512_m576_k4"
+data: "data/pennchar"
 
 # model specific details
 
 model:  "FlatMemory"
-input_emb_size: 400
-num_layers: 1
-layer_size: [1200]
+input_emb_size: 200
+num_layers: 2
+layer_size: [512]
 activation: "tanh"
 use_relu: True
-memory_size: 1225
-k: 16
+memory_size: 576
+k: 4
 
 # optimization specific details
 
@@ -32,7 +32,7 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 5.0
+grad_clip_norm: 1.0
 
 max_steps: 200000
 num_epochs: 20
@@ -40,14 +40,12 @@ rseed:  5
 device: "cuda" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "word_lm_ptb"
-batch_size: 20
-eval_batch_size: 10
-test_batch_size: 1
+task: "char_lm_ptb"
+batch_size: 64
+eval_batch_size: 128
+test_batch_size: 128
 seed: 5
-time_lag: 100
-seq_len: 10
-bptt: 70
+bptt: 150
 
 # saving details
 use_tflogger: True
