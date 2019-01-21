@@ -1,4 +1,4 @@
-"""Implementation of a simple experiment class.."""
+"""Implementation of a simple experiment class."""
 import logging
 import os
 from shutil import rmtree
@@ -26,6 +26,8 @@ class Experiment(object):
         self._logger = None
         self._train_statistics = None
         self._data_iterator = None
+        self._agent = None
+        self._environment = None
 
     def register_model(self, model):
         """Registers a model object.
@@ -37,10 +39,10 @@ class Experiment(object):
         self._model = model
 
     def register_config(self, config):
-        """Registers a config dictionary.
+        """Registers a config gin file.
 
         Args:
-            config: a config dictionary.
+            config: a config gin file.
         """
 
         self._config = config
@@ -72,16 +74,34 @@ class Experiment(object):
 
         self._data_iterator = data_iterator
 
+    def register_agent(self, agent):
+        """Registers an agent. Used for RL experiments.
+
+        Args:
+            agent: an agent object.
+        """
+
+        self._agent = agent
+
+    def register_environment(self, environment):
+        """Registers an environment. Used for RL experiments.
+
+        Args:
+            environment: an environment object.
+        """
+
+        self._environment = environment
+
     def save(self, tag="current"):
         """Saves the experiment.
         Args:
             tag: str, tag to prefix the folder.
         """
 
-        logging.info("Saving the experiment at {}".format(self._dir_name))
-
         save_dir = os.path.join(self._dir_name, tag)
         create_folder(save_dir)
+
+        logging.info("Saving the experiment at {}".format(save_dir))
 
         flag_file = os.path.join(save_dir, "flag.p")
         if os.path.isfile(flag_file):
@@ -105,6 +125,13 @@ class Experiment(object):
         if self._data_iterator is not None:
             file_name = os.path.join(save_dir, "data_iterator.p")
             self._data_iterator.save(file_name)
+
+        if self._agent is not None:
+            self._agent.save(save_dir)
+
+        if self._environment is not None:
+            file_name = os.path.join(save_dir, "environment.p")
+            self._environment.save(file_name)
 
         file = open(flag_file, "w")
         file.close()
@@ -130,13 +157,13 @@ class Experiment(object):
         """
 
         if not self.is_resumable(tag):
-            logging.warning("This exeriment is not resumable!")
+            logging.warning("This experiment is not resumable!")
+            logging.warning("Force restarting the experiment!")
             self.force_restart(tag)
 
         else:
-            logging.info("Loading the experiment from {}".format(self._dir_name))
-
             save_dir = os.path.join(self._dir_name, tag)
+            logging.info("Loading the experiment from {}".format(save_dir))
 
             if self._model is not None:
                 self._model.load(save_dir)
@@ -157,6 +184,13 @@ class Experiment(object):
                 file_name = os.path.join(save_dir, "data_iterator.p")
                 self._data_iterator.load(file_name)
 
+            if self._agent is not None:
+                self._agent.load(save_dir)
+
+            if self._environment is not None:
+                file_name = os.path.join(save_dir, "environment.p")
+                self._environment.load(file_name)
+                
     def force_restart(self):
         """Force restarting an experiment from beginning."""
 
