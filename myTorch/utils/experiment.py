@@ -1,4 +1,4 @@
-"""Implementation of a simple experiment class."""
+"""Implementation of a simple experiment class.."""
 import logging
 import os
 from shutil import rmtree
