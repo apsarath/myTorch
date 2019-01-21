@@ -190,7 +190,7 @@ class Experiment(object):
             if self._environment is not None:
                 file_name = os.path.join(save_dir, "environment.p")
                 self._environment.load(file_name)
-                
+
     def force_restart(self):
         """Force restarting an experiment from beginning."""
 
