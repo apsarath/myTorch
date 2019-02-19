@@ -24,11 +24,11 @@ def download_file(fname, target_dir=None, force=False):
     unless the file already exists, and force is False.
 
     Args:
-        fname : str, Name of the file to download
-        target_dir : str, Directory where to store the file
-        force : bool, Force downloading the file, if it already exists
+        fname: str, Name of the file to download
+        target_dir: str, Directory where to store the file
+        force: bool, Force downloading the file, if it already exists
     Returns:
-        fname : str, Full path of the downloaded file
+        fname: str, Full path of the downloaded file
     """
     if not target_dir:
         target_dir = tempfile.gettempdir()
@@ -45,9 +45,9 @@ def parse_idx(fd):
     """Parse an IDX file, and return it as a numpy array.
 
     Args:
-        fd : file, File descriptor of the IDX file to parse
+        fd: file, File descriptor of the IDX file to parse
     Returns:
-        data : numpy.ndarray, Numpy array with the dimensions and the data in the IDX file
+        data: numpy.ndarray, Numpy array with the dimensions and the data in the IDX file
     """
     DATA_TYPES = {0x08: 'B',  # unsigned byte
                   0x09: 'b',  # signed byte
@@ -103,47 +103,38 @@ def download_and_parse_mnist_file(fname, target_dir=None, force=False):
         return parse_idx(fd)
 
 
-def train_images():
-    """Return train images from Yann LeCun MNIST database as a numpy array.
-    Download the file, if not already found in the temporary directory of
-    the system.
+def download_mnist(target_dir):
+    """Download and process the mnist dataset and store it in the target dir.
 
-    Returns:
-        train_images : numpy.ndarray, Numpy array with the images in the train MNIST database. The first
-                       dimension indexes each sample, while the other two index rows and columns of the image
+    Args:
+        target_dir: str, Directory where to store the file
     """
-    return download_and_parse_mnist_file('train-images-idx3-ubyte.gz')
+
+    flag_file = os.path.join(target_dir, "flag.p")
+    if os.path.isfile(flag_file):
+        return
+
+    train_x = download_and_parse_mnist_file('train-images-idx3-ubyte.gz', target_dir)
+    target_fname = os.path.join(target_dir, "train_x")
+    np.save(target_fname, train_x[0:50000])
+    target_fname = os.path.join(target_dir, "valid_x")
+    np.save(target_fname, train_x[-10000:])
+
+    train_y = download_and_parse_mnist_file('train-labels-idx1-ubyte.gz', target_dir)
+    target_fname = os.path.join(target_dir, "train_y")
+    np.save(target_fname, train_y[0:50000])
+    target_fname = os.path.join(target_dir, "valid_y")
+    np.save(target_fname, train_y[-10000:])
+
+    test_x = download_and_parse_mnist_file('t10k-images-idx3-ubyte.gz', target_dir)
+    target_fname = os.path.join(target_dir, "test_x")
+    np.save(target_fname, test_x)
+
+    test_y = download_and_parse_mnist_file('t10k-labels-idx1-ubyte.gz', target_dir)
+    target_fname = os.path.join(target_dir, "test_y")
+    np.save(target_fname, test_y)
+
+    file = open(flag_file, "w")
+    file.close()
 
 
-def test_images():
-    """Return test images from Yann LeCun MNIST database as a numpy array.
-    Download the file, if not already found in the temporary directory of
-    the system.
-
-    Returns:
-        test_images : numpy.ndarray, Numpy array with the images in the train MNIST database. The first
-                      dimension indexes each sample, while the other two index rows and columns of the image
-    """
-    return download_and_parse_mnist_file('t10k-images-idx3-ubyte.gz')
-
-
-def train_labels():
-    """Return train labels from Yann LeCun MNIST database as a numpy array.
-    Download the file, if not already found in the temporary directory of
-    the system.
-
-    Returns:
-        train_labels : numpy.ndarray, Numpy array with the labels 0 to 9 in the train MNIST database.
-    """
-    return download_and_parse_mnist_file('train-labels-idx1-ubyte.gz')
-
-
-def test_labels():
-    """Return test labels from Yann LeCun MNIST database as a numpy array.
-    Download the file, if not already found in the temporary directory of
-    the system.
-
-    Returns:
-        test_labels : numpy.ndarray, Numpy array with the labels 0 to 9 in the train MNIST database.
-    """
-    return download_and_parse_mnist_file('t10k-labels-idx1-ubyte.gz')
