@@ -1,7 +1,7 @@
 """Implementation of a simple experiment class."""
 import logging
 import os
-from shutil import rmtree
+from shutil import rmtree, copyfile
 
 from myTorch.utils import create_folder
 
@@ -29,67 +29,26 @@ class Experiment(object):
         self._agent = None
         self._environment = None
 
-    def register_model(self, model):
-        """Registers a model object.
+    def register_experiment(self, model=None, config=None, logger=None, train_statistics=None, data_iterator=None,
+                            agent=None, environment=None):
+        """Registers all the components of an experiment.
 
         Args:
             model: a model object.
-        """
-
-        self._model = model
-
-    def register_config(self, config):
-        """Registers a config gin file.
-
-        Args:
             config: a config gin file.
-        """
-
-        self._config = config
-
-    def register_logger(self, logger):
-        """Registers a logger object.
-
-        Args:
             logger: a logger object.
-        """
-
-        self._logger = logger
-
-    def register_train_statistics(self, train_statistics):
-        """Registers a training statistics dictionary.
-
-        Args:
             train_statistics: a train_statistics dictionary.
-        """
-
-        self._train_statistics = train_statistics
-
-    def register_data_iterator(self, data_iterator):
-        """Registers a data iterator object.
-
-        Args:
             data_iterator: a data iterator object.
-        """
-
-        self._data_iterator = data_iterator
-
-    def register_agent(self, agent):
-        """Registers an agent. Used for RL experiments.
-
-        Args:
             agent: an agent object.
-        """
-
-        self._agent = agent
-
-    def register_environment(self, environment):
-        """Registers an environment. Used for RL experiments.
-
-        Args:
             environment: an environment object.
         """
 
+        self._model = model
+        self._config = config
+        self._logger = logger
+        self._train_statistics = train_statistics
+        self._data_iterator = data_iterator
+        self._agent = agent
         self._environment = environment
 
     def save(self, tag="current"):

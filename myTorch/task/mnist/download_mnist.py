@@ -5,14 +5,8 @@ import gzip
 import struct
 import array
 import tempfile
-try:
-    from urllib.request import urlretrieve
-except ImportError:
-    from urllib import urlretrieve  # py2
-try:
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
+from urllib.request import urlretrieve
+from urllib.parse import urljoin
 import numpy as np
 
 
@@ -28,18 +22,13 @@ class IdxDecodeError(ValueError):
 def download_file(fname, target_dir=None, force=False):
     """Download fname from the datasets_url, and save it to target_dir,
     unless the file already exists, and force is False.
-    Parameters
-    ----------
-    fname : str
-        Name of the file to download
-    target_dir : str
-        Directory where to store the file
-    force : bool
-        Force downloading the file, if it already exists
-    Returns
-    -------
-    fname : str
-        Full path of the downloaded file
+
+    Args:
+        fname : str, Name of the file to download
+        target_dir : str, Directory where to store the file
+        force : bool, Force downloading the file, if it already exists
+    Returns:
+        fname : str, Full path of the downloaded file
     """
     if not target_dir:
         target_dir = tempfile.gettempdir()
@@ -54,17 +43,11 @@ def download_file(fname, target_dir=None, force=False):
 
 def parse_idx(fd):
     """Parse an IDX file, and return it as a numpy array.
-    Parameters
-    ----------
-    fd : file
-        File descriptor of the IDX file to parse
-    endian : str
-        Byte order of the IDX file. See [1] for available options
-    Returns
-    -------
-    data : numpy.ndarray
-        Numpy array with the dimensions and the data in the IDX file
-    1. https://docs.python.org/3/library/struct.html#byte-order-size-and-alignment
+
+    Args:
+        fd : file, File descriptor of the IDX file to parse
+    Returns:
+        data : numpy.ndarray, Numpy array with the dimensions and the data in the IDX file
     """
     DATA_TYPES = {0x08: 'B',  # unsigned byte
                   0x09: 'b',  # signed byte
@@ -105,18 +88,14 @@ def parse_idx(fd):
 def download_and_parse_mnist_file(fname, target_dir=None, force=False):
     """Download the IDX file named fname from the URL specified in dataset_url
     and return it as a numpy array.
-    Parameters
-    ----------
-    fname : str
-        File name to download and parse
-    target_dir : str
-        Directory where to store the file
-    force : bool
-        Force downloading the file, if it already exists
-    Returns
-    -------
-    data : numpy.ndarray
-        Numpy array with the dimensions and the data in the IDX file
+
+    Args:
+        fname : str, File name to download and parse
+        target_dir : str, Directory where to store the file
+        force : bool, Force downloading the file, if it already exists
+
+    Returns:
+        data : numpy.ndarray, Numpy array with the dimensions and the data in the IDX file
     """
     fname = download_file(fname, target_dir=target_dir, force=force)
     fopen = gzip.open if os.path.splitext(fname)[1] == '.gz' else open
@@ -128,12 +107,10 @@ def train_images():
     """Return train images from Yann LeCun MNIST database as a numpy array.
     Download the file, if not already found in the temporary directory of
     the system.
-    Returns
-    -------
-    train_images : numpy.ndarray
-        Numpy array with the images in the train MNIST database. The first
-        dimension indexes each sample, while the other two index rows and
-        columns of the image
+
+    Returns:
+        train_images : numpy.ndarray, Numpy array with the images in the train MNIST database. The first
+                       dimension indexes each sample, while the other two index rows and columns of the image
     """
     return download_and_parse_mnist_file('train-images-idx3-ubyte.gz')
 
@@ -142,12 +119,10 @@ def test_images():
     """Return test images from Yann LeCun MNIST database as a numpy array.
     Download the file, if not already found in the temporary directory of
     the system.
-    Returns
-    -------
-    test_images : numpy.ndarray
-        Numpy array with the images in the train MNIST database. The first
-        dimension indexes each sample, while the other two index rows and
-        columns of the image
+
+    Returns:
+        test_images : numpy.ndarray, Numpy array with the images in the train MNIST database. The first
+                      dimension indexes each sample, while the other two index rows and columns of the image
     """
     return download_and_parse_mnist_file('t10k-images-idx3-ubyte.gz')
 
@@ -156,10 +131,9 @@ def train_labels():
     """Return train labels from Yann LeCun MNIST database as a numpy array.
     Download the file, if not already found in the temporary directory of
     the system.
-    Returns
-    -------
-    train_labels : numpy.ndarray
-        Numpy array with the labels 0 to 9 in the train MNIST database.
+
+    Returns:
+        train_labels : numpy.ndarray, Numpy array with the labels 0 to 9 in the train MNIST database.
     """
     return download_and_parse_mnist_file('train-labels-idx1-ubyte.gz')
 
@@ -168,9 +142,8 @@ def test_labels():
     """Return test labels from Yann LeCun MNIST database as a numpy array.
     Download the file, if not already found in the temporary directory of
     the system.
-    Returns
-    -------
-    test_labels : numpy.ndarray
-        Numpy array with the labels 0 to 9 in the train MNIST database.
+
+    Returns:
+        test_labels : numpy.ndarray, Numpy array with the labels 0 to 9 in the train MNIST database.
     """
     return download_and_parse_mnist_file('t10k-labels-idx1-ubyte.gz')
