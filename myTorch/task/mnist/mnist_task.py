@@ -1,20 +1,18 @@
-"""Permuted Sequential MNIST Task."""
+"""MNIST Task."""
 import numpy as np
-import _pickle as pickle
 import os
 import math
 from myTorch.utils import MyContainer
-from myTorch.task.mnist import download_mnist
+from myTorch.task.mnist.download_mnist import download_mnist
 
 
-class PMNISTData(object):
-    """Permuted Sequential MNIST task data generator."""
+class MNISTData(object):
+    """MNIST task data generator."""
 
     def __init__(self, batch_size=10, seed=5):
         """Initializes the data generator.
 
         Args:
-            num_digits: int, number of digits in the sequence.
             batch_size: int, batch size.
             seed: int, random seed.
         """
@@ -30,42 +28,37 @@ class PMNISTData(object):
         self.reset_iterator()
 
     def _load_data(self):
+        """Loads the data into memory."""
+
+        data_dir = os.path.join(os.environ["MYTORCH_DATA"], "mnist")
+        download_mnist(data_dir)
 
         self._data = MyContainer()
 
         self._data.x = {}
         self._data.y = {}
 
-        train_x = download_mnist.train_images().astype("float32") / 255
-        train_y = download_mnist.train_labels().astype("float32")
-        test_x = download_mnist.test_images().astype("float32") / 255
-        test_y = download_mnist.test_labels().astype("float32")
+        self._data.x["train"] = np.load(os.path.join(data_dir, "train_x.npy")).astype("float32") / 255
+        self._data.y["train"] = np.load(os.path.join(data_dir, "train_y.npy")).astype("float32")
 
-        perm = self._state.rng.permutation(len(train_x))
+        self._data.x["valid"] = np.load(os.path.join(data_dir, "valid_x.npy")).astype("float32") / 255
+        self._data.y["valid"] = np.load(os.path.join(data_dir, "valid_y.npy")).astype("float32")
 
-        train_x = train_x.reshape(train_x.shape[0], train_x.shape[1]*train_x.shape[2])
-        test_x = test_x.reshape(test_x.shape[0], test_x.shape[1] * test_x.shape[2])
+        self._data.x["test"] = np.load(os.path.join(data_dir, "test_x.npy")).astype("float32") / 255
+        self._data.y["test"] = np.load(os.path.join(data_dir, "test_y.npy")).astype("float32")
 
-        seq_perm = self._state.rng.permutation(train_x.shape[1])
-
-        train_x = train_x[perm]
-        train_y = train_y[perm]
-
-        self._data.x["valid"] = np.expand_dims(train_x[-10000:], 2)
-        self._data.y["valid"] = train_y[-10000:]
-
-        self._data.x["train"] = np.expand_dims(train_x[0:50000], 2)
-        self._data.y["train"] = train_y[0:50000]
-
-        self._data.x["test"] = np.expand_dims(test_x[-10000:], 2)
-        self._data.y["test"] = test_y
-
-        for fold in ["train", "valid", "test"]:
-            for i in range(0, len(self._data.x[fold])):
-                self._data.x[fold][i] = self._data.x[fold][i][seq_perm]
-
+        self._data.x["train"] = self._data.x["train"].reshape(self._data.x["train"].shape[0],
+                                                              self._data.x["train"].shape[1] *
+                                                              self._data.x["train"].shape[2])
+        self._data.x["valid"] = self._data.x["valid"].reshape(self._data.x["valid"].shape[0],
+                                                              self._data.x["valid"].shape[1] *
+                                                              self._data.x["valid"].shape[2])
+        self._data.x["test"] = self._data.x["test"].reshape(self._data.x["test"].shape[0],
+                                                              self._data.x["test"].shape[1] *
+                                                              self._data.x["test"].shape[2])
 
     def reset_iterator(self):
+        """Resets the data iterator and shuffles the examples."""
 
         self._state.iter_list = {}
         self._state.batches = {}
@@ -81,6 +74,9 @@ class PMNISTData(object):
 
         Args:
             tag: str, "train" or "valid" or "test"
+
+        Returns:
+            output: a dictionary containing input 'x' and output 'y'.
         """
 
         if self._state.batches_done[tag] == self._state.batches[tag]:
@@ -93,31 +89,12 @@ class PMNISTData(object):
 
         indices = self._state.iter_list[tag][start_ind:end_ind]
 
-        x = [self._data.x[tag][i] for i in indices]
+        x = self._data.x[tag][indices]
         y = self._data.y[tag][indices]
 
-        max_len = len(x[0])
-
-        data_len = int(max_len + 1)
-
-        new_x = np.zeros((self._state.batch_size, data_len, 1))
-        new_y = np.zeros((self._state.batch_size, data_len))
-        mask = np.zeros((self._state.batch_size, data_len))
-
-        for i in range(0, len(indices)):
-            new_x[i][0:max_len] = x[i]
-            new_y[i][max_len] = y[i]
-            mask[i][max_len] = 1
-
-        new_x = np.swapaxes(new_x, 0, 1).astype('float32')
-        new_y = np.swapaxes(new_y, 0, 1).astype('int64')
-        mask = np.swapaxes(mask, 0, 1).astype('float32')
-
         output = {}
-        output['x'] = new_x
-        output['y'] = new_y
-        output['mask'] = mask
-        output['datalen'] = data_len
+        output['x'] = x
+        output['y'] = y
 
         self._state.batches_done[tag] += 1
 
@@ -144,12 +121,12 @@ class PMNISTData(object):
 
 if __name__=="__main__":
 
-    gen = PMNISTData()
+    gen = MNISTData()
 
     data = None
     count = 0
     while True:
-        data = gen.next("valid")
+        data = gen.next("train")
         if data is not None:
             count += 1
             print(count)

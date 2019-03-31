@@ -15,7 +15,7 @@ from myTorch.rllib.a2c.a2c_networks import *
 from myTorch.rllib.a2c.config import *
 from myTorch.rllib.a2c import A2CAgent
 from myTorch.utils import MyContainer
-from myTorch.utils.logging import Logger
+from myTorch.utils.logger import Logger
 
 parser = argparse.ArgumentParser(description="A2C Training")
 parser.add_argument('--config', type=str, default="blocksworld_matrix", help="config name")

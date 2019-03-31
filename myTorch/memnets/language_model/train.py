@@ -15,7 +15,7 @@ from myTorch.task.associative_recall_task import AssociativeRecallData
 from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.adding_task import AddingData
 from myTorch.task.denoising import DenoisingData
-from myTorch.utils.logging import Logger
+from myTorch.utils.logger import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 from myTorch.memnets.language_model import data
 from myTorch.memnets.language_model.lm import LanguageModel

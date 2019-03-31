@@ -16,7 +16,7 @@ from myTorch.task.copy_task import CopyData
 from myTorch.task.copying_memory import CopyingMemoryData
 from myTorch.task.repeat_copy_task import RepeatCopyData
 from myTorch.utils import MyContainer, get_optimizer, create_config
-from myTorch.utils.logging import Logger
+from myTorch.utils.logger import Logger
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")

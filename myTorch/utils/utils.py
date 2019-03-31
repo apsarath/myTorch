@@ -8,7 +8,9 @@ import torch.optim as optim
 import numpy as np
 import yaml
 from copy import deepcopy
-
+import torch
+import torch.nn as nn
+import gin
 
 class MyContainer():
 
@@ -130,6 +132,30 @@ def act_name(activation):
     elif activation == torch.tanh:
         return 'tanh'
 
+def get_activation(act_name):
+
+    if act_name == "sigmoid":
+        return torch.sigmoid
+    elif act_name == "tanh":
+        return torch.tanh
+    elif act_name == "relu":
+        return torch.relu
+    else:
+        return None
+
+
+def load_gin_configs(gin_files, gin_bindings):
+    """Loads gin configuration files.
+    Args:
+      gin_files: list, of paths to the gin configuration files for this
+        experiment.
+      gin_bindings: list, of gin parameter bindings to override the values in
+        the config files.
+    """
+    gin.parse_config_files_and_bindings(gin_files,
+                                        bindings=gin_bindings,
+                                        skip_unknown=False)
+
 def create_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -180,3 +206,38 @@ def get_optimizer(params, config):
         return optim.SGD(params, lr=config.lr, momentum=config.momentum, dampening=config.dampening, weight_decay=config.weight_decay, nesterov=config.nesterov)
     else:
         assert("Unsupported optimizer : {}. Valid optimizers : Adadelta, Adagrad, Adam, RMSprop, SGD".format(config.optim_name))
+
+def sample_gumbel(input, eps=1e-10, use_gpu=False):
+    noise = torch.rand(input.size())
+    noise.add_(eps).log_().neg_()
+    noise.add_(eps).log_().neg_()
+    return my_variable(noise, use_gpu)
+
+
+def gumbel_softmax_sample(logits, temperature, use_gpu=False):
+    """ Draw a sample from the Gumbel-Softmax distribution"""
+    y = logits + sample_gumbel(logits, use_gpu=use_gpu)
+    return torch.nn.functional.softmax(y / temperature).view_as(y)
+
+
+def gumbel_sigmoid(logits, temperature=1.0, use_gpu=False):
+    y = logits + sample_gumbel(logits, use_gpu=use_gpu)
+    return torch.sigmoid(y / temperature).view_as(y)
+
+
+def gumbel_softmax(logits, temperature=1.0, hard=True, use_gpu=False):
+    """Sample from the Gumbel-Softmax distribution and optionally discretize.
+    Args:
+      logits: [batch_size, n_class] unnormalized log-probs
+      temperature: non-negative scalar
+      hard: if True, take argmax, but differentiate w.r.t. soft sample y
+    Returns:
+      [batch_size, n_class] sample from the Gumbel-Softmax distribution.
+      If hard=True, then the returned sample will be one-hot, otherwise it will
+      be a probabilitiy distribution that sums to 1 across classes
+    """
+    y = gumbel_softmax_sample(logits, temperature, use_gpu)
+    y_one_hot = my_variable(torch.zeros(y.size()), use_gpu)
+    if hard:
+        y_one_hot.scatter_(1, torch.max(y,1,keepdim=True)[1], 1)
+    return ((y_one_hot - y).detach() + y)

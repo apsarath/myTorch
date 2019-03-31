@@ -8,7 +8,7 @@ from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.ssmnist_task import SSMNISTData
 from myTorch.task.mnist_task import PMNISTData
-from myTorch.utils.logging import Logger
+from myTorch.utils.logger import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
 
