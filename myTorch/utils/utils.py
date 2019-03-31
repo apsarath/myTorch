@@ -10,7 +10,7 @@ import yaml
 from copy import deepcopy
 import torch
 import torch.nn as nn
-
+import gin
 
 class MyContainer():
 
@@ -131,6 +131,30 @@ def act_name(activation):
         return 'sigmoid'
     elif activation == torch.tanh:
         return 'tanh'
+
+def get_activation(act_name):
+
+    if act_name == "sigmoid":
+        return torch.sigmoid
+    elif act_name == "tanh":
+        return torch.tanh
+    elif act_name == "relu":
+        return torch.relu
+    else:
+        return None
+
+
+def load_gin_configs(gin_files, gin_bindings):
+    """Loads gin configuration files.
+    Args:
+      gin_files: list, of paths to the gin configuration files for this
+        experiment.
+      gin_bindings: list, of gin parameter bindings to override the values in
+        the config files.
+    """
+    gin.parse_config_files_and_bindings(gin_files,
+                                        bindings=gin_bindings,
+                                        skip_unknown=False)
 
 def create_folder(folder):
     if not os.path.exists(folder):

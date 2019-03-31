@@ -35,7 +35,7 @@ class Experiment(object):
 
         Args:
             model: a model object.
-            config: a config gin file.
+            config: a config dictionary.
             logger: a logger object.
             train_statistics: a train_statistics dictionary.
             data_iterator: a data iterator object.

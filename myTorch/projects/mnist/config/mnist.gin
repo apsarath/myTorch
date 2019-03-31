@@ -1,0 +1,9 @@
+MLP.num_hidden_layers = 2
+MLP.hidden_layer_size = [100, 100]
+MLP.activation = "relu"
+MLP.input_dim = 784
+MLP.output_dim = 10
+
+train.batch_size = 100
+train.num_epochs = 100
+

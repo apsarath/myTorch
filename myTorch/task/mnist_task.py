@@ -4,7 +4,7 @@ import _pickle as pickle
 import os
 import math
 from myTorch.utils import MyContainer
-from myTorch.task.mnist import load_mnist
+from myTorch.task.mnist import download_mnist
 
 
 class PMNISTData(object):
@@ -36,10 +36,10 @@ class PMNISTData(object):
         self._data.x = {}
         self._data.y = {}
 
-        train_x = load_mnist.train_images().astype("float32")/255
-        train_y = load_mnist.train_labels().astype("float32")
-        test_x = load_mnist.test_images().astype("float32")/255
-        test_y = load_mnist.test_labels().astype("float32")
+        train_x = download_mnist.train_images().astype("float32") / 255
+        train_y = download_mnist.train_labels().astype("float32")
+        test_x = download_mnist.test_images().astype("float32") / 255
+        test_y = download_mnist.test_labels().astype("float32")
 
         perm = self._state.rng.permutation(len(train_x))
 

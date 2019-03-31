@@ -15,7 +15,7 @@ from myTorch.rllib.dqn.q_networks import *
 from myTorch.rllib.dqn.config import *
 from myTorch.rllib.dqn import ReplayBuffer, DQNAgent
 from myTorch.utils import MyContainer
-from myTorch.utils.logging import Logger
+from myTorch.utils.logger import Logger
 
 parser = argparse.ArgumentParser(description="DQN Training")
 parser.add_argument('--config', type=str, default="blocksworld", help="config name")
