@@ -1,20 +1,13 @@
 import argparse
 import logging
-import gin
 import torch
-from torch.autograd import Variable
-import torch.optim as optim
+import torch.nn.functional as F
+
 from myTorch.utils import MyContainer, create_config, get_optimizer
 from myTorch import Logger
 from myTorch import Experiment
 from MLP import MLP
-
-
-
-
 from myTorch.task.mnist import MNISTData
-
-from MLP import *
 
 parser = argparse.ArgumentParser(description="MNIST Classification Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -23,6 +16,19 @@ parser.add_argument("--device", type=str, default="cuda")
 
 
 def compute_accuracy(model, data_iterator, data_tag, device):
+    """Computes accuracy for the given data split.
+
+    Args:
+        model: model object.
+        data_iterator: data iterator object.
+        data_tag: str, could be "train" or "valid" or "test"
+        device: torch device
+
+    returns:
+        accuracy: float, average accuracy.
+    """
+
+    model.eval()
 
     accuracy = 0.0
     total = 0.0
@@ -51,10 +57,12 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         data_iterator: data iterator object
         tr: training statistics dictionary.
         logger: logger object.
+        device: torch device.
     """
 
     for i in range(tr.epochs_done, config.num_epochs):
 
+        model.train()
         data_iterator.reset_iterator()
         avg_loss = 0
         while True:
@@ -74,6 +82,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         avg_loss /= data_iterator._state.batches["train"]
         tr.train_loss.append(avg_loss)
         logger.log_scalar("training loss per epoch", avg_loss, i + 1)
+        logging.info("training loss in epoch {}: {}".format(i + 1, avg_loss))
 
         val_acc = compute_accuracy(model, data_iterator, "valid", device)
         test_acc = compute_accuracy(model, data_iterator, "test", device)
@@ -81,13 +90,25 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         tr.test_acc.append(test_acc)
         logger.log_scalar("valid acc per epoch", val_acc, i + 1)
         logger.log_scalar("test acc per epoch", test_acc, i + 1)
-
-        experiment.save()
+        logging.info("valid acc in epoch {}: {}".format(i + 1, val_acc))
+        logging.info("test acc in epoch {}: {}".format(i + 1, test_acc))
 
         tr.epochs_done += 1
 
+        experiment.save()
+
+        
+
 
 def create_experiment(config):
+    """Creates the experiment.
+
+    Args:
+        config: config dictionary.
+
+    returns:
+        experiment, model, data_iterator, training_statitics, logger, device
+    """
 
 
     device = torch.device(config.device)
@@ -123,7 +144,11 @@ def create_experiment(config):
 
 
 def run_experiment(args):
-    """Runs the experiment."""
+    """Runs the experiment.
+
+    Args:
+        args: command line arguments.
+    """
 
     config = create_config(args.config)
     config.device = args.device
@@ -139,6 +164,7 @@ def run_experiment(args):
         experiment.force_restart()
 
     train(experiment, model, config, data_iterator, training_statistics, logger, device)
+    logging.info("Training done!")
 
 
 

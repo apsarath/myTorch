@@ -1,12 +1,10 @@
 """Implementation of a simple MLP."""
-import gin
 import torch.nn as nn
 import torch.nn.functional as F
 from myTorch.utils import get_activation
 from myTorch.utils import Model
 
 
-@gin.configurable
 class MLP(Model):
     """A simple MLP class."""
 
@@ -52,6 +50,5 @@ class MLP(Model):
         for i in range(len(self._fc_layers)-1):
             x = self._activation(self._fc_layers[i](x))
         x = self._fc_layers[-1](x)
-        x = F.log_softmax(x, dim=1)
 
         return x

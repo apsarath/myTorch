@@ -6,9 +6,9 @@ ex_name: "pytorch"
 
 # model specific details
 
-num_hidden_layers: 2
-hidden_layer_size: [100, 100]
-activation: "relu"
+num_hidden_layers: 1
+hidden_layer_size: [100]
+activation: "sigmoid"
 input_dim: 784
 output_dim: 10
 
@@ -22,6 +22,12 @@ momentum: 0.0
 dampening:  0.0
 nesterov: False
 
+alpha: 0.99
+eps: 1.0e-8
+centered: False
+
+
+
 
 # training specific details
 
@@ -31,7 +37,6 @@ device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 # saving details
 use_tflogger: True
-save_every_n: 10000
 
 
 # data iterator specific details
