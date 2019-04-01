@@ -2,14 +2,14 @@
 import numpy as np
 import os
 import math
-from myTorch.utils import MyContainer
+from myTorch.utils import MyContainer, one_hot
 from myTorch.task.mnist.download_mnist import download_mnist
 
 
 class MNISTData(object):
     """MNIST task data generator."""
 
-    def __init__(self, batch_size=10, seed=5):
+    def __init__(self, batch_size=10, seed=5, use_one_hot=True):
         """Initializes the data generator.
 
         Args:
@@ -20,6 +20,7 @@ class MNISTData(object):
         self._state = MyContainer()
 
         self._state.batch_size = int(batch_size)
+        self._state.use_one_hot = use_one_hot
         self._state.examples_seen = 0
         self._state.rng = np.random.RandomState(seed)
 
@@ -46,6 +47,11 @@ class MNISTData(object):
 
         self._data.x["test"] = np.load(os.path.join(data_dir, "test_x.npy")).astype("float32") / 255
         self._data.y["test"] = np.load(os.path.join(data_dir, "test_y.npy")).astype("float32")
+
+        if self._state.use_one_hot:
+            self._data.y["train"] = one_hot(self._data.y["train"], 10).astype("float32")
+            self._data.y["valid"] = one_hot(self._data.y["valid"], 10).astype("float32")
+            self._data.y["test"] = one_hot(self._data.y["test"], 10).astype("float32")
 
         self._data.x["train"] = self._data.x["train"].reshape(self._data.x["train"].shape[0],
                                                               self._data.x["train"].shape[1] *

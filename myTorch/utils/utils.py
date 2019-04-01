@@ -189,7 +189,7 @@ def one_hot(x, n):
         x = np.array(x)
     x = x.flatten()
     o_h = np.zeros((len(x), n))
-    o_h[np.arange(len(x)), x] = 1
+    o_h[np.arange(len(x)).astype(int), x.astype(int)] = 1
     return o_h
 
 def get_optimizer(params, config):

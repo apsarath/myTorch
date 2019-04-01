@@ -1,0 +1,41 @@
+config_filename: "default.yaml"
+description: "Default MNIST task config"
+
+project_name: "mnist"
+ex_name: "pytorch"
+
+# model specific details
+
+num_hidden_layers: 2
+hidden_layer_size: [100, 100]
+activation: "relu"
+input_dim: 784
+output_dim: 10
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "SGD"
+lr: 0.01
+weight_decay: 0.0
+momentum: 0.0
+dampening:  0.0
+nesterov: False
+
+
+# training specific details
+
+num_epochs:  10
+rseed:  5
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+
+# saving details
+use_tflogger: True
+save_every_n: 10000
+
+
+# data iterator specific details
+
+batch_size: 20
+data_iterator_seed: 5
+use_one_hot: True

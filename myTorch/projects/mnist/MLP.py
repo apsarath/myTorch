@@ -29,8 +29,6 @@ class MLP(Model):
         self._input_dim = input_dim
         self._output_dim = output_dim
 
-        print(self._num_hidden_layers)
-
         self._fc_layers = []
         self._fc_layers.append(nn.Linear(input_dim, hidden_layer_size[0]))
         for i in range(1, num_hidden_layers):

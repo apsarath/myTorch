@@ -1,13 +1,13 @@
-from absl import flags
-from absl import app
+import argparse
 import logging
 import gin
 import torch
 from torch.autograd import Variable
 import torch.optim as optim
-from myTorch.utils import MyContainer, load_gin_configs
+from myTorch.utils import MyContainer, create_config, get_optimizer
 from myTorch import Logger
 from myTorch import Experiment
+from MLP import MLP
 
 
 
@@ -16,42 +16,100 @@ from myTorch.task.mnist import MNISTData
 
 from MLP import *
 
-flags.DEFINE_multi_string("gin_files", [], "List of paths to gin configuration files.")
-flags.DEFINE_multi_string("gin_bindings", [], "Gin bindings to override the values set in the config files "
-                                              "(e.g. 'DQNAgent.epsilon_train=0.1',"
-                                              "'create_environment.game_name='Pong'').")
-
-FLAGS = flags.FLAGS
+parser = argparse.ArgumentParser(description="MNIST Classification Task")
+parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
+parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
+parser.add_argument("--device", type=str, default="cuda")
 
 
-@gin.configurable
-def train(batch_size=10, num_epochs=10):
+def compute_accuracy(model, data_iterator, data_tag, device):
+
+    accuracy = 0.0
+    total = 0.0
+
+    while True:
+        data = data_iterator.next(data_tag)
+        if data is None:
+            break
+        x = torch.from_numpy(data['x']).to(device)
+        y = torch.from_numpy(data['y']).to(device)
+        output = model(x)
+        _, pred = torch.max(output, 1)
+        _, target = torch.max(y, 1)
+        accuracy += (pred==target).sum().item()
+        total += len(pred)
+
+    accuracy /= total
+    return accuracy
+
+def train(experiment, model, config, data_iterator, tr, logger, device):
+    """Training loop.
+    Args:
+        experiment: experiment object.
+        model: model object.
+        config: config dictionary.
+        data_iterator: data iterator object
+        tr: training statistics dictionary.
+        logger: logger object.
+    """
+
+    for i in range(tr.epochs_done, config.num_epochs):
+
+        data_iterator.reset_iterator()
+        avg_loss = 0
+        while True:
+            data = data_iterator.next("train")
+
+            if data is None:
+                break
+
+            x = torch.from_numpy(data['x']).to(device)
+            y = torch.from_numpy(data['y']).to(device)
+            model.optimizer.zero_grad()
+            output = model(x)
+            loss = F.binary_cross_entropy_with_logits(output, y)
+            avg_loss += loss
+            loss.backward()
+            model.optimizer.step()
+        avg_loss /= data_iterator._state.batches["train"]
+        tr.train_loss.append(avg_loss)
+        logger.log_scalar("training loss per epoch", avg_loss, i + 1)
+
+        val_acc = compute_accuracy(model, data_iterator, "valid", device)
+        test_acc = compute_accuracy(model, data_iterator, "test", device)
+        tr.valid_acc.append(val_acc)
+        tr.test_acc.append(test_acc)
+        logger.log_scalar("valid acc per epoch", val_acc, i + 1)
+        logger.log_scalar("test acc per epoch", test_acc, i + 1)
+
+        experiment.save()
+
+        tr.epochs_done += 1
 
 
-    print(batch_size)
-    print(num_epochs)
-
-    return
+def create_experiment(config):
 
 
+    device = torch.device(config.device)
+    logging.info("using {}".format(config.device))
+
+    experiment = Experiment(config.name, config.save_dir)
+
+    logger = None
+    if config.use_tflogger:
+        logger = Logger(config.tflog_dir)
+
+    torch.manual_seed(config.rseed)
 
 
+    model = MLP(num_hidden_layers=config.num_hidden_layers, hidden_layer_size=config.hidden_layer_size,
+        activation=config.activation, input_dim=config.input_dim, output_dim=config.output_dim).to(device)
 
+    data_iterator = MNISTData(batch_size=config.batch_size, seed=config.data_iterator_seed, use_one_hot=config.use_one_hot)
 
-
-
-@gin.configurable
-def create_experiment(experiment_name, save_dir, use_tflogger=False, tflog_dir=None, random_seed=5):
-
-    torch.manual_seed(random_seed)
-
-    experiment = Experiment(experiment_name, save_dir)
-
-    data_gen = MNISTData()
-
-    model = MLP()
-    optimizer = optim.Adam(model.parameters(), lr=0.01, betas=[0.9, 0.999])
+    optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
+
 
     training_statistics = MyContainer()
     training_statistics.train_loss = []
@@ -59,28 +117,35 @@ def create_experiment(experiment_name, save_dir, use_tflogger=False, tflog_dir=N
     training_statistics.test_acc = []
     training_statistics.epochs_done = 0
 
-    logger = None
-    if use_tflogger:
-        logger = Logger(tflog_dir)
+    experiment.register_experiment(model, config, logger, training_statistics, data_iterator)
+
+    return experiment, model, data_iterator, training_statistics, logger, device
 
 
+def run_experiment(args):
+    """Runs the experiment."""
 
+    config = create_config(args.config)
+    config.device = args.device
 
-def main(unused_argv):
-    """Main method.
+    logging.info(config.get())
 
-    Args:
-        unused_argv: Arguments (unused).
-    """
+    experiment, model, data_iterator, training_statistics, logger, device = create_experiment(config)
 
-    logging.basicConfig(level=logging.INFO)
-    load_gin_configs(FLAGS.gin_files, FLAGS.gin_bindings)
-    train()
+    if not args.force_restart:
+        if experiment.is_resumable():
+            experiment.resume()
+    else:
+        experiment.force_restart()
+
+    train(experiment, model, config, data_iterator, training_statistics, logger, device)
 
 
 
 if __name__ == '__main__':
-  app.run(main)
+  args = parser.parse_args()
+  logging.basicConfig(level=logging.INFO)
+  run_experiment(args)
 
 
 
