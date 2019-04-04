@@ -9,17 +9,20 @@ from myTorch.task.mnist.download_mnist import download_mnist
 class MNISTData(object):
     """MNIST task data generator."""
 
-    def __init__(self, batch_size=10, seed=5, use_one_hot=True):
+    def __init__(self, batch_size=10, inference_batch_size=100, seed=5, use_one_hot=True):
         """Initializes the data generator.
 
         Args:
             batch_size: int, batch size.
+            inference_batch_size: int, inference batch size (usually larger than batch size).
             seed: int, random seed.
+            use_one_hot: bool, if True, targets are one-hot.
         """
 
         self._state = MyContainer()
 
         self._state.batch_size = int(batch_size)
+        self._state.inference_batch_size = int(inference_batch_size)
         self._state.use_one_hot = use_one_hot
         self._state.examples_seen = 0
         self._state.rng = np.random.RandomState(seed)
@@ -72,7 +75,10 @@ class MNISTData(object):
 
         for fold in ["train", "valid", "test"]:
             self._state.iter_list[fold] = self._state.rng.permutation(len(self._data.x[fold]))
-            self._state.batches[fold] = math.ceil(len(self._data.x[fold]) // self._state.batch_size)
+            if fold == "train":
+                self._state.batches[fold] = math.ceil(len(self._data.x[fold]) // self._state.batch_size)
+            else:
+                self._state.batches[fold] = math.ceil(len(self._data.x[fold]) // self._state.inference_batch_size)
             self._state.batches_done[fold] = 0
 
     def next(self, tag):
@@ -123,6 +129,14 @@ class MNISTData(object):
         """
 
         self._state.load(file_name)
+
+    def dataset_size(self, tag):
+        """Returns the size of the dataset.
+
+        Args:
+            tag: str, "train" or "valid" or "test"
+        """
+        return len(self._data.x[tag])
 
 
 if __name__=="__main__":

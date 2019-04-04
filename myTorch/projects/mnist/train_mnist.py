@@ -1,4 +1,5 @@
 import argparse
+import time
 import logging
 import torch
 import torch.nn.functional as F
@@ -60,8 +61,10 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         device: torch device.
     """
 
+
     for i in range(tr.epochs_done, config.num_epochs):
 
+        start_time = time.time()
         model.train()
         data_iterator.reset_iterator()
         avg_loss = 0
@@ -75,7 +78,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             y = torch.from_numpy(data['y']).to(device)
             model.optimizer.zero_grad()
             output = model(x)
-            loss = F.binary_cross_entropy_with_logits(output, y)
+            loss = F.binary_cross_entropy_with_logits(output, y, reduction="mean")
             avg_loss += loss
             loss.backward()
             model.optimizer.step()
@@ -96,6 +99,7 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
         tr.epochs_done += 1
 
         experiment.save()
+        logging.info("iteration took {} seconds.".format(time.time()-start_time))
 
         
 

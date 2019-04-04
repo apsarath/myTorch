@@ -29,9 +29,15 @@ class MLP(Model):
 
         self._fc_layers = []
         self._fc_layers.append(nn.Linear(input_dim, hidden_layer_size[0]))
+        nn.init.normal_(self._fc_layers[-1].weight, mean=0, std=0.01)
+        nn.init.constant_(self._fc_layers[-1].bias, 0)
         for i in range(1, num_hidden_layers):
             self._fc_layers.append(nn.Linear(hidden_layer_size[i-1], hidden_layer_size[i]))
+            nn.init.normal_(self._fc_layers[-1].weight, mean=0, std=0.01)
+            nn.init.constant_(self._fc_layers[-1].bias, 0)
         self._fc_layers.append(nn.Linear(hidden_layer_size[-1], output_dim))
+        nn.init.normal_(self._fc_layers[-1].weight, mean=0, std=0.01)
+        nn.init.constant_(self._fc_layers[-1].bias, 0)
 
         self._module_list = nn.ModuleList(self._fc_layers)
 
