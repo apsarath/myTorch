@@ -82,7 +82,7 @@ class MyContainer():
         new_container.add_from_dict(src_dict=deepcopy(self.get()))
         return new_container
 
-def create_config(file_name):
+def create_config(file_name, config_params="default"):
     """Returns a config object.
 
     Args:
@@ -102,6 +102,9 @@ def create_config(file_name):
             config.add_from_dict(parent_config_dict)
 
     config.add_from_dict(config_dict)
+
+    if config_params != "default":
+        modify_config_params(config, config_params)
 
     key = "MYTORCH_SAVEDIR"
     assert(key in os.environ), "Environment variable named `{}` not set".format(key)

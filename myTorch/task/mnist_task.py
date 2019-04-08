@@ -4,7 +4,7 @@ import _pickle as pickle
 import os
 import math
 from myTorch.utils import MyContainer
-from myTorch.task.mnist import download_mnist
+from myTorch.task.mnist.download_mnist import download_mnist
 
 
 class PMNISTData(object):
@@ -31,33 +31,41 @@ class PMNISTData(object):
 
     def _load_data(self):
 
+        data_dir = os.path.join(os.environ["MYTORCH_DATA"], "mnist")
+        download_mnist(data_dir)
+
         self._data = MyContainer()
 
         self._data.x = {}
         self._data.y = {}
 
-        train_x = download_mnist.train_images().astype("float32") / 255
-        train_y = download_mnist.train_labels().astype("float32")
-        test_x = download_mnist.test_images().astype("float32") / 255
-        test_y = download_mnist.test_labels().astype("float32")
+        train_x = np.load(os.path.join(data_dir, "train_x.npy")).astype("float32") / 255
+        train_y = np.load(os.path.join(data_dir, "train_y.npy")).astype("float32")
 
-        perm = self._state.rng.permutation(len(train_x))
+        valid_x = np.load(os.path.join(data_dir, "valid_x.npy")).astype("float32") / 255
+        valid_y = np.load(os.path.join(data_dir, "valid_y.npy")).astype("float32")
+
+        test_x = np.load(os.path.join(data_dir, "test_x.npy")).astype("float32") / 255
+        test_y = np.load(os.path.join(data_dir, "test_y.npy")).astype("float32")
+
+
+
 
         train_x = train_x.reshape(train_x.shape[0], train_x.shape[1]*train_x.shape[2])
+        valid_x = valid_x.reshape(valid_x.shape[0], valid_x.shape[1]*valid_x.shape[2])
         test_x = test_x.reshape(test_x.shape[0], test_x.shape[1] * test_x.shape[2])
 
         seq_perm = self._state.rng.permutation(train_x.shape[1])
 
-        train_x = train_x[perm]
-        train_y = train_y[perm]
 
-        self._data.x["valid"] = np.expand_dims(train_x[-10000:], 2)
-        self._data.y["valid"] = train_y[-10000:]
 
-        self._data.x["train"] = np.expand_dims(train_x[0:50000], 2)
-        self._data.y["train"] = train_y[0:50000]
+        self._data.x["valid"] = np.expand_dims(valid_x, 2)
+        self._data.y["valid"] = valid_y
 
-        self._data.x["test"] = np.expand_dims(test_x[-10000:], 2)
+        self._data.x["train"] = np.expand_dims(train_x, 2)
+        self._data.y["train"] = train_y
+
+        self._data.x["test"] = np.expand_dims(test_x, 2)
         self._data.y["test"] = test_y
 
         for fold in ["train", "valid", "test"]:
