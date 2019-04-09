@@ -18,7 +18,7 @@ class HomeWorldStateAgg(nn.Module):
         self._rnn_input_size = self._embedding_dim
         self._max_vocab_size = 100
         #self._embedding_dropout = 0.6
-        self._max_num_steps = 32
+        self._max_num_steps = 30
         self._pad = 0
 
         self._rnn_type = rnn_type
@@ -56,8 +56,11 @@ class HomeWorldStateAgg(nn.Module):
         if len(input.shape) < 3:
             input = input.unsqueeze(0)
         self.reset_hidden(input.shape[0])
-        self._quest_emb = self._encode(input[:,0,:], "quest")
-        self._obs_emb = self._obs_fc1(input[:,1,:])
+        self._quest_emb = self._encode(input[:,0,:self._max_num_steps], "quest")
+        try:
+            self._obs_emb = self._obs_fc1(input[:,1,:self._max_num_steps])
+        except:
+            import pdb; pdb.set_trace()
         x = F.relu(self._fc1(torch.cat((self._quest_emb, self._obs_emb), dim=1)))
         qvals = self._fc2(x)
         return qvals
