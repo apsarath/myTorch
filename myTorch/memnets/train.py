@@ -130,12 +130,10 @@ def create_experiment(config):
     logging.info("using {}".format(config.device))
 
     experiment = Experiment(config.name, config.save_dir)
-    experiment.register_config(config)
 
     logger = None
     if config.use_tflogger:
         logger = Logger(config.tflog_dir)
-        experiment.register_logger(logger)
 
     torch.manual_seed(config.rseed)
     input_size = config.num_digits + config.num_noise_digits + 1
@@ -155,10 +153,8 @@ def create_experiment(config):
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
                       t_max=t_max, use_relu=config.use_relu, memory_size=config.memory_size, 
                       k=config.k, phi_size=config.phi_size, r_size=config.r_size).to(device)
-    experiment.register_model(model)
 
     data_iterator = get_data_iterator(config)
-    experiment.register_data_iterator(data_iterator)
 
     optimizer = get_optimizer(model.parameters(), config)
     model.register_optimizer(optimizer)
@@ -167,7 +163,9 @@ def create_experiment(config):
     tr.updates_done = 0
     tr.average_bce = []
     tr.grad_norm = []
-    experiment.register_train_statistics(tr)
+
+    experiment.register_experiment(model=model, config=config, logger=logger, train_statistics=tr,
+        data_iterator=data_iterator)
 
     return experiment, model, data_iterator, tr, logger, device
 
