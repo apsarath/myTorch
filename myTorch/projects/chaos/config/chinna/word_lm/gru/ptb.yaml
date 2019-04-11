@@ -1,0 +1,55 @@
+config_filename: "ptb.yaml"
+description: "word langauge model ptb"
+
+project_name: "word_language_model_ptb"
+ex_name: "word_lm_ptb_gru"
+data: "data/penn"
+
+# model specific details
+
+model:  "GRU"
+input_emb_size: 400
+num_layers: 1
+layer_size: [1125]
+activation: "tanh"
+use_relu: True
+memory_size: 900
+k: 16
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm: 5.0
+
+max_steps: 200000
+num_epochs: 20
+rseed:  5
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "word_lm_ptb"
+batch_size: 20
+eval_batch_size: 10
+test_batch_size: 1
+seed: 5
+time_lag: 100
+seq_len: 10
+bptt: 70
+
+# saving details
+use_tflogger: True
+save_every_n: 1000
+inter_saving: [0, 1000, 2000, 3000, 4000, 5000]

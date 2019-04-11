@@ -1,0 +1,49 @@
+parent_config: "config/default.yaml"
+config_filename: "associative_recall.yaml"
+description: "associative recall task"
+
+project_name: "associative_recall_task"
+ex_name: "ex01"
+
+# model specific details
+
+model:  "LSTM"
+input_size: 8
+output_size:  8
+num_layers: 1
+layer_size: [256]
+activation: "tanh"
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm:  5.0
+
+max_steps:  100000000
+rseed:  5
+device: "cpu" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "associative_recall"
+num_bits: 8
+min_len:  2
+max_len:  6
+block_len:  3
+batch_size: 10
+
+# saving details
+use_tflogger: True
+save_every_n: 10000

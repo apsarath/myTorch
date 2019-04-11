@@ -1,0 +1,58 @@
+parent_config: "config/default.yaml"
+config_filename: "denoising_copy.yaml"
+description: "denoising copy task"
+
+project_name: "denoising_copy_task_t200"
+#ex_name: "flatmemory_m64_k4_h80_n1_t500"
+#ex_name: "lstm_h70_chrono_n1_t500"
+#ex_name: "gru_h80_n1_t500"
+ex_name: "lstm"
+
+# model specific details
+
+model:  "LSTM"
+num_layers: 1
+layer_size: [70]
+activation: "tanh"
+identity_init: False # works only for RNN
+layer_norm: False  # works only for LSTM, RNN
+chrono_init: False
+memory_size: 64
+k: 4
+
+# optimization specific details
+
+# Valid optimizer names: Adadelta, Adagrad, Adam, RMSprop, SGD
+optim_name: "Adam"
+lr: 1.0e-3
+rho: 0.9
+eps:  1.0e-8
+weight_decay: 0.0
+lr_decay: 0.0
+beta_0: 0.9
+beta_1: 0.999
+alpha:  0.99
+momentum: 0.0
+centered: False
+dampening:  0.0
+nesterov: False
+grad_clip_norm: 1.0
+
+max_steps: 200000
+rseed:  5
+device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+
+# task specific details
+task: "denoising_copy"
+batch_size: 10
+seed: 5
+time_lag_min: 200
+time_lag_max: 200
+seq_len: 10
+num_noise_digits: 1
+num_digits: 8
+
+# saving details
+use_tflogger: True
+save_every_n: 1000
+inter_saving: [0, 1000, 2000, 3000, 4000, 5000]
