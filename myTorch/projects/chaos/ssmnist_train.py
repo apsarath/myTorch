@@ -11,6 +11,7 @@ from myTorch.task.mnist_task import PMNISTData
 from myTorch.utils.logger import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
+from torch.autograd import grad
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -203,20 +204,31 @@ def calculate_LS(model, data_iterator, device, num_exp=10):
     data_iterator.reset_iterator()
     data = data_iterator.next("train")
 
+    h_list = list()
+
+    model.reset_hidden(batch_size=1)
+    h_list.append(model._h_prev[0]["h"])
+    h_list[-1].requires_grad_()
     for i in range(0, data["datalen"]):
 
-        model.reset_hidden(batch_size=1)
-
-        for j in range(0, i+1):
-            x = torch.from_numpy(numpy.asarray(data['x'][j])).to(device)
-            y = torch.from_numpy(numpy.asarray(data['y'][j])).to(device)
-            mask = torch.from_numpy(numpy.asarray(data['mask'][j])).to(device)
+        x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
+        y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
+        mask = torch.from_numpy(numpy.asarray(data['mask'][i])).to(device)
         
-            x = x[0].unsqueeze(1)
-            import ipdb
-            ipdb.set_trace()
+        x = x[0].unsqueeze(1)
 
+        output = model(x)
+        h_list.append(model._h_prev[0]["h"])
+        h_list[-1].requires_grad_()
 
+    for i in range(1, len(h_list)):
+        model.optimizer.zero_grad()
+        j_list = list()
+        for k in range(0, len(h_list[i][0])):
+            j_list.append(grad(h_list[i][0][k], h_list[i-1], retain_graph=True)[0])
+        jacob = torch.stack(j_list)
+        import ipdb
+        ipdb.set_trace()
 
 
 
