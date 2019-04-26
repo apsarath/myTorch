@@ -2,7 +2,7 @@ parent_config: "config/default.yaml"
 config_filename: "ssmnist.yaml"
 description: "ssmnist task"
 
-project_name: "pmnist_task"
+project_name: "pmnist_task_chaos"
 ex_name: "gru"
 
 # model specific details

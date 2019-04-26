@@ -1,18 +1,22 @@
 parent_config: "config/default.yaml"
-config_filename: "janet.yaml"
-description: "copying memory task"
+config_filename: "ssmnist.yaml"
+description: "ssmnist task"
 
-project_name: "copy_v1"
-ex_name: "janet_trial"
+project_name: "pmnist_task_chaos"
+ex_name: "sigmoid_rnn_id"
 
 # model specific details
 
-model:  "JANET"
+model:   "RNN"  # flat 576, 9, h100  #28651
+input_size: 1
+output_size:  10
 num_layers: 1
-layer_size: [101]
-activation: "relu"
-layer_norm: False
-chrono_init: True
+layer_size: [400]  #[256]
+activation: "sigmoid"
+layer_norm: True
+identity_init: True
+
+# t_max for 5: 335, 10: 560, 15: 802
 
 # optimization specific details
 
@@ -30,25 +34,17 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 1.0
-amsgrad: False
+grad_clip_norm:  1.0
 
-
-max_steps: 200000
+max_steps:  50000
 rseed:  5
 device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "copying_memory"
-batch_size: 10
-seed: 5
-time_lag_min: 500
-time_lag_max: 500
-seq_len: 20
-num_noise_digits: 1
-num_digits: 8
+task: "pmnist"
+batch_size: 100
+seed: 50
 
 # saving details
 use_tflogger: True
 save_every_n: 1000
-inter_saving: [0, 1000, 2000, 3000, 4000, 5000]
