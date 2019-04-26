@@ -40,7 +40,7 @@ grad_clip_norm:  1.0
 
 max_steps: 50000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cpu" # "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "pmnist"
