@@ -6,6 +6,7 @@ import torch.nn.functional as F
 
 from myTorch.memory import RNNCell, GRUCell, LSTMCell, JANETCell
 from myTorch.memnets.FlatMemoryCell import FlatMemoryCell
+from myTorch.memnets.FlatMemoryCellWithoutExpInp import FlatMemoryCellWithoutExpInp
 from myTorch.memnets.SRUCell import SRUCell
 
 
@@ -124,6 +125,10 @@ class Recurrent(nn.Module):
             self._Cells.append(GRUCell(self._device, input_size, hidden_size, layer_norm=self._layer_norm))
         elif self._cell_name == "FlatMemory":
             self._Cells.append(FlatMemoryCell(self._device, input_size, hidden_size, 
+                                              memory_size=self._memory_size, k=self._k,
+                                              use_relu=self._use_relu, layer_norm=self._layer_norm))
+        elif self._cell_name == "FlatMemoryWithoutExpInp":
+            self._Cells.append(FlatMemoryCellWithoutExpInp(self._device, input_size, hidden_size, 
                                               memory_size=self._memory_size, k=self._k,
                                               use_relu=self._use_relu, layer_norm=self._layer_norm))
         elif self._cell_name == "SRU":

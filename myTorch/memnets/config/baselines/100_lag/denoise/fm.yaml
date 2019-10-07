@@ -1,4 +1,4 @@
-parent_config: "config/default.yaml"
+parent_config: "myTorch/memnets/config/default.yaml"
 config_filename: "denoising_copy.yaml"
 description: "denoising copy task"
 

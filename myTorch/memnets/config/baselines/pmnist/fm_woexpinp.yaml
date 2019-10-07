@@ -1,20 +1,24 @@
 parent_config: "myTorch/memnets/config/default.yaml"
-config_filename: "fm.yaml"
-description: "copying memory task"
+config_filename: "ssmnist.yaml"
+description: "ssmnist task"
 
-project_name: "copy_v1_lag_100_e"
-ex_name: "fm_ams_0.5"
+project_name: "pmnist_task"
+ex_name: "fm_woexpinp"
 
 # model specific details
 
-model:  "FlatMemory"
+# m81 k4
+
+model:   "FlatMemoryWithoutExpInp"  # flat 576, 9, h100  #28651
+input_size: 1
+output_size:  10
 num_layers: 1
-layer_size: [80]
-activation: "relu"
-layer_norm: False
-memory_size: 64
+layer_size: [212]  #[256]
+memory_size: 256
 use_relu: False
 k: 4
+
+# t_max for 5: 335, 10: 560, 15: 802
 
 # optimization specific details
 
@@ -32,25 +36,17 @@ momentum: 0.0
 centered: False
 dampening:  0.0
 nesterov: False
-grad_clip_norm: 0.5
-amsgrad: True
+grad_clip_norm:  1.0
 
-
-max_steps: 200000
+max_steps:  50000
 rseed:  5
 device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
-task: "copying_memory"
-batch_size: 10
-seed: 5
-time_lag_min: 100
-time_lag_max: 100
-seq_len: 10
-num_noise_digits: 1
-num_digits: 8
+task: "pmnist"
+batch_size: 100
+seed: 50
 
 # saving details
 use_tflogger: True
 save_every_n: 1000
-inter_saving: [0, 1000, 2000, 3000, 4000, 5000]

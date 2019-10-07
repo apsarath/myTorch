@@ -1,4 +1,4 @@
-parent_config: "config/default.yaml"
+parent_config: "myTorch/memnets/config/default.yaml"
 config_filename: "lstm_chrono.yaml"
 description: "copying memory task"
 
@@ -36,7 +36,7 @@ amsgrad: False
 
 max_steps: 200000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "copying_memory"

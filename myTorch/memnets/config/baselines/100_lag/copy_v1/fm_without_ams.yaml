@@ -3,7 +3,7 @@ config_filename: "fm.yaml"
 description: "copying memory task"
 
 project_name: "copy_v1_lag_100_e"
-ex_name: "fm_ams_0.5"
+ex_name: "fm_no_ams"
 
 # model specific details
 
@@ -33,7 +33,7 @@ centered: False
 dampening:  0.0
 nesterov: False
 grad_clip_norm: 0.5
-amsgrad: True
+amsgrad: False
 
 
 max_steps: 200000

@@ -1,4 +1,4 @@
-parent_config: "config/default.yaml"
+parent_config: "myTorch/memnets/config/default.yaml"
 config_filename: "denoising_copy.yaml"
 description: "denoising copy task"
 
@@ -40,7 +40,7 @@ grad_clip_norm: 1.0
 
 max_steps: 200000
 rseed:  5
-device: "cuda:1" # can be cpu or cuda or cuda:1, cuda:2
+device: "cuda:0" # can be cpu or cuda or cuda:1, cuda:2
 
 # task specific details
 task: "denoising_copy"

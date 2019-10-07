@@ -1,12 +1,18 @@
+#!/usr/bin/env python
 import numpy
 import argparse
 import logging
+
 import torch
 
 from myTorch.utils.experiment import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
-from myTorch.task.ssmnist_task import SSMNISTData
-from myTorch.task.mnist_task import PMNISTData
+from myTorch.task.copy_task import CopyData
+from myTorch.task.repeat_copy_task import RepeatCopyData
+from myTorch.task.associative_recall_task import AssociativeRecallData
+from myTorch.task.copying_memory import CopyingMemoryData
+from myTorch.task.adding_task import AddingData
+from myTorch.task.denoising import DenoisingData
 from myTorch.utils.logger import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
@@ -14,61 +20,36 @@ import torch.nn.functional as F
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
 parser.add_argument("--force_restart", type=bool, default=False, help="if True start training from scratch.")
+parser.add_argument("--device", type=str, default="cuda")
 
 
 def get_data_iterator(config):
-    if config.task == "ssmnist":
-        data_iterator = SSMNISTData(config.data_folder, num_digits=config.num_digits,
-                                    batch_size=config.batch_size, seed=config.seed)
-    elif config.task == "pmnist":
-        data_iterator = PMNISTData(batch_size=config.batch_size, seed=config.seed)
+
+    if config.task == "copy":
+        data_iterator = CopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                 max_len=config.max_len, batch_size=config.batch_size)
+    elif config.task == "repeat_copy":
+        data_iterator = RepeatCopyData(num_bits=config.num_bits, min_len=config.min_len,
+                                       max_len=config.max_len, min_repeat=config.min_repeat,
+                                       max_repeat=config.max_repeat, batch_size=config.batch_size)
+    elif config.task == "associative_recall":
+        data_iterator = AssociativeRecallData(num_bits=config.num_bits, min_len=config.min_len,
+                                              max_len=config.max_len, block_len=config.block_len,
+                                              batch_size=config.batch_size)
+    elif config.task == "copying_memory":
+        data_iterator = CopyingMemoryData(seq_len=config.seq_len, time_lag_min=config.time_lag_min,
+                                          time_lag_max=config.time_lag_max, num_digits=config.num_digits,
+                                          num_noise_digits=config.num_noise_digits, 
+                                          batch_size=config.batch_size, seed=config.seed)
+    elif config.task == "adding":
+        data_iterator = AddingData(seq_len=config.seq_len, batch_size=config.batch_size, seed=config.seed)
+    elif config.task == "denoising_copy":
+        data_iterator = DenoisingData(seq_len=config.seq_len, time_lag_min=config.time_lag_min, 
+                                      time_lag_max=config.time_lag_max, batch_size=config.batch_size, 
+                                      num_noise_digits=config.num_noise_digits, 
+                                      num_digits=config.num_digits, seed=config.seed)
 
     return data_iterator
-
-
-def evaluate(experiment, model, config, data_iterator, tr, logger, device, tag):
-
-    logging.info("Doing {} evaluation".format(tag))
-
-    correct = 0.0
-    num_examples = 0.0
-
-    while True:
-
-        data = data_iterator.next(tag)
-
-        if data is None:
-            break
-
-        model.reset_hidden(batch_size=config.batch_size)
-
-        accuracy = torch.zeros(config.batch_size).to(device)
-        num_outputs = torch.zeros(config.batch_size).to(device)
-
-        for i in range(0, data["datalen"]):
-
-            x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
-            y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
-            mask = torch.from_numpy(numpy.asarray(data['mask'][i])).to(device)
-
-            output = model(x)
-
-            values, indices = torch.max(output, 1)
-
-
-            accuracy += (indices == y).to(device, dtype=torch.float32) * mask
-            num_outputs += mask
-
-
-        correct += (accuracy == num_outputs).sum()
-        num_examples += len(data['x'][0])
-
-
-    final_accuracy = correct.item() / num_examples
-    logging.info(" epoch {}, {} accuracy: {}".format(tr.epochs_done, tag, final_accuracy))
-
-    if config.use_tflogger:
-        logger.log_scalar("{}_accuracy".format(tag), final_accuracy, tr.epochs_done)
 
 
 def train(experiment, model, config, data_iterator, tr, logger, device):
@@ -85,22 +66,11 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
     for step in range(tr.updates_done, config.max_steps):
 
-        if tr.updates_done == 0:
-            experiment.save("initial")
         if config.inter_saving is not None:
             if tr.updates_done in config.inter_saving:
                 experiment.save(str(tr.updates_done))
 
-        data = data_iterator.next("train")
-
-        if data is None:
-
-            tr.epochs_done += 1
-            evaluate(experiment, model, config, data_iterator, tr, logger, device, "valid")
-            evaluate(experiment, model, config, data_iterator, tr, logger, device, "test")
-            data_iterator.reset_iterator()
-            data = data_iterator.next("train")
-
+        data = data_iterator.next()
         seqloss = 0
 
         model.reset_hidden(batch_size=config.batch_size)
@@ -109,29 +79,29 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
 
             x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
             y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
-            mask = torch.from_numpy(numpy.asarray(data['mask'][i])).to(device)
+            mask = float(data["mask"][i])
 
             model.optimizer.zero_grad()
 
             output = model(x)
+            if config.task == "copying_memory" or config.task == "denoising_copy":
+                loss = F.cross_entropy(output, y.squeeze(1))
+            elif config.task == "adding":
+                loss = F.mse_loss(output, y)
+            else:
+                loss = F.binary_cross_entropy_with_logits(output, y)
 
-            loss = F.cross_entropy(output, y, reduce=False)
+            seqloss += (loss * mask)
 
-            loss = (loss * mask).sum()
-
-
-            seqloss += loss
-
-        seqloss /= float(data["mask"].sum())
-        tr.ce["train"].append(seqloss.item())
-        running_average = sum(tr.ce["train"]) / len(tr.ce["train"])
+        seqloss /= sum(data["mask"])
+        tr.average_bce.append(seqloss.item())
+        running_average = sum(tr.average_bce) / len(tr.average_bce)
 
         if config.use_tflogger:
             logger.log_scalar("running_avg_loss", running_average, step + 1)
-            logger.log_scalar("train loss", tr.ce["train"][-1], step + 1)
+            logger.log_scalar("loss", tr.average_bce[-1], step + 1)
 
         seqloss.backward(retain_graph=False)
-
 
         total_norm = torch.nn.utils.clip_grad_norm(model.parameters(), config.grad_clip_norm)
         tr.grad_norm.append(total_norm)
@@ -140,13 +110,15 @@ def train(experiment, model, config, data_iterator, tr, logger, device):
             logger.log_scalar("inst_total_norm", total_norm, step + 1)
 
         model.optimizer.step()
+        #if torch.isnan(total_norm) != 1:
+        #    model.optimizer.step()
+        #else:
+        #    logging.info("no updates")
 
         tr.updates_done += 1
-
         if tr.updates_done % 1 == 0:
-            logging.info("examples seen: {}, inst loss: {}".format(tr.updates_done * config.batch_size,
-                                                                   tr.ce["train"][-1]))
-
+            logging.info("examples seen: {}, inst loss: {}, total_norm : {}".format(tr.updates_done*config.batch_size,
+                                                                                tr.average_bce[-1], total_norm))
         if tr.updates_done % config.save_every_n == 0:
             experiment.save()
 
@@ -158,18 +130,28 @@ def create_experiment(config):
     logging.info("using {}".format(config.device))
 
     experiment = Experiment(config.name, config.save_dir)
+
     logger = None
     if config.use_tflogger:
         logger = Logger(config.tflog_dir)
 
     torch.manual_seed(config.rseed)
+    input_size = config.num_digits + config.num_noise_digits + 1
+    output_size = input_size - 1
 
-    model = Recurrent(device, config.input_size, config.output_size,
+    if config.task == "copying_memory":
+        t_max = config.time_lag_max + 2*config.seq_len
+    elif config.task == "denoising_copy":
+        t_max = 1 + config.time_lag_max + config.seq_len
+    else:
+        t_max = 1
+
+    model = Recurrent(device, input_size, output_size,
                       num_layers=config.num_layers, layer_size=config.layer_size,
                       cell_name=config.model, activation=config.activation,
                       output_activation="linear", layer_norm=config.layer_norm,
                       identity_init=config.identity_init, chrono_init=config.chrono_init,
-                      t_max=config.t_max, use_relu=config.use_relu, memory_size=config.memory_size,
+                      t_max=t_max, use_relu=config.use_relu, memory_size=config.memory_size, 
                       k=config.k, phi_size=config.phi_size, r_size=config.r_size).to(device)
 
     data_iterator = get_data_iterator(config)
@@ -179,14 +161,8 @@ def create_experiment(config):
 
     tr = MyContainer()
     tr.updates_done = 0
-    tr.epochs_done = 0
-    tr.ce = {}
-    tr.ce["train"] = []
-    tr.accuracy = {}
-    tr.accuracy["valid"] = []
-    tr.accuracy["test"] = []
+    tr.average_bce = []
     tr.grad_norm = []
-
 
     experiment.register_experiment(model=model, config=config, logger=logger, train_statistics=tr,
         data_iterator=data_iterator)
@@ -198,6 +174,7 @@ def run_experiment(args):
     """Runs the experiment."""
 
     config = create_config(args.config)
+    config.device = args.device
 
     logging.info(config.get())
 

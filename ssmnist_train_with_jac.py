@@ -1,15 +1,17 @@
 import numpy
 import argparse
 import logging
+
 import torch
 
-from myTorch.utils.experiment import Experiment
+from myTorch import Experiment
 from myTorch.memnets.recurrent_net import Recurrent
 from myTorch.task.ssmnist_task import SSMNISTData
 from myTorch.task.mnist_task import PMNISTData
 from myTorch.utils.logger import Logger
 from myTorch.utils import MyContainer, get_optimizer, create_config
 import torch.nn.functional as F
+from torch.autograd import grad
 
 parser = argparse.ArgumentParser(description="Algorithm Learning Task")
 parser.add_argument("--config", type=str, default="config/default.yaml", help="config file path.")
@@ -193,6 +195,84 @@ def create_experiment(config):
 
     return experiment, model, data_iterator, tr, logger, device
 
+def evolve_and_QR(Q,J):
+    Z = np.dot(J.data,Q)
+    q,r = np.linalg.qr(Z,mode='reduced')
+    return q, np.diag(r)
+    #s = np.diag(np.sign(np.diag(r))) #changes QR sign convention to that used by tensorflow 
+    #return q.dot(s), np.diag(r.dot(s))
+
+def calculate_LS(model, data_iterator, input_flag, device, num_exp):
+    """Lyapunov spectrum calculation using QR decomposition"""
+
+    data_iterator.reset_iterator()
+    data = data_iterator.next(input_flag)
+    
+    #store hidden states
+    h_list = list()
+    model.reset_hidden(batch_size=1)
+    h_list.append(model._h_prev[0]["h"])
+    h_list[-1].requires_grad_()
+    for i in range(0, data["datalen"]):
+
+        x = torch.from_numpy(numpy.asarray(data['x'][i])).to(device)
+        y = torch.from_numpy(numpy.asarray(data['y'][i])).to(device)
+        mask = torch.from_numpy(numpy.asarray(data['mask'][i])).to(device)
+        
+        x = x[0].unsqueeze(1)
+
+        output = model(x)
+        h_list.append(model._h_prev[0]["h"])
+        h_list[-1].requires_grad_()
+
+    #store Jacobians
+    j_store = list()
+    for j in range(0, data["datalen"]):
+        for i in range(1, len(h_list)):
+            model.optimizer.zero_grad()
+            j_rows = list()
+            for k in range(0, len(h_list[i][0])):
+                j_list.append(grad(h_list[i][0][k], h_list[i-1], retain_graph=True)[0])
+            j_store.append(torch.vstack(j_list))
+
+    #compute LS
+    state_dim = model._h_prev[0]["h"].shape[1]
+    #state_dim=sum([var.shape[1] for var in model._h_prev[0].values])  #generalizes to models with multiple state variables
+    Q = torch.eye(state_dim).to(device) #would random vectors be better here?
+    Q = Q[:,:num_exp]
+    Q = Q.cuda()
+    Q = Q.unsqueeze(0)
+    r_diag_store = []
+    for i in range(len(j_store)):
+        Q, r_diag_vec = evolve_and_QR(Q,j_store[i])
+        r_diag_store.append(r_diag_vec)
+    LEs = np.sum(np.log2(np.vstack(r_diag_store)),axis=0)/len(j_store)
+    
+    return LEs
+
+    # if config.use_tflogger:
+    #     logger.log_scalar("running_avg_loss", running_average, step + 1)
+    #     logger.log_scalar("train loss", tr.ce["train"][-1], step + 1)
+
+    #if config.use_tflogger:
+        #logger.log_scalar("inst_total_norm", total_norm, step + 1)
+
+    #if tr.updates_done % 1 == 0:
+        #logging.info("examples seen: {}, inst loss: {}".format(tr.updates_done * config.batch_size,
+                                                               #tr.ce["train"][-1]))
+
+    #if tr.updates_done % config.save_every_n == 0:
+        #experiment.save()
+
+def analyze_dynamics(model, data_iterator, device, num_exp=10):
+    """Runs Lyapunov spectrum calculation over different input types"""
+    
+    LEs_store=dict()
+    for input_flag in ('test','train','zeros'):
+        LEs=calculate_LEs(model, data_iterator, input_flag,device, num_exp)
+        LEs_store[input_flag]=LEs
+    
+    return LEs_store
 
 def run_experiment(args):
     """Runs the experiment."""
@@ -209,7 +289,8 @@ def run_experiment(args):
     else:
         experiment.force_restart()
 
-    train(experiment, model, config, data_iterator, tr, logger, device)
+    #train(experiment, model, config, data_iterator, tr, logger, device)
+    analyze_dynamics(model, data_iterator, device)
 
 
 if __name__ == '__main__':
